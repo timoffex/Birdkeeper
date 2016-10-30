@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[RequireComponent(typeof(Shop))]
 public class RoomRenderer : MonoBehaviour {
-
-	public int roomSizeX;
-	public int roomSizeY;
 
 
 	// Contains xVector and yVector.
@@ -19,9 +17,13 @@ public class RoomRenderer : MonoBehaviour {
 	// Right wall tile prefab. Pivot at far-away corner (left corner).
 	public GameObject rightWallTile;
 
+
+	private Shop shop;
+
 	// Use this for initialization
 	void Start () {
-		PlaceRoom (roomSizeX, roomSizeY);
+		shop = GetComponent<Shop> ();
+		PlaceRoom (shop.numTilesX, shop.numTilesY);
 	}
 	
 	// Update is called once per frame
