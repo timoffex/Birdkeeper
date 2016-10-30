@@ -9,18 +9,19 @@ public class Shop : MonoBehaviour {
 	public int numGridTilesPerFloorTile;
 
 	// True in any occupied grid tile, False elsewhere.
-	public bool[][] grid;
+	public bool[,] grid;
 
 
 
 
 	// Use this for initialization
 	void Start () {
-	
+		grid = new bool[numTilesX, numTilesY];
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+
+
+
+	public bool CanPlaceFurniture (int x, int y, Furniture furniture) {
+		return false;
 	}
 }

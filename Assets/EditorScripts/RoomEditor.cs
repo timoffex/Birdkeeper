@@ -7,8 +7,8 @@ public class RoomEditor : Editor {
 
 
 
-	public void OnSceneGUI () {
-		RoomRenderer room = (target as RoomRenderer);
+	[DrawGizmo(GizmoType.NonSelected | GizmoType.Selected)]
+	static void RenderCustomGizmo (RoomRenderer room, GizmoType gizmoType) {
 		Shop shop = room.GetComponent<Shop> ();
 
 		var pos = room.transform.position;

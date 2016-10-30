@@ -84,7 +84,9 @@ public class RoomRenderer : MonoBehaviour {
 		var rotation = Quaternion.identity;
 
 		var tile = GameObject.Instantiate (floorTile, position, rotation, transform) as GameObject;
-		tile.GetComponent<SpriteRenderer> ().sortingOrder = order;
+		var sr = tile.GetComponent<SpriteRenderer> ();
+		sr.sortingOrder = order;
+		sr.sortingLayerName = "RoomTiles";
 	}
 
 	// Places a left wall tile with its far-away corner (right corner) at position pos.
@@ -93,7 +95,9 @@ public class RoomRenderer : MonoBehaviour {
 		var rotation = Quaternion.identity;
 
 		var tile = GameObject.Instantiate (leftWallTile, position, rotation, transform) as GameObject;
-		tile.GetComponent<SpriteRenderer> ().sortingOrder = order;
+		var sr = tile.GetComponent<SpriteRenderer> ();
+		sr.sortingOrder = order;
+		sr.sortingLayerName = "RoomTiles";
 	}
 
 	// Places a right wall tile with its far-away corner (left corner) at position pos.
@@ -102,6 +106,8 @@ public class RoomRenderer : MonoBehaviour {
 		var rotation = Quaternion.identity;
 
 		var tile = GameObject.Instantiate (rightWallTile, position, rotation, transform) as GameObject;
-		tile.GetComponent<SpriteRenderer> ().sortingOrder = order;
+		var sr = tile.GetComponent<SpriteRenderer> ();
+		sr.sortingOrder = order;
+		sr.sortingLayerName = "RoomTiles";
 	}
 }

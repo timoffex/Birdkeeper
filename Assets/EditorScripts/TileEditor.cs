@@ -14,6 +14,7 @@ public class TileEditor : Editor {
 		
 		
 
+		Handles.color = Color.white;
 		Handles.DrawSolidDisc (pos, Vector3.forward, 0.1f * HandleUtility.GetHandleSize (pos));
 		Handles.DrawLine (pos, xpos);
 		Handles.DrawLine (pos, ypos);
