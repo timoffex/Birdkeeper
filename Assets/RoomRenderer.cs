@@ -7,6 +7,9 @@ public class RoomRenderer : MonoBehaviour {
 	public int roomSizeY;
 
 
+	// Contains xVector and yVector.
+	public Tile generalTile;
+
 	// Floor tile prefab. Pivot at far-away corner.
 	public GameObject floorTile;
 
@@ -15,13 +18,6 @@ public class RoomRenderer : MonoBehaviour {
 
 	// Right wall tile prefab. Pivot at far-away corner (left corner).
 	public GameObject rightWallTile;
-
-
-	// X direction is down and to the right.
-	public Vector2 tileXVector;
-
-	// Y direction is down and to the left.
-	public Vector2 tileYVector;
 
 	// Use this for initialization
 	void Start () {
@@ -44,25 +40,27 @@ public class RoomRenderer : MonoBehaviour {
 		Vector2 xVector, yVector;
 
 
-		xVector = tileXVector;
-		yVector = tileYVector;
+		xVector = generalTile.xVector;
+		yVector = generalTile.yVector;
 
 
 
 		// Represents the far corner of the room.
 		Vector2 startPos = transform.position;
 
+		int order = 0;
+
 		// Draw wall tiles.
 		for (int x = 0; x < sizeX; x++) {
 			Vector2 pos = startPos + x * xVector;
 
-			PlaceLeftWall (pos);
+			PlaceLeftWall (pos, order++);
 		}
 
 		for (int y = 0; y < sizeY; y++) {
 			Vector2 pos = startPos + y * yVector;
 
-			PlaceRightWall (pos);
+			PlaceRightWall (pos, order++);
 		}
 
 		// Draw floor tiles.
@@ -70,32 +68,35 @@ public class RoomRenderer : MonoBehaviour {
 			for (int y = 0; y < sizeY; y++) {
 				Vector2 pos = startPos + x * xVector + y * yVector;
 
-				PlaceFloor (pos);
+				PlaceFloor (pos, order++);
 			}
 		}
 	}
 
 	// Places a floor tile with its far-away corner at position pos.
-	void PlaceFloor (Vector2 pos) {
+	void PlaceFloor (Vector2 pos, int order) {
 		var position = new Vector3 (pos.x, pos.y, transform.position.z);
 		var rotation = Quaternion.identity;
 
 		var tile = GameObject.Instantiate (floorTile, position, rotation, transform) as GameObject;
+		tile.GetComponent<SpriteRenderer> ().sortingOrder = order;
 	}
 
 	// Places a left wall tile with its far-away corner (right corner) at position pos.
-	void PlaceLeftWall (Vector2 pos) {
+	void PlaceLeftWall (Vector2 pos, int order) {
 		var position = new Vector3 (pos.x, pos.y, transform.position.z);
 		var rotation = Quaternion.identity;
 
-		var tile = GameObject.Instantiate (leftWallTile, position, rotation, transform) as GameObject;
+//		var tile = GameObject.Instantiate (leftWallTile, position, rotation, transform) as GameObject;
+//		tile.GetComponent<SpriteRenderer> ().sortingOrder = order;
 	}
 
 	// Places a right wall tile with its far-away corner (left corner) at position pos.
-	void PlaceRightWall (Vector2 pos) {
+	void PlaceRightWall (Vector2 pos, int order) {
 		var position = new Vector3 (pos.x, pos.y, transform.position.z);
 		var rotation = Quaternion.identity;
 
-		var tile = GameObject.Instantiate (rightWallTile, position, rotation, transform) as GameObject;
+//		var tile = GameObject.Instantiate (rightWallTile, position, rotation, transform) as GameObject;
+//		tile.GetComponent<SpriteRenderer> ().sortingOrder = order;
 	}
 }
