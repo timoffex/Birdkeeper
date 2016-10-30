@@ -40,8 +40,8 @@ public class RoomRenderer : MonoBehaviour {
 		Vector2 xVector, yVector;
 
 
-		xVector = generalTile.xVector;
-		yVector = generalTile.yVector;
+		xVector = generalTile.GetXVector ();
+		yVector = generalTile.GetYVector ();
 
 
 

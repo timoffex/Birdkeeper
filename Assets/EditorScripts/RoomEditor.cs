@@ -5,13 +5,15 @@ using System.Collections;
 [CustomEditor(typeof(RoomRenderer))]
 public class RoomEditor : Editor {
 
-	void OnSceneGUI () {
+
+
+	public void OnSceneGUI () {
 		RoomRenderer room = (target as RoomRenderer);
 
 		var pos = room.transform.position;
 
-		var xvec = room.generalTile.xVector;
-		var yvec = room.generalTile.yVector;
+		var xvec = room.generalTile.GetXVector ();
+		var yvec = room.generalTile.GetYVector ();
 
 
 		Handles.color = Color.green;
