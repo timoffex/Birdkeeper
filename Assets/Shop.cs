@@ -9,7 +9,7 @@ public class Shop : MonoBehaviour {
 	public int numGridTilesPerFloorTile;
 
 	// True in any occupied grid tile, False elsewhere.
-	public bool[,] grid;
+	private bool[,] grid;
 
 
 
@@ -20,8 +20,17 @@ public class Shop : MonoBehaviour {
 	}
 
 
+	public bool GetGrid (int x, int y) {
+		return grid [x, y];
+	}
 
-	public bool CanPlaceFurniture (int x, int y, Furniture furniture) {
-		return false;
+
+	public bool CanPlaceFurniture (int xpos, int ypos, Furniture furniture) {
+		for (int x = 0; x < furniture.gridX; x++)
+			for (int y = 0; y < furniture.gridY; y++)
+				if (GetGrid (xpos + x, ypos + y) && furniture.GetGrid (x, y))
+					return false;
+
+		return true;
 	}
 }

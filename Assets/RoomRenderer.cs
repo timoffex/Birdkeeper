@@ -18,6 +18,10 @@ public class RoomRenderer : MonoBehaviour {
 	public GameObject rightWallTile;
 
 
+	// Render grid overlay?
+	public bool renderGrid = false;
+
+
 	private Shop shop;
 
 	// Use this for initialization
@@ -109,5 +113,27 @@ public class RoomRenderer : MonoBehaviour {
 		var sr = tile.GetComponent<SpriteRenderer> ();
 		sr.sortingOrder = order;
 		sr.sortingLayerName = "RoomTiles";
+	}
+
+
+
+
+	public void OnRenderObject () {
+		if (renderGrid) {
+
+			// Red around grid tiles
+			GridRenderer.RenderGrid (
+				shop.numTilesX * shop.numGridTilesPerFloorTile,
+				shop.numTilesY * shop.numGridTilesPerFloorTile,
+				transform.localToWorldMatrix,
+				generalTile.GetXVector () / shop.numGridTilesPerFloorTile,
+				generalTile.GetYVector () / shop.numGridTilesPerFloorTile,
+				Color.red);
+
+			// Green around floor tiles
+			GridRenderer.RenderGrid (shop.numTilesX, shop.numTilesY,
+				transform.localToWorldMatrix,
+				generalTile.GetXVector (), generalTile.GetYVector (), Color.green);
+		}
 	}
 }
