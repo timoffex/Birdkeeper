@@ -50,18 +50,6 @@ public class RoomRenderer : MonoBehaviour {
 
 		int order = 0;
 
-		// Draw wall tiles.
-		for (int x = 0; x < sizeX; x++) {
-			Vector2 pos = startPos + x * xVector;
-
-			PlaceLeftWall (pos, order++);
-		}
-
-		for (int y = 0; y < sizeY; y++) {
-			Vector2 pos = startPos + y * yVector;
-
-			PlaceRightWall (pos, order++);
-		}
 
 		// Draw floor tiles.
 		for (int x = 0; x < sizeX; x++) {
@@ -70,6 +58,21 @@ public class RoomRenderer : MonoBehaviour {
 
 				PlaceFloor (pos, order++);
 			}
+		}
+
+
+
+		// Draw wall tiles.
+		for (int y = 0; y < sizeY; y++) {
+			Vector2 pos = startPos + y * yVector;
+
+			PlaceLeftWall (pos, order++);
+		}
+
+		for (int x = 0; x < sizeX; x++) {
+			Vector2 pos = startPos + x * xVector;
+
+			PlaceRightWall (pos, order++);
 		}
 	}
 
@@ -87,8 +90,8 @@ public class RoomRenderer : MonoBehaviour {
 		var position = new Vector3 (pos.x, pos.y, transform.position.z);
 		var rotation = Quaternion.identity;
 
-//		var tile = GameObject.Instantiate (leftWallTile, position, rotation, transform) as GameObject;
-//		tile.GetComponent<SpriteRenderer> ().sortingOrder = order;
+		var tile = GameObject.Instantiate (leftWallTile, position, rotation, transform) as GameObject;
+		tile.GetComponent<SpriteRenderer> ().sortingOrder = order;
 	}
 
 	// Places a right wall tile with its far-away corner (left corner) at position pos.
@@ -96,7 +99,7 @@ public class RoomRenderer : MonoBehaviour {
 		var position = new Vector3 (pos.x, pos.y, transform.position.z);
 		var rotation = Quaternion.identity;
 
-//		var tile = GameObject.Instantiate (rightWallTile, position, rotation, transform) as GameObject;
-//		tile.GetComponent<SpriteRenderer> ().sortingOrder = order;
+		var tile = GameObject.Instantiate (rightWallTile, position, rotation, transform) as GameObject;
+		tile.GetComponent<SpriteRenderer> ().sortingOrder = order;
 	}
 }

@@ -10,8 +10,8 @@ public class TileEditor : Editor {
 
 
 		var pos = t.transform.position;
-		var xpos = t.transform.position + t.xVector;
-		var ypos = t.transform.position + t.yVector;
+		var xpos = pos + t.xVector;
+		var ypos = pos + t.yVector;
 
 		Handles.DrawSolidDisc (pos, Vector3.forward, 0.1f * HandleUtility.GetHandleSize (pos));
 		Handles.DrawLine (pos, xpos);
@@ -21,8 +21,8 @@ public class TileEditor : Editor {
 		EditorGUI.BeginChangeCheck ();
 
 		Vector3 xVec = Handles.FreeMoveHandle (xpos, Quaternion.identity,
-			               0.1f * HandleUtility.GetHandleSize (xpos),
-			               new Vector3 (0.5f, 0.5f, 0.5f), Handles.DotCap);
+			0.1f * HandleUtility.GetHandleSize (xpos),
+			new Vector3 (0.5f, 0.5f, 0.5f), Handles.DotCap);
 
 		if (EditorGUI.EndChangeCheck ()) {
 			Undo.RecordObject (t, "Tile Change X Vector");
@@ -33,8 +33,8 @@ public class TileEditor : Editor {
 		EditorGUI.BeginChangeCheck ();
 
 		Vector3 yVec = Handles.FreeMoveHandle (ypos, Quaternion.identity,
-			               0.1f * HandleUtility.GetHandleSize (ypos),
-			               new Vector3 (0.5f, 0.5f, 0.5f), Handles.DotCap);
+			0.1f * HandleUtility.GetHandleSize (ypos),
+			new Vector3 (0.5f, 0.5f, 0.5f), Handles.DotCap);
 
 		if (EditorGUI.EndChangeCheck ()) {
 			Undo.RecordObject (t, "Tile Change Y Vector");
