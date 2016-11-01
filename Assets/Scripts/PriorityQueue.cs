@@ -1,4 +1,6 @@
 ﻿
+using UnityEngine;
+
 /// <summary>
 /// Implements a max-heap.
 /// </summary>
@@ -69,7 +71,6 @@ public class PriorityQueue {
 	}
 
 	private void FixHeap (PriorityObject obj, int index) {
-		
 		PriorityObject maxChild;
 		int maxIndex;
 
@@ -88,10 +89,13 @@ public class PriorityQueue {
 			if (maxChild > obj) {
 				heap [index] = maxChild;
 				FixHeap (obj, maxIndex);
+			} else {
+				heap [index] = obj;
 			}
+		} else {
+			// else stop! no children to check; we're a leaf now
+			heap [index] = obj;
 		}
-
-		// else stop! no children to check; we're a leaf now
 	}
 
 

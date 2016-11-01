@@ -27,6 +27,7 @@ public class Pathfinding {
 
 		previous [start.x, start.y] = null;
 		minDist [start.x, start.y] = 0;
+	
 
 		foreach (IntPair neighbor in neighborsOf (start, gridSizeX, gridSizeY)) {
 			var p = 1 + taxicab (neighbor, end);
@@ -40,8 +41,9 @@ public class Pathfinding {
 		while (queue.GetSize () > 0) {
 			var el = queue.Dequeue () as IntPair;
 
-			if (el == end)
+			if (el == end) {
 				break;
+			}
 
 			if (!grid [el.x, el.y]) {
 				// If not occupied..
@@ -82,7 +84,7 @@ public class Pathfinding {
 	private static IEnumerable neighborsOf(IntPair center, int maxX, int maxY) {
 		for (int offx = -1; offx <= 1; offx++) {
 			for (int offy = -1; offy <= 1; offy++) {
-				if (offx != 0 || offy != 0) {
+				if ((offx != 0 || offy != 0) && (offx == 0 || offy == 0)) {
 					var newX = center.x + offx;
 					var newY = center.y + offy;
 
