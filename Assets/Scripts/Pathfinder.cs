@@ -63,13 +63,12 @@ public class Pathfinding {
 		}
 
 		IntPair last = end;
-
 		if (previous [last.x, last.y] == null) {
 			return null;
 		}
 
 
-		IntPair[] path = new IntPair[(int) minDist [end.x, end.y]];
+		IntPair[] path = new IntPair[(int) minDist [last.x, last.y]];
 
 		for (int i = (int)minDist [last.x, last.y] - 1; i >= 0; i--) {
 			path [i] = last;

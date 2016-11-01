@@ -22,7 +22,7 @@ public class PriorityQueue {
 		}
 	}
 
-	private const int initHeapCapacity = 0;
+	private const int initHeapCapacity = 4;
 
 	private int heapSize;
 	private PriorityObject[] heap;

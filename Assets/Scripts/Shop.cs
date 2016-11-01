@@ -10,7 +10,7 @@ public class Shop : MonoBehaviour {
 	public int numGridTilesPerFloorTile;
 
 	// True in any occupied grid tile, False elsewhere.
-	private bool[,] grid;
+	public bool[,] grid;
 
 
 	private RoomRenderer room;
@@ -19,7 +19,7 @@ public class Shop : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		room = GetComponent<RoomRenderer> ();
-		grid = new bool[numTilesX, numTilesY];
+		grid = new bool[numTilesX * numGridTilesPerFloorTile, numTilesY * numGridTilesPerFloorTile];
 	}
 
 	public bool GetGrid (int x, int y) {
@@ -69,5 +69,10 @@ public class Shop : MonoBehaviour {
 		var newPos = transform.position + dif3D;
 
 		return (Vector2) newPos;
+	}
+
+
+	public bool IsPositionInGrid (IntPair position) {
+		return position.x >= 0 && position.x < grid.GetLength (0) && position.y >= 0 && position.y < grid.GetLength (1);
 	}
 }

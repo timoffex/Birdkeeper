@@ -19,4 +19,9 @@ public class IntPair {
 	public override int GetHashCode() {
 		return (int) (Mathf.Pow (2, x) * Mathf.Pow (3, y));
 	}
+
+	public override string ToString ()
+	{
+		return string.Format ("({0}, {1})", x, y);
+	}
 }

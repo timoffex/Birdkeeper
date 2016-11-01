@@ -6,6 +6,14 @@ using System.Collections;
 /// </summary>
 public abstract class ShopMover : MonoBehaviour {
 
+
+	/// <summary>
+	/// Returns the shop the mover is inside.
+	/// </summary>
+	/// <returns>The shop.</returns>
+	public abstract Shop GetShop ();
+
+
 	/// <summary>
 	/// Returns position inside the shop.
 	/// </summary>
