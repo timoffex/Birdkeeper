@@ -23,7 +23,13 @@ public class Shop : MonoBehaviour {
 	}
 
 	public bool GetGrid (int x, int y) {
+		if (x < 0 || y < 0 || x >= numTilesX * numGridTilesPerFloorTile || y >= numTilesY * numGridTilesPerFloorTile)
+			return true;
 		return grid [x, y];
+	}
+
+	public void SetGrid (int x, int y, bool val) {
+		grid [x, y] = val;
 	}
 
 
@@ -34,6 +40,19 @@ public class Shop : MonoBehaviour {
 					return false;
 
 		return true;
+	}
+
+	/// <summary>
+	/// precondition: CanPlaceFurniture (xpos, ypos, furniture) == true
+	/// </summary>
+	/// <param name="xpos">Xpos.</param>
+	/// <param name="ypos">Ypos.</param>
+	/// <param name="furniture">Furniture.</param>
+	public void PlaceFurniture (int xpos, int ypos, Furniture furniture) {
+		for (int x = 0; x < furniture.gridX; x++)
+			for (int y = 0; y < furniture.gridY; y++)
+				if (furniture.GetGrid (x, y))
+					SetGrid (xpos + x, ypos + y, true);
 	}
 
 	public IntPair worldToShopCoordinates (Vector2 wrld) {
