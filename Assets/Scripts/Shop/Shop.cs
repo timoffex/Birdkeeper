@@ -1,35 +1,50 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(RoomRenderer))]
 public class Shop : MonoBehaviour {
+
 
 	public int numTilesX, numTilesY;
 
 	// Number of grid tiles for every floor tile.
 	public int numGridTilesPerFloorTile;
 
-	// True in any occupied grid tile, False elsewhere.
-	public bool[,] grid;
+	public int numGridX {
+		get { return numTilesX * numGridTilesPerFloorTile; }
+	}
 
+	public int numGridY {
+		get { return numTilesY * numGridTilesPerFloorTile; }
+	}
+
+
+	// null in unoccupied tiles, Furniture reference in occupied tiles
+	private Furniture[,] obstructionGrid;
+
+
+	private List<Furniture> containedFurniture;
 
 	private RoomRenderer room;
 
 
 	// Use this for initialization
 	void Start () {
+		containedFurniture = new List<Furniture> ();
 		room = GetComponent<RoomRenderer> ();
-		grid = new bool[numTilesX * numGridTilesPerFloorTile, numTilesY * numGridTilesPerFloorTile];
+		obstructionGrid = new Furniture[numGridX, numGridY];
 	}
 
 	public bool GetGrid (int x, int y) {
-		if (x < 0 || y < 0 || x >= numTilesX * numGridTilesPerFloorTile || y >= numTilesY * numGridTilesPerFloorTile)
+		if (!IsPositionInGrid (new IntPair (x, y)))
 			return true;
-		return grid [x, y];
+
+		return obstructionGrid [x, y] != null;
 	}
 
-	public void SetGrid (int x, int y, bool val) {
-		grid [x, y] = val;
+	public void SetGrid (int x, int y, Furniture val) {
+		obstructionGrid [x, y] = val;
 	}
 
 
@@ -49,10 +64,11 @@ public class Shop : MonoBehaviour {
 	/// <param name="ypos">Ypos.</param>
 	/// <param name="furniture">Furniture.</param>
 	public void PlaceFurniture (int xpos, int ypos, Furniture furniture) {
+		containedFurniture.Add (furniture);
 		for (int x = 0; x < furniture.gridX; x++)
 			for (int y = 0; y < furniture.gridY; y++)
 				if (furniture.GetGrid (x, y))
-					SetGrid (xpos + x, ypos + y, true);
+					SetGrid (xpos + x, ypos + y, furniture);
 	}
 
 	public IntPair worldToShopCoordinates (Vector2 wrld) {
@@ -92,6 +108,10 @@ public class Shop : MonoBehaviour {
 
 
 	public bool IsPositionInGrid (IntPair position) {
-		return position.x >= 0 && position.x < grid.GetLength (0) && position.y >= 0 && position.y < grid.GetLength (1);
+		return position.x >= 0 && position.x < numGridX && position.y >= 0 && position.y < numGridY;
+	}
+
+	public IntPair[] FindPath (IntPair start, IntPair end) {
+		return Pathfinding.FindPath ((x,y) => GetGrid (x,y), numGridX, numGridY, start, end);
 	}
 }

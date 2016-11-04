@@ -43,7 +43,7 @@ public class ShopMoverBasic : ShopMover {
 
 	public override IEnumerator MoveToPosition (IntPair targetPos, SuccessCallback callback) {
 		
-		IntPair[] path = Pathfinding.FindPath (GetShop ().grid, position, targetPos);
+		IntPair[] path = GetShop ().FindPath (position, targetPos);
 
 		if (path == null) {
 			callback (false);

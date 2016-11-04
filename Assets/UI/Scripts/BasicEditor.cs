@@ -3,25 +3,28 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 
+[System.Serializable]
 public class BasicEditor : MonoBehaviour {
-
+	
 	/// <summary>
 	/// Array of items to be displayed.
 	/// </summary>
-	public IEditorDraggable[] items;
-	public GameObject onlyItem;
+	[SerializeField, HideInInspector]
+	public GameObject[] items;
 
 	// Use this for initialization
 	void Start () {
-		items = new IEditorDraggable[1];
-		items [0] = onlyItem.GetComponent<IEditorDraggable> ();
-
-
 		gameObject.AddComponent<VerticalLayoutGroup> ();
 
+		foreach (GameObject item in items) {
+			if (item == null)
+				continue;
 
-		foreach (IEditorDraggable item in items) {
-			CreateIconFor (item);
+
+			var draggable = item.GetComponent<IEditorDraggable> ();
+
+			if (draggable != null)
+				CreateIconFor (draggable);
 		}
 	}
 

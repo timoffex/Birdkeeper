@@ -3,6 +3,8 @@ using System.Collections;
 
 public class Pathfinding {
 
+	public delegate bool GridDelegate (int x, int y);
+
 	/// <summary>
 	/// Pre-conditions: start and end are within the grid, and grid is not null and not empty.
 	/// </summary>
@@ -11,9 +13,10 @@ public class Pathfinding {
 	/// <param name="start">Start position.</param>
 	/// <param name="end">End position.</param>
 	public static IntPair[] FindPath (bool[,] grid, IntPair start, IntPair end) {
-		int gridSizeX = grid.GetLength (0);
-		int gridSizeY = grid.GetLength (1);
-	
+		return FindPath ((x, y) => grid [x, y], grid.GetLength (0), grid.GetLength (1), start, end);
+	}
+
+	public static IntPair[] FindPath (GridDelegate grid, int gridSizeX, int gridSizeY, IntPair start, IntPair end) {
 		float[,] minDist = new float[gridSizeX, gridSizeY];
 		IntPair[,] previous = new IntPair[gridSizeX, gridSizeY];
 	
@@ -45,7 +48,7 @@ public class Pathfinding {
 				break;
 			}
 
-			if (!grid [el.x, el.y]) {
+			if (!grid (el.x, el.y)) {
 				// If not occupied..
 
 				// For every neighbor....
