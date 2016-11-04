@@ -28,12 +28,18 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	private Vector3 gridXVec;
 	private Vector3 gridYVec;
 
+	private IntPair shopPosition;
+
+	private SpriteRenderer spriteRenderer;
 
 	void Awake () {
 		room = GameObject.Find ("Room").GetComponent<RoomRenderer> ();
 		float gridPerTile = room.GetComponent<Shop> ().numGridTilesPerFloorTile;
 		gridXVec = room.generalTile.GetXVector () / gridPerTile;
 		gridYVec = room.generalTile.GetYVector () / gridPerTile;
+
+
+		spriteRenderer = GetComponent<SpriteRenderer> ();
 
 		objGrid = new bool [gridX, gridY];
 		for (int x = 0; x < gridX; x++)
@@ -50,6 +56,11 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	/// <param name="y">The y coordinate.</param>
 	public bool GetGrid (int x, int y) {
 		return objGrid [x, y] && (x >= 0 && y >= 0 && x < gridX && y < gridY);
+	}
+
+
+	void Update () {
+		spriteRenderer.sortingOrder = 2 * (shopPosition.x + shopPosition.y);
 	}
 
 
@@ -85,6 +96,7 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 
 	public bool PlaceAtLocation (Shop shp, IntPair pos) {
 		if (shp.CanPlaceFurniture (pos.x, pos.y, this)) {
+			shopPosition = pos;
 			shop = shp;
 			transform.position = shop.shopToWorldCoordinates (pos);
 			shop.PlaceFurniture (pos.x, pos.y, this);

@@ -11,9 +11,16 @@ public class ShopMoverBasic : ShopMover {
 	/// </summary>
 	public float speed = 1f;
 
+	private SpriteRenderer spriteRenderer;
+
 	// Use this for initialization
 	void Start () {
+		spriteRenderer = GetComponent<SpriteRenderer> ();
 		StartCoroutine (LateStart ());
+	}
+
+	void Update () {
+		spriteRenderer.sortingOrder = 2 * (position.x + position.y);
 	}
 
 	IEnumerator LateStart () {
