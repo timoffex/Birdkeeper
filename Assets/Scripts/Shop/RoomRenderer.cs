@@ -121,19 +121,27 @@ public class RoomRenderer : MonoBehaviour {
 	public void OnRenderObject () {
 		if (renderGrid) {
 
-			// Red around grid tiles
-			GridRenderer.RenderGrid (
-				shop.numTilesX * shop.numGridTilesPerFloorTile,
-				shop.numTilesY * shop.numGridTilesPerFloorTile,
+			GridRenderer.RenderGrid (shop.GetGrid, shop.numGridX, shop.numGridY,
 				transform.localToWorldMatrix,
 				generalTile.GetXVector () / shop.numGridTilesPerFloorTile,
 				generalTile.GetYVector () / shop.numGridTilesPerFloorTile,
-				Color.red);
+				Color.blue);
 
-			// Green around floor tiles
-			GridRenderer.RenderGrid (shop.numTilesX, shop.numTilesY,
-				transform.localToWorldMatrix,
-				generalTile.GetXVector (), generalTile.GetYVector (), Color.green);
+
+//
+//			// Red around grid tiles
+//			GridRenderer.RenderGrid (
+//				shop.numTilesX * shop.numGridTilesPerFloorTile,
+//				shop.numTilesY * shop.numGridTilesPerFloorTile,
+//				transform.localToWorldMatrix,
+//				generalTile.GetXVector () / shop.numGridTilesPerFloorTile,
+//				generalTile.GetYVector () / shop.numGridTilesPerFloorTile,
+//				Color.red);
+//
+//			// Green around floor tiles
+//			GridRenderer.RenderGrid (shop.numTilesX, shop.numTilesY,
+//				transform.localToWorldMatrix,
+//				generalTile.GetXVector (), generalTile.GetYVector (), Color.green);
 		}
 	}
 }

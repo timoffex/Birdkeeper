@@ -33,11 +33,13 @@ public class Pathfinding {
 	
 
 		foreach (IntPair neighbor in neighborsOf (start, gridSizeX, gridSizeY)) {
-			var p = 1 + taxicab (neighbor, end);
-			queue.Enqueue (neighbor, -p);
+			if (!grid (neighbor.x, neighbor.y)) {
+				var p = 1 + taxicab (neighbor, end);
+				queue.Enqueue (neighbor, -p);
 
-			minDist [neighbor.x, neighbor.y] = 1;
-			previous [neighbor.x, neighbor.y] = start;
+				minDist [neighbor.x, neighbor.y] = 1;
+				previous [neighbor.x, neighbor.y] = start;
+			}
 		}
 
 
@@ -47,12 +49,12 @@ public class Pathfinding {
 			if (el == end) {
 				break;
 			}
+				
+			// For every neighbor....
+			foreach (IntPair neighbor in neighborsOf (el, gridSizeX, gridSizeY)) {
 
-			if (!grid (el.x, el.y)) {
-				// If not occupied..
-
-				// For every neighbor....
-				foreach (IntPair neighbor in neighborsOf (el, gridSizeX, gridSizeY)) {
+				// If neighbor is not occupied
+				if (!grid (neighbor.x, neighbor.y)) {
 					var newDist = minDist [el.x, el.y] + 1;
 
 					// only if newDist is less than previous minimum distance

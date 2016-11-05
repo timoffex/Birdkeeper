@@ -21,21 +21,26 @@ public class EditorDraggedObject : MonoBehaviour {
 	}
 
 	private void FollowMouse () {
-		var z = transform.position.z;
-		var p = draggedObject.GetHoverPositionFromMouse ();
 
-		// snap!
-		p = shop.shopToWorldCoordinates (
-				shop.worldToShopCoordinates (p));
+		var mouseSnapped = GetSnappedMouseCoords ();
+
+
+		var z = transform.position.z;
+		var p = draggedObject.GetPivotPosition (mouseSnapped);
 
 		transform.position = new Vector3(p.x, p.y, z);
 	}
 
 	public void PlaceDown() {
 		// Clone and place
-		draggedObject.PlaceCloneAtMousePosition (); // TODO: this may return false
+		draggedObject.PlaceCloneAtPosition (Camera.main.ScreenToWorldPoint (Input.mousePosition)); // TODO: this may return false
 
 		// Delete self
 		DestroyImmediate (gameObject);
+	}
+
+	private Vector3 GetSnappedMouseCoords () {
+		return shop.shopToWorldCoordinates (
+			shop.worldToShopCoordinates (Camera.main.ScreenToWorldPoint (Input.mousePosition)));
 	}
 }

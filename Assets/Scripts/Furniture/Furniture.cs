@@ -63,7 +63,7 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 
 
 	void Update () {
-		spriteRenderer.sortingOrder = 2 * (shopPosition.x + shopPosition.y);
+		spriteRenderer.sortingOrder = 2 * (shopPosition.x + shopPosition.y + gridX + gridY - 2);
 	}
 
 
@@ -84,10 +84,10 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 		return icon;
 	}
 
-	public bool PlaceCloneAtMousePosition () {
+	public bool PlaceCloneAtPosition (Vector3 placementCoords) {
 		var shop = GameObject.Find ("Room").GetComponent<Shop> ();
 		var clone = GameObject.Instantiate (gameObject).GetComponent<Furniture> ();
-		var cornerLocation = shop.worldToShopCoordinates (GetHoverPositionFromMouse ());
+		var cornerLocation = shop.worldToShopCoordinates (placementCoords);
 
 		if (clone.PlaceAtLocation (shop, cornerLocation))
 			return true;
@@ -98,8 +98,8 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	}
 
 
-	public Vector3 GetHoverPositionFromMouse () {
-		return Camera.main.ScreenToWorldPoint (Input.mousePosition) - gridCornerOffset;
+	public Vector3 GetPivotPosition (Vector3 placementCoords) {
+		return placementCoords - gridCornerOffset;
 	}
 
 

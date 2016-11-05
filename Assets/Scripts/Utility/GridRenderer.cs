@@ -3,6 +3,8 @@
 
 public class GridRenderer {
 
+	public delegate bool GridDelegate (int x, int y);
+
 	private static Material lineMaterial;
 	private static void CreateLineMaterial () {
 		if (!lineMaterial) {
@@ -19,6 +21,10 @@ public class GridRenderer {
 	}
 
 	public static void RenderGrid (bool[,] grid, Matrix4x4 localToWorld, Vector3 xvec, Vector3 yvec, Color color = default(Color)) {
+		RenderGrid ((x,y) => grid[x,y], grid.GetLength (0), grid.GetLength (1), localToWorld, xvec, yvec, color);
+	}
+
+	public static void RenderGrid (GridDelegate grid, int xSize, int ySize, Matrix4x4 localToWorld, Vector3 xvec, Vector3 yvec, Color color = default(Color)) {
 		CreateLineMaterial ();
 		lineMaterial.SetPass (0);
 
@@ -30,9 +36,9 @@ public class GridRenderer {
 		GL.Color (color);
 
 		// Draw grid squares
-		for (int x = 0; x < grid.GetLength (0); x++) {
-			for (int y = 0; y < grid.GetLength (1); y++) {
-				if (grid [x, y]) {
+		for (int x = 0; x < xSize; x++) {
+			for (int y = 0; y < ySize; y++) {
+				if (grid (x, y)) {
 					GL.Vertex (x * xvec + y * yvec);
 					GL.Vertex (x * xvec + (y+1) * yvec);
 
