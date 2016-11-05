@@ -22,7 +22,7 @@ public class EditorDraggedObject : MonoBehaviour {
 
 	private void FollowMouse () {
 		var z = transform.position.z;
-		var p = draggedObject.GetPositionFromMouse ();
+		var p = draggedObject.GetHoverPositionFromMouse ();
 
 		// snap!
 		p = shop.shopToWorldCoordinates (
