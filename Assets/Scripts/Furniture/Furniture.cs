@@ -28,7 +28,10 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	private Vector3 gridXVec;
 	private Vector3 gridYVec;
 
-	private IntPair shopPosition;
+	private IntPair shopPosition {
+		get { return shop.worldToShopCoordinates (transform.position + gridCornerOffset); }
+	}
+
 
 	private SpriteRenderer spriteRenderer;
 
@@ -102,7 +105,6 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 
 	public bool PlaceAtLocation (Shop shp, IntPair pos) {
 		if (shp.CanPlaceFurniture (pos.x, pos.y, this)) {
-			shopPosition = pos;
 			shop = shp;
 			transform.position = (Vector3)shop.shopToWorldCoordinates (pos) - gridCornerOffset;
 			shop.PlaceFurniture (pos.x, pos.y, this);
