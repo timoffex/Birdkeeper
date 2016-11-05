@@ -2,14 +2,19 @@
 using System.Collections;
 
 public class Furniture_hovering : MonoBehaviour {
-	
-	public int gridX;
-	public int gridY;
+
+	/// <summary>
+	/// Used to automatically set gridX, gridY and gridCornerOffset.
+	/// </summary>
+	public Furniture originalFurniture;
+
+	public int gridX { get { return originalFurniture.gridX; } }
+	public int gridY { get { return originalFurniture.gridY; } }
 
 	/// <summary>
 	/// Offset of far-away corner on the grid.
 	/// </summary>
-	public Vector3 gridCornerOffset;
+	public Vector3 gridCornerOffset { get { return originalFurniture.gridCornerOffset; } }
 
 
 	private Vector3 gridXVec;

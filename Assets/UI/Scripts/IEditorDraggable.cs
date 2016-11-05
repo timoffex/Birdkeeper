@@ -29,5 +29,5 @@ public interface IEditorDraggable {
 	/// hovering over the mouse coordinates.
 	/// </summary>
 	/// <returns>The position where the pivot should be.</returns>
-	Vector3 GetPositionFromMouse ();
+	Vector3 GetHoverPositionFromMouse ();
 }

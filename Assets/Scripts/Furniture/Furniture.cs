@@ -28,7 +28,10 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	private Vector3 gridXVec;
 	private Vector3 gridYVec;
 
-	private IntPair shopPosition;
+	private IntPair shopPosition {
+		get { return shop.worldToShopCoordinates (transform.position + gridCornerOffset); }
+	}
+
 
 	private SpriteRenderer spriteRenderer;
 
@@ -84,9 +87,9 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	public bool PlaceCloneAtMousePosition () {
 		var shop = GameObject.Find ("Room").GetComponent<Shop> ();
 		var clone = GameObject.Instantiate (gameObject).GetComponent<Furniture> ();
-		var location = shop.worldToShopCoordinates (GetPositionFromMouse ());
+		var cornerLocation = shop.worldToShopCoordinates (GetHoverPositionFromMouse ());
 
-		if (clone.PlaceAtLocation (shop, location))
+		if (clone.PlaceAtLocation (shop, cornerLocation))
 			return true;
 		else {
 			Destroy (clone.gameObject);
@@ -94,19 +97,20 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 		}
 	}
 
+
+	public Vector3 GetHoverPositionFromMouse () {
+		return Camera.main.ScreenToWorldPoint (Input.mousePosition) - gridCornerOffset;
+	}
+
+
 	public bool PlaceAtLocation (Shop shp, IntPair pos) {
 		if (shp.CanPlaceFurniture (pos.x, pos.y, this)) {
-			shopPosition = pos;
 			shop = shp;
-			transform.position = shop.shopToWorldCoordinates (pos);
+			transform.position = (Vector3)shop.shopToWorldCoordinates (pos) - gridCornerOffset;
 			shop.PlaceFurniture (pos.x, pos.y, this);
 			return true;
 		} else
 			return false;
-	}
-
-	public Vector3 GetPositionFromMouse () {
-		return Camera.main.ScreenToWorldPoint (Input.mousePosition) - gridCornerOffset;
 	}
 
 
