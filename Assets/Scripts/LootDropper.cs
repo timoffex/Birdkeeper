@@ -12,7 +12,7 @@ public class LootDropper : MonoBehaviour {
 		IDroppable dropIface = droppedPrefab.GetComponent<IDroppable> ();
 
 
-		if (dropIface) {
+		if (dropIface != null) {
 			// If droppedPrefab has component IDroppable, use its DropAt () function.
 			dropIface.DropAt (GetShop (), GetLocation ());
 		} else {
