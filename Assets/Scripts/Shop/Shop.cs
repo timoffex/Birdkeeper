@@ -26,13 +26,19 @@ public class Shop : MonoBehaviour {
 
 	private List<Furniture> containedFurniture;
 
-	private RoomRenderer room;
+	private RoomRenderer __roomStored;
+	private RoomRenderer room {
+		get {
+			if (__roomStored == null)
+				__roomStored = GetComponent<RoomRenderer> ();
+			return __roomStored;
+		}
+	}
 
 
 	// Use this for initialization
 	void Start () {
 		containedFurniture = new List<Furniture> ();
-		room = GetComponent<RoomRenderer> ();
 		obstructionGrid = new Furniture[numGridX, numGridY];
 	}
 
