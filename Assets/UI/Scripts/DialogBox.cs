@@ -19,7 +19,12 @@ public class DialogBox : MonoBehaviour {
 	public delegate void ChoiceSelect ();
 
 
-	public struct Choice {
+	public class Choice {
+		public Choice (string text, ChoiceSelect del) {
+			this.text = text;
+			this.choiceDelegate = del;
+		}
+
 		public string text;
 		public ChoiceSelect choiceDelegate;
 	}
@@ -45,13 +50,14 @@ public class DialogBox : MonoBehaviour {
 	public DialogFinish finishDelegate;
 
 
+	/// <summary>
+	/// The prefab used to display choices.
+	/// </summary>
+	public GameObject choicePrefab;
 
-	private GameObject continueButtonPrefab;
 
-
-
-
-	private Text textPrefab;
+	private GameObject continueButton;
+	private Text textObject;
 
 
 	private float lastLetterTime;
@@ -62,11 +68,11 @@ public class DialogBox : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		textPrefab = gameObject.GetComponentInChildren<Text> ();
-		continueButtonPrefab = gameObject.GetComponentInChildren<DialogContinueButton> ().gameObject;
+		textObject = gameObject.GetComponentInChildren<Text> ();
+		continueButton = gameObject.GetComponentInChildren<DoSomethingOnClick> ().gameObject;
 
-		textPrefab.text = "";
-		continueButtonPrefab.SetActive (false);
+		textObject.text = "";
+		continueButton.SetActive (false);
 	}
 
 	void Update () {
@@ -81,22 +87,51 @@ public class DialogBox : MonoBehaviour {
 					indexEnd = text.Length;
 					finished = true;
 
-					DisplayContinueButton ();
+					if (finishDelegate != null)
+						DisplayContinueButton ();
+					if (choices != null && choices.Length > 0)
+						DisplayChoices ();
 				}
 			}
 
-			textPrefab.text = text.Substring (indexStart, indexEnd - indexStart);
+			textObject.text = text.Substring (indexStart, indexEnd - indexStart);
 		} else {
-
 		}
 	}
 
 	private void DisplayContinueButton () {
-		continueButtonPrefab.SetActive (true);
-		var continueButtonScript = continueButtonPrefab.GetComponent<DialogContinueButton> ();
-		continueButtonScript.continueDelegate = delegate () {
-			if (finishDelegate != null)
-				finishDelegate ();
+		continueButton.SetActive (true);
+		var clickScript = continueButton.GetComponent<DoSomethingOnClick> ();
+		clickScript.clickDelegate = delegate () {
+			finishDelegate ();
 		};
+	}
+
+	private void DisplayChoices () {
+
+		var height = choicePrefab.GetComponent<RectTransform> ().rect.height;
+
+		for (int i = 0; i < choices.Length; i++) {
+
+			var choice = choices [i];
+
+
+			var clone = GameObject.Instantiate (choicePrefab, transform) as GameObject;
+			var rect = clone.GetComponent<RectTransform> ();
+			var textObj = clone.GetComponent<Text> ();
+
+
+			rect.anchorMax = Vector2.zero;
+			rect.anchorMin = Vector2.zero;
+			rect.pivot = new Vector2 (0, 1);
+			rect.anchoredPosition = new Vector2 (10, 10 - (height + 5) * i);
+
+
+			textObj.text = choice.text;
+
+
+			var doSomethingScript = clone.AddComponent<DoSomethingOnClick> ();
+			doSomethingScript.clickDelegate = () => choice.choiceDelegate ();
+		}
 	}
 }
