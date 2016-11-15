@@ -78,6 +78,19 @@ public class Shop : MonoBehaviour {
 	}
 
 	public IntPair worldToShopCoordinates (Vector2 wrld) {
+		// a*XV + b*YV = dif
+		// [XV | YV] * [a,b]' = dif
+		// [a,b]' = [Xx Yx; Xy Yy]^-1 * dif
+		// [a,b]' = [Yy -Yx; -Xy Xx] * dif / (XxYy - YxXy)
+
+		var shopVec = worldToShopCoordinatesFloat (wrld);
+		
+		return new IntPair (
+			(int)Mathf.Floor (shopVec.x),
+			(int)Mathf.Floor (shopVec.y));
+	}
+
+	public Vector2 worldToShopCoordinatesFloat (Vector2 wrld) {
 		Vector2 dif = wrld - (Vector2) transform.position;
 
 
@@ -90,11 +103,9 @@ public class Shop : MonoBehaviour {
 		// [a,b]' = [Yy -Yx; -Xy Xx] * dif / (XxYy - YxXy)
 
 		var shopVec = new Vector2 (yvec.y * dif.x - yvec.x * dif.y, xvec.x * dif.y - xvec.y * dif.x)
-		              / (xvec.x * yvec.y - yvec.x * xvec.y);
-		
-		return new IntPair (
-			(int)Mathf.Floor (shopVec.x),
-			(int)Mathf.Floor (shopVec.y));
+			/ (xvec.x * yvec.y - yvec.x * xvec.y);
+
+		return shopVec;
 	}
 
 	/// <summary>

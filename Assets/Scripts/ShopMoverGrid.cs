@@ -18,6 +18,14 @@ public class ShopMoverGrid : ShopMover {
 		}
 	}
 
+	private Vector2 nearCornerFloat {
+		get {
+			var farPos = GetShop ().worldToShopCoordinatesFloat ((Vector2)transform.position + gridOffset);
+			return farPos + new Vector2 (gridWidth - 1, gridHeight - 1);
+		}
+	}
+
+
 	public Vector2 gridOffset = new Vector2 (0, 0);
 	public int gridWidth = 1;
 	public int gridHeight = 1;
@@ -39,7 +47,8 @@ public class ShopMoverGrid : ShopMover {
 	}
 
 	void Update () {
-		spriteRenderer.sortingOrder = 2 * (nearCorner.x + nearCorner.y) - 2;
+		var ncf = nearCornerFloat;
+		spriteRenderer.sortingOrder = (int) Mathf.Floor (2 * (ncf.x + ncf.y) - 2);
 	}
 
 	IEnumerator LateStart () {

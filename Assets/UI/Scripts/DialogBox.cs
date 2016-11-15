@@ -118,7 +118,7 @@ public class DialogBox : MonoBehaviour {
 
 			var clone = GameObject.Instantiate (choicePrefab, transform) as GameObject;
 			var rect = clone.GetComponent<RectTransform> ();
-			var textObj = clone.GetComponent<Text> ();
+			var choiceScript = clone.GetComponent<DialogChoice> ();
 
 
 			rect.anchorMax = Vector2.zero;
@@ -127,7 +127,7 @@ public class DialogBox : MonoBehaviour {
 			rect.anchoredPosition = new Vector2 (10, 10 - (height + 5) * i);
 
 
-			textObj.text = choice.text;
+			choiceScript.SetText (choice.text);
 
 
 			var doSomethingScript = clone.AddComponent<DoSomethingOnClick> ();

@@ -16,5 +16,7 @@ public class EditorIconScript : EventTrigger {
 		// Attach EditorDraggedObject script to hoverer
 		var edo = hoverer.AddComponent<EditorDraggedObject> ();
 		edo.draggedObject = draggableObject;
+
+		data.Use ();
 	}
 }

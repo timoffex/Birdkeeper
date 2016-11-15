@@ -19,17 +19,6 @@ public class DialogSystem : MonoBehaviour {
 
 	void Start () {
 		instance = this;
-
-		StartCoroutine (LateStart ());
-	}
-
-	IEnumerator LateStart () {
-		print ("Starting!");
-		yield return DisplayMessageAndChoices ("Pick some choice, then check the console.",
-			new DialogBox.Choice ("choice1", delegate () { print ("choice1 selected"); }),
-			new DialogBox.Choice ("choice2", delegate () { print ("choice2 selected"); }),
-			new DialogBox.Choice ("choice3", delegate () { print ("choice3 selected"); }));
-		print ("Finished!");
 	}
 
 
