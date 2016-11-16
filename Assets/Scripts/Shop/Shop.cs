@@ -6,6 +6,12 @@ using System.Collections.Generic;
 public class Shop : MonoBehaviour {
 
 
+
+	private static Shop __instance;
+	public static Shop Instance () { return __instance; }
+
+
+
 	public int numTilesX, numTilesY;
 
 	// Number of grid tiles for every floor tile.
@@ -38,6 +44,7 @@ public class Shop : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		__instance = this;
 		containedFurniture = new List<Furniture> ();
 		obstructionGrid = new Furniture[numGridX, numGridY];
 	}

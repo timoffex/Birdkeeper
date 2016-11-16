@@ -39,6 +39,10 @@ public class PriorityQueue {
 		return heapSize;
 	}
 
+	public bool IsEmpty () {
+		return GetSize () <= 0;
+	}
+
 
 	public void Enqueue (object el, float priority) {
 		PriorityObject obj = new PriorityObject (el, priority);
@@ -49,7 +53,7 @@ public class PriorityQueue {
 		int currentIndex = heapSize - 1;
 		int parentIndex = (currentIndex - 1) / 2;
 
-		while (heap [parentIndex] < heap [currentIndex]) {
+		while (parentIndex >= 0 && heap [parentIndex] < heap [currentIndex]) {
 			var temp = heap [parentIndex];
 			heap [parentIndex] = heap [currentIndex];
 			heap [currentIndex] = temp;
@@ -68,6 +72,66 @@ public class PriorityQueue {
 		FixHeap (newElement, 0);
 
 		return max;
+	}
+
+
+	/// <summary>
+	/// Enqueues the object if it's not already in the queue.
+	/// If the object is already in the queue, changes its key.
+	/// </summary>
+	/// <param name="el">Element.</param>
+	/// <param name="priority">New priority.</param>
+	public void EnqueueOrChangeKey (object el, float priority) {
+		int idx = Find (el);
+
+		if (idx == -1)
+			Enqueue (el, priority);
+		else {
+			float oldPriority = heap [idx].priority;
+			var myElement = heap [idx];
+			myElement.priority = priority;
+
+			if (priority >= oldPriority) {
+				// Increase key
+
+				int parentIdx = (idx - 1) / 2;
+
+				while (heap [parentIdx].priority < priority) {
+					// Swap with parent
+					heap [idx] = heap [parentIdx];
+					heap [parentIdx] = myElement;
+
+					idx = parentIdx;
+					parentIdx = (idx - 1) / 2;
+				}
+
+			} else {
+				// Decrease key
+
+				FixHeap (myElement, idx);
+			}
+		}
+	}
+
+	/// <summary>
+	/// Returns whether the specified element is inside the priority queue.
+	/// </summary>
+	/// <param name="el">Element.</param>
+	public bool Contains (object el) {
+		return Find (el) != -1;
+	}
+
+	/// <summary>
+	/// Find the specified el.
+	/// 
+	/// Returns -1 if not found, else returns el's index in the heap.
+	/// </summary>
+	/// <param name="el">El.</param>
+	private int Find (object el) {
+		for (int i = 0; i < heapSize; i++)
+			if (heap [i].Equals (el))
+				return i;
+		return -1;
 	}
 
 	private void FixHeap (PriorityObject obj, int index) {

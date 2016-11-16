@@ -7,11 +7,7 @@ public class EditorDraggedObject : MonoBehaviour {
 
 	public IEditorDraggable draggedObject;
 
-	private Shop shop;
-
-	void Awake () {
-		shop = GameObject.Find ("Room").GetComponent<Shop> ();
-	}
+	private Shop shop { get { return Shop.Instance (); } }
 
 	void Update () {
 		FollowMouse ();

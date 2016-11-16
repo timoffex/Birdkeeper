@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Pathfinding {
 
@@ -17,76 +19,21 @@ public class Pathfinding {
 	}
 
 	public static IntPair[] FindPath (GridDelegate grid, int gridSizeX, int gridSizeY, IntPair start, IntPair end) {
-		float[,] minDist = new float[gridSizeX, gridSizeY];
-		IntPair[,] previous = new IntPair[gridSizeX, gridSizeY];
-	
-		for (int i = 0; i < gridSizeX; i++)
-			for (int j = 0; j < gridSizeY; j++)
-				minDist [i, j] = float.PositiveInfinity;
 
+		AStar<IntPair>.NeighborDelegate neighborDelegate = node => astarNeighbors (node, grid, gridSizeX, gridSizeY);
 
+		Func<IntPair, float> heuristic = node => (float) taxicab (node, end);
 
-		PriorityQueue queue = new PriorityQueue ();
-
-		previous [start.x, start.y] = null;
-		minDist [start.x, start.y] = 0;
-	
-
-		foreach (IntPair neighbor in neighborsOf (start, gridSizeX, gridSizeY)) {
-			if (!grid (neighbor.x, neighbor.y)) {
-				var p = 1 + taxicab (neighbor, end);
-				queue.Enqueue (neighbor, -p);
-
-				minDist [neighbor.x, neighbor.y] = 1;
-				previous [neighbor.x, neighbor.y] = start;
-			}
-		}
-
-
-		while (queue.GetSize () > 0) {
-			var el = queue.Dequeue () as IntPair;
-
-			if (el == end) {
-				break;
-			}
-				
-			// For every neighbor....
-			foreach (IntPair neighbor in neighborsOf (el, gridSizeX, gridSizeY)) {
-
-				// If neighbor is not occupied
-				if (!grid (neighbor.x, neighbor.y)) {
-					var newDist = minDist [el.x, el.y] + 1;
-
-					// only if newDist is less than previous minimum distance
-					if (newDist < minDist [neighbor.x, neighbor.y]) {
-						var p = newDist + taxicab (neighbor, end);
-						queue.Enqueue (neighbor, -p);
-
-						minDist [neighbor.x, neighbor.y] = newDist;
-						previous [neighbor.x, neighbor.y] = el;
-					}
-				}
-			}
-		}
-
-		IntPair last = end;
-		if (previous [last.x, last.y] == null) {
-			return null;
-		}
-
-
-		IntPair[] path = new IntPair[(int) minDist [last.x, last.y]];
-
-		for (int i = (int)minDist [last.x, last.y] - 1; i >= 0; i--) {
-			path [i] = last;
-			last = previous [last.x, last.y];
-		}
-
-		return path;
+		return AStar<IntPair>.Solve (neighborDelegate, heuristic, start, end);
 	}
 
+	private static IEnumerable<AStar<IntPair>.EdgeType> astarNeighbors(IntPair node, GridDelegate grid, int maxX, int maxY) {
+		foreach (IntPair neighbor in neighborsOf (node, maxX, maxY))
+			if (!grid (neighbor.x, neighbor.y))
+				yield return new AStar<IntPair>.EdgeType (node, neighbor, 1);
+	}
 
-	private static IEnumerable neighborsOf(IntPair center, int maxX, int maxY) {
+	private static IEnumerable<IntPair> neighborsOf(IntPair center, int maxX, int maxY) {
 		for (int offx = -1; offx <= 1; offx++) {
 			for (int offy = -1; offy <= 1; offy++) {
 				if ((offx != 0 || offy != 0) && (offx == 0 || offy == 0)) {

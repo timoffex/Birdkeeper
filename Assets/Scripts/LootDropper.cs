@@ -14,7 +14,7 @@ public class LootDropper : MonoBehaviour {
 
 		if (dropIface != null) {
 			// If droppedPrefab has component IDroppable, use its DropAt () function.
-			dropIface.DropAt (GetShop (), GetLocation ());
+			dropIface.DropAt (Shop.Instance (), GetLocation ());
 		} else {
 			// Otherwise, just use a default dropping animation.
 
@@ -25,16 +25,7 @@ public class LootDropper : MonoBehaviour {
 		}
 	}
 
-
-	private Shop myShop;
-	private Shop GetShop () {
-		if (!myShop)
-			myShop = GameObject.Find ("Room").GetComponent<Shop> (); // TODO SHOP
-
-		return myShop;
-	}
-
 	private IntPair GetLocation () {
-		return GetShop ().worldToShopCoordinates (transform.position);
+		return Shop.Instance ().worldToShopCoordinates (transform.position);
 	}
 }
