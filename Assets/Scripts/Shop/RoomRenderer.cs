@@ -72,13 +72,13 @@ public class RoomRenderer : MonoBehaviour {
 		for (int y = 0; y < sizeY; y++) {
 			Vector2 pos = startPos + y * yVector;
 
-			PlaceLeftWall (pos, order++);
+			PlaceLeftWall (pos, order++, y);
 		}
 
 		for (int x = 0; x < sizeX; x++) {
 			Vector2 pos = startPos + x * xVector;
 
-			PlaceRightWall (pos, order++);
+			PlaceRightWall (pos, order++, x);
 		}
 	}
 
@@ -94,25 +94,38 @@ public class RoomRenderer : MonoBehaviour {
 	}
 
 	// Places a left wall tile with its far-away corner (right corner) at position pos.
-	void PlaceLeftWall (Vector2 pos, int order) {
+	void PlaceLeftWall (Vector2 pos, int order, int y) {
 		var position = new Vector3 (pos.x, pos.y, transform.position.z);
 		var rotation = Quaternion.identity;
 
-		var tile = GameObject.Instantiate (leftWallTile, position, rotation, transform) as GameObject;
-		var sr = tile.GetComponent<SpriteRenderer> ();
-		sr.sortingOrder = order;
-		sr.sortingLayerName = "RoomTiles";
+		var wallRenderer = leftWallTile.GetComponent<IWallRenderer> ();
+
+		if (wallRenderer == null) {
+			var tile = GameObject.Instantiate (leftWallTile, position, rotation, transform) as GameObject;
+			var sr = tile.GetComponent<SpriteRenderer> ();
+			sr.sortingOrder = order;
+			sr.sortingLayerName = "RoomTiles";
+		} else {
+			wallRenderer.PlaceLeftWall (y, pos, transform);
+		}
 	}
 
 	// Places a right wall tile with its far-away corner (left corner) at position pos.
-	void PlaceRightWall (Vector2 pos, int order) {
+	void PlaceRightWall (Vector2 pos, int order, int x) {
 		var position = new Vector3 (pos.x, pos.y, transform.position.z);
 		var rotation = Quaternion.identity;
 
-		var tile = GameObject.Instantiate (rightWallTile, position, rotation, transform) as GameObject;
-		var sr = tile.GetComponent<SpriteRenderer> ();
-		sr.sortingOrder = order;
-		sr.sortingLayerName = "RoomTiles";
+
+		var wallRenderer = leftWallTile.GetComponent<IWallRenderer> ();
+
+		if (wallRenderer == null) {
+			var tile = GameObject.Instantiate (rightWallTile, position, rotation, transform) as GameObject;
+			var sr = tile.GetComponent<SpriteRenderer> ();
+			sr.sortingOrder = order;
+			sr.sortingLayerName = "RoomTiles";
+		} else {
+			wallRenderer.PlaceRightWall (x, pos, transform);
+		}
 	}
 
 
