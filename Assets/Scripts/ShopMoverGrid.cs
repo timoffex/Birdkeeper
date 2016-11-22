@@ -110,8 +110,8 @@ public class ShopMoverGrid : ShopMover {
 
 
 				/* Gliding script */
-				int dx = farCorner.x - path [i].x;
-				int dy = farCorner.y - path [i].y;
+				int dx = path [i].x - farCorner.x;
+				int dy = path [i].y - farCorner.y;
 				float dist = Mathf.Sqrt (dx * dx + dy * dy);
 
 				Vector3 target = (Vector3)GetShop ().shopToWorldCoordinates (path [i]) - (Vector3)gridOffset;
@@ -121,18 +121,18 @@ public class ShopMoverGrid : ShopMover {
 					if (dx == 0) {
 						if (dy > 0) {
 							animator.SetBool (AnimationStandards.FACING_FRONT, true);
-							animator.SetBool (AnimationStandards.FACING_RIGHT, true);
+							animator.SetBool (AnimationStandards.FACING_RIGHT, false);
 						} else if (dy < 0) {
 							animator.SetBool (AnimationStandards.FACING_FRONT, false);
-							animator.SetBool (AnimationStandards.FACING_RIGHT, false);
+							animator.SetBool (AnimationStandards.FACING_RIGHT, true);
 						}
 					} else if (dy == 0) {
 						if (dx > 0) {
 							animator.SetBool (AnimationStandards.FACING_FRONT, true);
-							animator.SetBool (AnimationStandards.FACING_RIGHT, false);
+							animator.SetBool (AnimationStandards.FACING_RIGHT, true);
 						} else if (dx < 0) {
 							animator.SetBool (AnimationStandards.FACING_FRONT, false);
-							animator.SetBool (AnimationStandards.FACING_RIGHT, true);
+							animator.SetBool (AnimationStandards.FACING_RIGHT, false);
 						}
 					}
 				}
