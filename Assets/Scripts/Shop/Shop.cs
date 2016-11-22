@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(RoomRenderer))]
+[System.Serializable]
 public class Shop : MonoBehaviour {
 
 
 
-	private static Shop __instance;
-	public static Shop Instance () { return __instance; }
+	public static Shop Instance () {
+		return Game.current.shop;
+	}
 
 
 
@@ -27,10 +29,9 @@ public class Shop : MonoBehaviour {
 
 
 	// null in unoccupied tiles, Furniture reference in occupied tiles
-	private Furniture[,] obstructionGrid;
+	[SerializeField] private Furniture[,] obstructionGrid;
 
-
-	private List<Furniture> containedFurniture;
+	[SerializeField] private List<Furniture> containedFurniture;
 
 	private RoomRenderer __roomStored;
 	private RoomRenderer room {
@@ -44,11 +45,14 @@ public class Shop : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		__instance = this;
+		Game.current.shop = this;
 		containedFurniture = new List<Furniture> ();
 		obstructionGrid = new Furniture[numGridX, numGridY];
 	}
 
+	/// <summary>
+	/// Returns true if occupied at the given position, false if unoccupied.
+	/// </summary>
 	public bool GetGrid (int x, int y) {
 		if (!IsPositionInGrid (new IntPair (x, y)))
 			return true;
