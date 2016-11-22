@@ -5,6 +5,7 @@ public class ShopMoverGrid : ShopMover {
 
 
 	private Shop shop;
+	private Animator animator;
 
 	private IntPair farCorner = new IntPair (0, 0);
 	private IntPair nearCorner {
@@ -41,6 +42,7 @@ public class ShopMoverGrid : ShopMover {
 
 	void Start () {
 		spriteRenderer = GetComponent<SpriteRenderer> ();
+		animator = GetComponent<Animator> ();
 		shop = GameObject.Find ("Room").GetComponent<Shop> (); // TODO SHOP
 		StartCoroutine (LateStart ());
 
@@ -71,6 +73,8 @@ public class ShopMoverGrid : ShopMover {
 
 
 	public override IEnumerator MoveToPosition (IntPair pos, SuccessCallback callback = null) {
+
+		if (animator != null) animator.SetBool (AnimationStandards.IS_MOVING, true);
 
 		IntPair endPoint = pos;//new IntPair (pos.x - (gridWidth+1)/2, pos.y - (gridHeight+1)/2);
 
@@ -106,12 +110,32 @@ public class ShopMoverGrid : ShopMover {
 
 
 				/* Gliding script */
-				float dx = farCorner.x - path [i].x;
-				float dy = farCorner.y - path [i].y;
+				int dx = farCorner.x - path [i].x;
+				int dy = farCorner.y - path [i].y;
 				float dist = Mathf.Sqrt (dx * dx + dy * dy);
 
 				Vector3 target = (Vector3)GetShop ().shopToWorldCoordinates (path [i]) - (Vector3)gridOffset;
 				Vector3 original = transform.position;
+
+				if (animator != null) {
+					if (dx == 0) {
+						if (dy > 0) {
+							animator.SetBool (AnimationStandards.FACING_FRONT, true);
+							animator.SetBool (AnimationStandards.FACING_RIGHT, true);
+						} else if (dy < 0) {
+							animator.SetBool (AnimationStandards.FACING_FRONT, false);
+							animator.SetBool (AnimationStandards.FACING_RIGHT, false);
+						}
+					} else if (dy == 0) {
+						if (dx > 0) {
+							animator.SetBool (AnimationStandards.FACING_FRONT, true);
+							animator.SetBool (AnimationStandards.FACING_RIGHT, false);
+						} else if (dx < 0) {
+							animator.SetBool (AnimationStandards.FACING_FRONT, false);
+							animator.SetBool (AnimationStandards.FACING_RIGHT, true);
+						}
+					}
+				}
 
 				float timeStart = Time.time;
 				float p = 0;
@@ -128,6 +152,8 @@ public class ShopMoverGrid : ShopMover {
 				farCorner = path [i];
 			}
 
+
+			if (animator != null) animator.SetBool (AnimationStandards.IS_MOVING, false);
 			callback (true);
 
 		}
