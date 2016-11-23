@@ -102,6 +102,9 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 		return placementCoords - gridCornerOffset;
 	}
 
+	public IntPair GetStandingPosition () {
+		return shopPosition;
+	}
 
 	public bool PlaceAtLocation (Shop shp, IntPair pos) {
 		if (shp.CanPlaceFurniture (pos.x, pos.y, this)) {

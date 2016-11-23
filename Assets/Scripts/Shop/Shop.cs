@@ -88,6 +88,19 @@ public class Shop : MonoBehaviour {
 					SetGrid (xpos + x, ypos + y, furniture);
 	}
 
+
+	public int GetFurnitureAmount () {
+		return containedFurniture.Count;
+	}
+
+	public IEnumerator GetFurniture () {
+		return containedFurniture.GetEnumerator ();
+	}
+
+	public Furniture GetFurnitureAtIndex (int idx) {
+		return containedFurniture [idx];
+	}
+
 	public IntPair worldToShopCoordinates (Vector2 wrld) {
 		// a*XV + b*YV = dif
 		// [XV | YV] * [a,b]' = dif

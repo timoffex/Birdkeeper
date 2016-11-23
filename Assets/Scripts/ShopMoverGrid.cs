@@ -102,9 +102,10 @@ public class ShopMoverGrid : ShopMover {
 
 		IntPair[] path = Pathfinding.FindPath (condensedGrid, farCorner, endPoint);
 
-		if (path == null)
+		if (path == null) {
+			if (animator != null) animator.SetBool (AnimationStandards.IS_MOVING, false);
 			callback (false);
-		else {
+		} else {
 			
 			for (int i = 0; i < path.GetLength (0); i++) {
 

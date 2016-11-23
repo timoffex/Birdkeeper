@@ -21,6 +21,18 @@ public class AStar<NodeType> {
 
 	public delegate IEnumerable<EdgeType> NeighborDelegate (NodeType node);
 
+
+	/// <summary>
+	/// Solves the AStar problem given:
+	/// 	A function that returns the neighbors of a vertex.
+	/// 	A function that takes a vertex and returns its heuristic.
+	/// 	A start node and an end node.
+	/// Returns a path to the vertex with the smallest heuristic value.
+	/// </summary>
+	/// <param name="neighborsOf">Function mapping vertices to neighbors.</param>
+	/// <param name="heuristic">Function mapping vertices to heuristic values.</param>
+	/// <param name="start">Start node.</param>
+	/// <param name="end">End node.</param>
 	public static NodeType[] Solve (NeighborDelegate neighborsOf, Func<NodeType, float> heuristic, NodeType start, NodeType end) {
 		Dictionary<NodeType, int> distance = new Dictionary<NodeType, int> ();
 		Dictionary<NodeType, float> pathWeight = new Dictionary<NodeType, float> ();
@@ -31,12 +43,20 @@ public class AStar<NodeType> {
 		distance [start] = 0;
 		pathWeight [start] = 0;
 
+		NodeType bestEndCandidate = start;
+		float bestHeuristic = heuristic (start);
+
 		/*
 			Algorithm:
 				Fringe starts with the start node
+				bestEndCandidate = start
 
 				while fringe is not empty:
 					node = pop element from fringe
+
+					if heuristic(node) < bestHeuristic:
+						bestEndCandidate = node
+						bestHeuristic = heuristic(node)
 
 					if node is end node, return path
 
@@ -55,6 +75,12 @@ public class AStar<NodeType> {
 
 		while (!fringe.IsEmpty ()) {
 			var node = (NodeType) fringe.Dequeue ();
+
+			var nodeHeuristic = heuristic (node);
+			if (nodeHeuristic < bestHeuristic) {
+				bestEndCandidate = node;
+				bestHeuristic = nodeHeuristic;
+			}
 
 			if (node.Equals (end)) {
 				int pathLength = distance [node];
@@ -87,6 +113,17 @@ public class AStar<NodeType> {
 			}
 		}
 
-		return null;
+
+		// Didn't reach end. Return path to "bestEndCandidate"
+		NodeType nodec = bestEndCandidate;
+		int pathLengthc = distance [nodec];
+		NodeType[] pathc = new NodeType[pathLengthc];
+
+		for (int i = pathLengthc - 1; i >= 0; i--) {
+			pathc [i] = nodec;
+			nodec = previous [nodec];
+		}
+
+		return pathc;
 	}
 }
