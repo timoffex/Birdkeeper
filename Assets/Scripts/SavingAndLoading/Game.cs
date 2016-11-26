@@ -26,32 +26,38 @@ public class Game {
 
 
 
-	public void Save () {
-		StreamWriter saveFile = new StreamWriter (Application.persistentDataPath + "/savedGame");
+	public void Save (Stream file) {
+		StreamWriter saveFile = new StreamWriter (file);
+
+		saveFile.WriteLine (SceneManager.GetActiveScene ().name);
 
 		string line = string.Format ("Shop: {0}x{1}", shop.numTilesX, shop.numTilesY);
 		saveFile.WriteLine (line);
-		Debug.Log (line);
 
 		foreach (Furniture f in shop.GetFurniture ()) {
 			var pos = f.GetPosition ();
 
 			line = string.Format ("F {0} ({1},{2})", f.FurnitureTypeID, pos.x, pos.y);
 			saveFile.WriteLine (line);
-			Debug.Log (line);
 		}
 
 		saveFile.Close ();
 	}
 
 
-	public void Load () {
-		
-		Scene scene = SceneManager.CreateScene ("GENERATED SCENE");
-		SceneManager.UnloadScene (SceneManager.GetActiveScene ());
-		SceneManager.SetActiveScene (scene);
+	public void Load (Stream file) {
 
-		StreamReader saveFile = new StreamReader (Application.persistentDataPath + "/savedGame");
+		StreamReader saveFile = new StreamReader (file);
+
+
+		string gameName = saveFile.ReadLine ();
+		
+		Scene newScene = SceneManager.CreateScene ("GENERATED SCENE");
+		Scene currentScene = SceneManager.GetActiveScene ();
+		SceneManager.UnloadScene (currentScene);
+		SceneManager.SetActiveScene (newScene);
+
+
 
 		string line1 = saveFile.ReadLine ();
 		string[] shopSizes = line1.Substring (6).Split ('x');
@@ -63,6 +69,9 @@ public class Game {
 		Shop shop = roomObj.GetComponent<Shop> ();
 		shop.numTilesX = shopSizeX;
 		shop.numTilesY = shopSizeY;
+
+
+		GameObject.Instantiate (MetaInformation.Instance ().shopEditorCanvasPrefab);
 
 		string line;
 		while ((line = saveFile.ReadLine ()) != null && line.Length > 0) {
@@ -78,5 +87,8 @@ public class Game {
 				furniture.PlaceAtLocation (shop, position);
 			}
 		}
+
+
+		GameObject.Instantiate (MetaInformation.Instance ().playerPrefab);
 	}
 }

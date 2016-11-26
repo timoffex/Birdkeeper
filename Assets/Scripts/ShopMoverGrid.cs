@@ -3,8 +3,6 @@ using System.Collections;
 
 public class ShopMoverGrid : ShopMover {
 
-
-	private Shop shop;
 	private Animator animator;
 
 	private IntPair farCorner = new IntPair (0, 0);
@@ -43,7 +41,6 @@ public class ShopMoverGrid : ShopMover {
 	void Start () {
 		spriteRenderer = GetComponent<SpriteRenderer> ();
 		animator = GetComponent<Animator> ();
-		shop = GameObject.Find ("Room").GetComponent<Shop> (); // TODO SHOP
 		StartCoroutine (LateStart ());
 
 	}
@@ -62,7 +59,7 @@ public class ShopMoverGrid : ShopMover {
 
 
 	public override Shop GetShop () {
-		return shop;
+		return Game.current.shop;
 	}
 
 
@@ -78,13 +75,13 @@ public class ShopMoverGrid : ShopMover {
 
 		IntPair endPoint = pos;//new IntPair (pos.x - (gridWidth+1)/2, pos.y - (gridHeight+1)/2);
 
-		if (!shop.IsPositionInGrid (endPoint)) {
+		if (!GetShop ().IsPositionInGrid (endPoint)) {
 			callback (false);
 			yield break;
 		}
 
-		int cGridWidth = shop.numGridX - gridWidth + 1;
-		int cGridHeight = shop.numGridY - gridHeight + 1;
+		int cGridWidth = GetShop ().numGridX - gridWidth + 1;
+		int cGridHeight = GetShop ().numGridY - gridHeight + 1;
 		bool[,] condensedGrid = new bool[cGridWidth, cGridHeight];
 
 		for (int x = 0; x < cGridWidth; x++) {
