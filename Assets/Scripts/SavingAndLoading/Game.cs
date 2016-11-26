@@ -25,6 +25,20 @@ public class Game {
 
 
 
+	public void CreateEmpty () {
+		Scene newScene = SceneManager.CreateScene ("GENERATED SCENE");
+		Scene currentScene = SceneManager.GetActiveScene ();
+		SceneManager.UnloadScene (currentScene);
+		SceneManager.SetActiveScene (newScene);
+
+
+		GameObject roomObj = GameObject.Instantiate (MetaInformation.Instance ().roomPrefab);
+		shop = roomObj.GetComponent<Shop> ();
+		GameObject.Instantiate (MetaInformation.Instance ().shopEditorCanvasPrefab);
+		GameObject.Instantiate (MetaInformation.Instance ().eventSystemPrefab);
+		GameObject.Instantiate (MetaInformation.Instance ().playerPrefab);
+	}
+
 
 	public void Save (Stream file) {
 		StreamWriter saveFile = new StreamWriter (file);

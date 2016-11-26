@@ -10,8 +10,19 @@ public class DisplayLoadedGames : MonoBehaviour {
 	/// </summary>
 	public GameObject loadPrefab;
 
+	/// <summary>
+	/// Should have a CreateEmptyGameScript component.
+	/// </summary>
+	public GameObject newGamePrefab;
+
 
 	void Start () {
+
+
+		CreateNewGameButton ();
+
+
+
 		string folderPath = Application.persistentDataPath;
 
 		string[] filePaths = Directory.GetFiles (folderPath, "*.sg1");
@@ -21,6 +32,10 @@ public class DisplayLoadedGames : MonoBehaviour {
 		}
 	}
 
+
+	private void CreateNewGameButton () {
+		GameObject newGameButton = GameObject.Instantiate (newGamePrefab, transform) as GameObject;
+	}
 
 	private void CreateEntryFor (string filePath) {
 		GameObject loadEntryInst = GameObject.Instantiate (loadPrefab, transform) as GameObject;
