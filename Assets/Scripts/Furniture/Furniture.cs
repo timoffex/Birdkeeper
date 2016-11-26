@@ -39,8 +39,16 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	private Vector3 gridXVec;
 	private Vector3 gridYVec;
 
-	private IntPair shopPosition {
-		get { return shop.worldToShopCoordinates (transform.position + gridCornerOffset); }
+	private IntPair shopPosition;
+	private IntPair ShopPosition {
+		get {
+			return shopPosition;
+		}
+
+		set {
+			shopPosition = value;
+			transform.position = (Vector3)shop.shopToWorldCoordinates (shopPosition) - gridCornerOffset;
+		}
 	}
 
 
@@ -79,7 +87,8 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 
 
 	void Update () {
-		spriteRenderer.sortingOrder = 2 * (shopPosition.x + shopPosition.y + gridX + gridY - 2);
+		spriteRenderer.sortingOrder = 2 * (ShopPosition.x + ShopPosition.y + gridX + gridY - 2);
+		transform.position = (Vector3)shop.shopToWorldCoordinates (ShopPosition) - gridCornerOffset;
 	}
 
 
@@ -119,13 +128,13 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	}
 
 	public IntPair GetStandingPosition () {
-		return shopPosition;
+		return ShopPosition;
 	}
 
 	public bool PlaceAtLocation (Shop shp, IntPair pos) {
 		if (shp.CanPlaceFurniture (pos.x, pos.y, this)) {
 			shop = shp;
-			transform.position = (Vector3)shop.shopToWorldCoordinates (pos) - gridCornerOffset;
+			ShopPosition = pos;
 			shop.PlaceFurniture (pos.x, pos.y, this);
 			return true;
 		} else
