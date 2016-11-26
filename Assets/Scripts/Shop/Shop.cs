@@ -12,7 +12,7 @@ public class Shop : MonoBehaviour {
 	}
 
 
-
+	[UniqueToObject]
 	public int numTilesX, numTilesY;
 
 	// Number of grid tiles for every floor tile.
@@ -27,10 +27,8 @@ public class Shop : MonoBehaviour {
 	}
 
 
-	// null in unoccupied tiles, Furniture reference in occupied tiles
-	private Furniture[,] obstructionGrid;
+	private ShopFurnitureGrid furnitureGrid;
 
-	private List<Furniture> containedFurniture;
 
 	private RoomRenderer __roomStored;
 	private RoomRenderer room {
@@ -45,32 +43,23 @@ public class Shop : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		Game.current.shop = this;
-		containedFurniture = new List<Furniture> ();
-		obstructionGrid = new Furniture[numGridX, numGridY];
+		furnitureGrid = new ShopFurnitureGrid (numGridX, numGridY);
 	}
 
 	/// <summary>
 	/// Returns true if occupied at the given position, false if unoccupied.
 	/// </summary>
 	public bool GetGrid (int x, int y) {
-		if (!IsPositionInGrid (new IntPair (x, y)))
-			return true;
-
-		return obstructionGrid [x, y] != null;
+		return furnitureGrid.GetGrid (x, y);
 	}
-
-	public void SetGrid (int x, int y, Furniture val) {
-		obstructionGrid [x, y] = val;
-	}
+//
+//	public void SetGrid (int x, int y, Furniture val) {
+//		obstructionGrid [x, y] = val;
+//	}
 
 
 	public bool CanPlaceFurniture (int xpos, int ypos, Furniture furniture) {
-		for (int x = 0; x < furniture.gridX; x++)
-			for (int y = 0; y < furniture.gridY; y++)
-				if (GetGrid (xpos + x, ypos + y) && furniture.GetGrid (x, y))
-					return false;
-
-		return true;
+		return furnitureGrid.CanPlaceFurniture (xpos, ypos, furniture);
 	}
 
 	/// <summary>
@@ -80,24 +69,20 @@ public class Shop : MonoBehaviour {
 	/// <param name="ypos">Ypos.</param>
 	/// <param name="furniture">Furniture.</param>
 	public void PlaceFurniture (int xpos, int ypos, Furniture furniture) {
-		containedFurniture.Add (furniture);
-		for (int x = 0; x < furniture.gridX; x++)
-			for (int y = 0; y < furniture.gridY; y++)
-				if (furniture.GetGrid (x, y))
-					SetGrid (xpos + x, ypos + y, furniture);
+		furnitureGrid.PlaceFurniture (xpos, ypos, furniture);
 	}
 
 
 	public int GetFurnitureAmount () {
-		return containedFurniture.Count;
+		return furnitureGrid.GetFurnitureAmount ();
 	}
 
 	public IEnumerator GetFurniture () {
-		return containedFurniture.GetEnumerator ();
+		return furnitureGrid.GetFurniture ();
 	}
 
 	public Furniture GetFurnitureAtIndex (int idx) {
-		return containedFurniture [idx];
+		return furnitureGrid.GetFurnitureAtIndex (idx);
 	}
 
 	public IntPair worldToShopCoordinates (Vector2 wrld) {
@@ -148,7 +133,7 @@ public class Shop : MonoBehaviour {
 
 
 	public bool IsPositionInGrid (IntPair position) {
-		return position.x >= 0 && position.x < numGridX && position.y >= 0 && position.y < numGridY;
+		return furnitureGrid.IsPositionInGrid (position);
 	}
 
 	public IntPair[] FindPath (IntPair start, IntPair end) {
