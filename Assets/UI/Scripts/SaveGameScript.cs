@@ -1,10 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.IO;
 
 public class SaveGameScript : MonoBehaviour {
 
 	public void SaveGame () {
-		Game.current.Save ();
+
+		string path = Application.persistentDataPath + string.Format ("/savefile{0}.sg1", System.DateTime.Now.ToString ().Replace ('/', '-'));
+
+		Debug.Log (string.Format ("Saving to path: {0}", path));
+		Game.current.Save (File.OpenWrite (path));
 	}
 
 }

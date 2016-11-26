@@ -11,12 +11,29 @@ public class MetaInformationEditor : Editor {
 	public override void OnInspectorGUI () {
 		MetaInformation info = target as MetaInformation;
 
-		EditorGUI.BeginChangeCheck ();
-		var newRoomPrefab = EditorGUILayout.ObjectField ("Room Prefab", info.roomPrefab, typeof(GameObject), false) as GameObject;
-		if (EditorGUI.EndChangeCheck ()) {
+
+
+		GameObjectFieldFor (info.playerPrefab, "Player Prefab", (newPlayer) => {
+			Undo.RecordObject (info, "MetaInformation Change Player Prefab");
+			info.playerPrefab = newPlayer;
+		});
+
+		GameObjectFieldFor (info.roomPrefab, "Room Prefab", (newRoom) => {
 			Undo.RecordObject (info, "MetaInformation Change Room Prefab");
-			info.roomPrefab = newRoomPrefab;
-		}
+			info.roomPrefab = newRoom;
+		});
+
+		GameObjectFieldFor (info.shopEditorCanvasPrefab, "Shop Editor Canvas Prefab", (newES) => {
+			Undo.RecordObject (info, "MetaInformation Change Shop Editor Canvas Prefab");
+			info.shopEditorCanvasPrefab = newES;
+		});
+
+		GameObjectFieldFor (info.eventSystemPrefab, "Event System Prefab", (newES) => {
+			Undo.RecordObject (info, "MetaInformation Change Event System Prefab");
+			info.eventSystemPrefab = newES;
+		});
+
+
 
 		GUILayout.Label ("Furniture ID Mappings");
 
@@ -35,6 +52,13 @@ public class MetaInformationEditor : Editor {
 				}
 			}
 		});
+	}
+
+	private void GameObjectFieldFor (GameObject go, string label, Action<GameObject> setter) {
+		EditorGUI.BeginChangeCheck ();
+		var newGO = EditorGUILayout.ObjectField (label, go, typeof(GameObject), false) as GameObject;
+		if (EditorGUI.EndChangeCheck ())
+			setter (newGO);
 	}
 
 	private void DropArea (Action<GameObject> process) {

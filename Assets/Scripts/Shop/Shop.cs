@@ -26,8 +26,18 @@ public class Shop : MonoBehaviour {
 		get { return numTilesY * numGridTilesPerFloorTile; }
 	}
 
+	private ShopFurnitureGrid _furnitureGrid;
+	private ShopFurnitureGrid furnitureGrid {
+		get {
+			if (_furnitureGrid == null)
+				_furnitureGrid = new ShopFurnitureGrid (numGridX, numGridY);
+			return _furnitureGrid;
+		}
 
-	private ShopFurnitureGrid furnitureGrid;
+		set {
+			_furnitureGrid = value;
+		}
+	}
 
 
 	private RoomRenderer __roomStored;
@@ -43,7 +53,6 @@ public class Shop : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		Game.current.shop = this;
-		furnitureGrid = new ShopFurnitureGrid (numGridX, numGridY);
 	}
 
 	/// <summary>
@@ -52,10 +61,6 @@ public class Shop : MonoBehaviour {
 	public bool GetGrid (int x, int y) {
 		return furnitureGrid.GetGrid (x, y);
 	}
-//
-//	public void SetGrid (int x, int y, Furniture val) {
-//		obstructionGrid [x, y] = val;
-//	}
 
 
 	public bool CanPlaceFurniture (int xpos, int ypos, Furniture furniture) {
@@ -77,7 +82,7 @@ public class Shop : MonoBehaviour {
 		return furnitureGrid.GetFurnitureAmount ();
 	}
 
-	public IEnumerator GetFurniture () {
+	public IEnumerable GetFurniture () {
 		return furnitureGrid.GetFurniture ();
 	}
 

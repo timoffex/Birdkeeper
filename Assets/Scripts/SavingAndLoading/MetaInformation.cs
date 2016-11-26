@@ -8,28 +8,22 @@ using System.Linq;
 /// It links furniture IDs and furniture prefabs.
 /// </summary>
 public class MetaInformation : MonoBehaviour {
-
-	private static MetaInformation instance;
-	public static MetaInformation Instance () {
-		return instance;
-	}
-
-
-	[System.Serializable] public class FurnitureIDMapType : SerializableDictionary<uint, GameObject> { }
-
 	/// <summary>
 	/// Should not be changed during runtime. Maps Furniture IDs to prefabs.
 	/// </summary>
 	[SerializeField]
 	private FurnitureIDMapType idToFurniturePrefab;
 
+
 	public GameObject roomPrefab;
+	public GameObject playerPrefab;
+	public GameObject shopEditorCanvasPrefab;
+	public GameObject eventSystemPrefab;
+
 
 	void Awake () {
 		if (Instance () == null) {
 			instance = this;
-
-			DontDestroyOnLoad (gameObject);
 		} else if (instance != this) {
 			Debug.Log ("Destroying self!");
 			DestroyImmediate (gameObject);
@@ -72,6 +66,16 @@ public class MetaInformation : MonoBehaviour {
 
 	public bool ContainsMappingForFurnitureNamed (string name) {
 		return idToFurniturePrefab.Values.Where ((obj) => obj.name.Equals (name)).Count () > 0;
+	}
+
+
+
+
+
+	[System.Serializable] public class FurnitureIDMapType : SerializableDictionary<uint, GameObject> { }
+	private static MetaInformation instance;
+	public static MetaInformation Instance () {
+		return instance;
 	}
 }
 

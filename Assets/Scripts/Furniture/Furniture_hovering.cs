@@ -22,7 +22,7 @@ public class Furniture_hovering : MonoBehaviour {
 
 
 	void Awake () {
-		var room = GameObject.Find ("Room").GetComponent<RoomRenderer> ();
+		var room = GameObject.FindObjectOfType<RoomRenderer> ();
 		float gridPerTile = room.GetComponent<Shop> ().numGridTilesPerFloorTile;
 		gridXVec = room.generalTile.GetXVector () / gridPerTile;
 		gridYVec = room.generalTile.GetYVector () / gridPerTile;

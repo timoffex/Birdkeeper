@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using UnityEngine;
 
 public class ShopFurnitureGrid {
 	private Furniture[,] obstructionGrid;
@@ -60,8 +61,8 @@ public class ShopFurnitureGrid {
 		return containedFurniture.Count;
 	}
 
-	public IEnumerator<Furniture> GetFurniture () {
-		return containedFurniture.GetEnumerator ();
+	public IEnumerable<Furniture> GetFurniture () {
+		return containedFurniture;
 	}
 
 	public Furniture GetFurnitureAtIndex (int idx) {
