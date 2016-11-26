@@ -28,6 +28,11 @@ public class MetaInformationEditor : Editor {
 			info.shopEditorCanvasPrefab = newES;
 		});
 
+		GameObjectFieldFor (info.eventSystemPrefab, "Event System Prefab", (newES) => {
+			Undo.RecordObject (info, "MetaInformation Change Event System Prefab");
+			info.eventSystemPrefab = newES;
+		});
+
 
 
 		GUILayout.Label ("Furniture ID Mappings");

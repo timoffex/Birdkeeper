@@ -18,13 +18,12 @@ public class MetaInformation : MonoBehaviour {
 	public GameObject roomPrefab;
 	public GameObject playerPrefab;
 	public GameObject shopEditorCanvasPrefab;
+	public GameObject eventSystemPrefab;
 
 
 	void Awake () {
 		if (Instance () == null) {
 			instance = this;
-
-			DontDestroyOnLoad (gameObject);
 		} else if (instance != this) {
 			Debug.Log ("Destroying self!");
 			DestroyImmediate (gameObject);

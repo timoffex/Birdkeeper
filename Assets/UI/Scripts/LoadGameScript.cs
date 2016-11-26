@@ -4,8 +4,10 @@ using System.IO;
 
 public class LoadGameScript : MonoBehaviour {
 
+	public string pathToGame;
+
 	public void LoadGame () {
-		Game.current.Load (File.OpenRead (Application.persistentDataPath + "/savefile.sg1"));
+		Game.current.Load (File.OpenRead (pathToGame));
 	}
 
 }

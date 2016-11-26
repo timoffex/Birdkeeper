@@ -53,7 +53,6 @@ public class Shop : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		Game.current.shop = this;
-		furnitureGrid = new ShopFurnitureGrid (numGridX, numGridY);
 	}
 
 	/// <summary>
@@ -62,10 +61,6 @@ public class Shop : MonoBehaviour {
 	public bool GetGrid (int x, int y) {
 		return furnitureGrid.GetGrid (x, y);
 	}
-//
-//	public void SetGrid (int x, int y, Furniture val) {
-//		obstructionGrid [x, y] = val;
-//	}
 
 
 	public bool CanPlaceFurniture (int xpos, int ypos, Furniture furniture) {

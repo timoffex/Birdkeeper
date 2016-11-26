@@ -69,9 +69,11 @@ public class Game {
 		Shop shop = roomObj.GetComponent<Shop> ();
 		shop.numTilesX = shopSizeX;
 		shop.numTilesY = shopSizeY;
+		this.shop = shop;
 
 
 		GameObject.Instantiate (MetaInformation.Instance ().shopEditorCanvasPrefab);
+		GameObject.Instantiate (MetaInformation.Instance ().eventSystemPrefab);
 
 		string line;
 		while ((line = saveFile.ReadLine ()) != null && line.Length > 0) {
@@ -84,7 +86,11 @@ public class Game {
 
 				var furnitureObj = Furniture.InstantiateFurnitureByID (fid);
 				var furniture = furnitureObj.GetComponent<Furniture> ();
-				furniture.PlaceAtLocation (shop, position);
+
+				if (!furniture.PlaceAtLocation (shop, position)) {
+					Debug.LogError ("Cannot place furniture at given location! Cannot load game properly..");
+					throw new UnityException ("Cannot load game properly.");
+				}
 			}
 		}
 

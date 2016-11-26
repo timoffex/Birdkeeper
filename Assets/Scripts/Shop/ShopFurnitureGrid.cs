@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using UnityEngine;
 
 public class ShopFurnitureGrid {
 	private Furniture[,] obstructionGrid;
