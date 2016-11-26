@@ -26,8 +26,18 @@ public class Shop : MonoBehaviour {
 		get { return numTilesY * numGridTilesPerFloorTile; }
 	}
 
+	private ShopFurnitureGrid _furnitureGrid;
+	private ShopFurnitureGrid furnitureGrid {
+		get {
+			if (_furnitureGrid == null)
+				_furnitureGrid = new ShopFurnitureGrid (numGridX, numGridY);
+			return _furnitureGrid;
+		}
 
-	private ShopFurnitureGrid furnitureGrid;
+		set {
+			_furnitureGrid = value;
+		}
+	}
 
 
 	private RoomRenderer __roomStored;
@@ -77,7 +87,7 @@ public class Shop : MonoBehaviour {
 		return furnitureGrid.GetFurnitureAmount ();
 	}
 
-	public IEnumerator GetFurniture () {
+	public IEnumerable GetFurniture () {
 		return furnitureGrid.GetFurniture ();
 	}
 

@@ -34,11 +34,11 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	public GameObject hoveringPrefab;
 
 
-	private RoomRenderer room;
 	private Shop shop;
 	private Vector3 gridXVec;
 	private Vector3 gridYVec;
 
+	[UniqueToObject]
 	private IntPair shopPosition;
 	private IntPair ShopPosition {
 		get {
@@ -55,7 +55,7 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	private SpriteRenderer spriteRenderer;
 
 	void Awake () {
-		room = GameObject.Find ("Room").GetComponent<RoomRenderer> ();
+		var room = GameObject.FindObjectOfType<RoomRenderer> ();
 		float gridPerTile = room.GetComponent<Shop> ().numGridTilesPerFloorTile;
 		gridXVec = room.generalTile.GetXVector () / gridPerTile;
 		gridYVec = room.generalTile.GetYVector () / gridPerTile;
@@ -110,7 +110,7 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	}
 
 	public bool PlaceCloneAtPosition (Vector3 placementCoords) {
-		var shop = GameObject.Find ("Room").GetComponent<Shop> ();
+		var shop = GameObject.FindObjectOfType<Shop> ();
 		var clone = GameObject.Instantiate (gameObject).GetComponent<Furniture> ();
 		var cornerLocation = shop.worldToShopCoordinates (placementCoords);
 
@@ -128,6 +128,10 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	}
 
 	public IntPair GetStandingPosition () {
+		return ShopPosition;
+	}
+
+	public IntPair GetPosition () {
 		return ShopPosition;
 	}
 

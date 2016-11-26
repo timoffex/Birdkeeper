@@ -60,8 +60,8 @@ public class ShopFurnitureGrid {
 		return containedFurniture.Count;
 	}
 
-	public IEnumerator<Furniture> GetFurniture () {
-		return containedFurniture.GetEnumerator ();
+	public IEnumerable<Furniture> GetFurniture () {
+		return containedFurniture;
 	}
 
 	public Furniture GetFurnitureAtIndex (int idx) {
