@@ -1,11 +1,11 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
 
-public class EditorDraggedObject : MonoBehaviour {
+public class FurnitureEditorDraggedFurniture : MonoBehaviour {
 
-	public IEditorDraggable draggedObject;
+	public Furniture draggedObject;
+	public uint furnitureID;
 
 	private Shop shop { get { return Shop.Instance (); } }
 
@@ -29,7 +29,13 @@ public class EditorDraggedObject : MonoBehaviour {
 
 	public void PlaceDown() {
 		// Clone and place
-		draggedObject.PlaceCloneAtPosition (Camera.main.ScreenToWorldPoint (Input.mousePosition)); // TODO: this may return false
+		var newFurnitureObj = Furniture.InstantiateFurnitureByID (furnitureID);
+		var furniture = newFurnitureObj.GetComponent<Furniture> ();
+
+		var placementCoords = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+
+		if (!furniture.PlaceAtLocation (shop, shop.worldToShopCoordinates (placementCoords)))
+			Destroy (newFurnitureObj);
 
 		// Delete self
 		Destroy (gameObject);

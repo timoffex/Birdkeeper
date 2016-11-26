@@ -1,7 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
 public class Furniture : MonoBehaviour, IEditorDraggable {
+
+
+	/// <summary>
+	/// The furniture type's unique identifier.
+	/// </summary>
+	[HideInInspector]
+	private uint furnitureTypeUniqueId;
+	public uint FurnitureTypeID { get { return furnitureTypeUniqueId; } }
+
+
 
 	public int gridX;
 	public int gridY;
@@ -48,6 +59,11 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 		for (int x = 0; x < gridX; x++)
 			for (int y = 0; y < gridY; y++)
 				objGrid [x, y] = true;
+	}
+
+	void Start () {
+		if (FurnitureTypeID == 0)
+			Debug.LogError ("FurnitureTypeID is 0, so furniture will not be saved. Did you instantiate properly? Use Furniture.InstantiateFurnitureByID ().");
 	}
 
 
@@ -119,5 +135,16 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 
 	public GameObject GetHoveringPrefab () {
 		return hoveringPrefab;
+	}
+
+
+
+	public static GameObject InstantiateFurnitureByID (uint id) {
+		GameObject prefab = MetaInformation.Instance ().GetFurniturePrefabByID (id);
+
+		GameObject furnitureGO = GameObject.Instantiate (prefab) as GameObject;
+		furnitureGO.GetComponent<Furniture> ().furnitureTypeUniqueId = id;
+
+		return furnitureGO;
 	}
 }

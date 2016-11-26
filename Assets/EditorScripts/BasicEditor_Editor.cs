@@ -8,11 +8,12 @@ public class BasicEditor_Editor : Editor {
 		var items = editor.items ?? new GameObject [0];
 		editor.items = items;
 
-
 		var length = items.GetLength (0);
 
 
 		EditorGUILayout.LabelField ("Drag Furniture here.");
+
+		
 
 		for (int i = 0; i < length; i++) {
 			EditorGUI.BeginChangeCheck ();

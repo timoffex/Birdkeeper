@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 using System;
+using System.Runtime.Serialization;
+
+using SavingLoading;
 
 
-[System.Serializable]
 public class Game {
 
 	private static Game _current;
@@ -15,6 +17,16 @@ public class Game {
 		}
 	}
 
+
+
 	public Shop shop;
 
+
+
+
+	public void Save () {
+		ObjectGraph graph = ObjectGraph.CreateObjectGraph (this);
+
+		graph.PrintDebug ();
+	}
 }

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(RoomRenderer))]
-[System.Serializable]
 public class Shop : MonoBehaviour {
 
 
@@ -29,9 +28,9 @@ public class Shop : MonoBehaviour {
 
 
 	// null in unoccupied tiles, Furniture reference in occupied tiles
-	[SerializeField] private Furniture[,] obstructionGrid;
+	private Furniture[,] obstructionGrid;
 
-	[SerializeField] private List<Furniture> containedFurniture;
+	private List<Furniture> containedFurniture;
 
 	private RoomRenderer __roomStored;
 	private RoomRenderer room {
