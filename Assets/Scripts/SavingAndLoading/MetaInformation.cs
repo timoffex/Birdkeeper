@@ -14,6 +14,9 @@ public class MetaInformation : MonoBehaviour {
 	[SerializeField]
 	private FurnitureIDMapType idToFurniturePrefab;
 
+	[SerializeField]
+	private ItemTypeIDMapType idToItemType;
+
 
 	public GameObject roomPrefab;
 	public GameObject playerPrefab;
@@ -56,12 +59,7 @@ public class MetaInformation : MonoBehaviour {
 
 
 	public uint GetUnusedFurnitureID () {
-		uint id = (uint) Random.Range (1, int.MaxValue);
-
-		while (idToFurniturePrefab.ContainsKey (id))
-			id = (uint)Random.Range (1, int.MaxValue); // TODO: technically, a little unsafe
-
-		return id;
+		return GetUnusedIDFor (idToFurniturePrefab);
 	}
 
 	public bool ContainsMappingForFurnitureNamed (string name) {
@@ -71,8 +69,51 @@ public class MetaInformation : MonoBehaviour {
 
 
 
+	public ItemType GetItemTypeByID (uint id) {
+		return idToItemType [id];
+	}
+
+	public void AddMappingForItemType (uint id, ItemType itemType) {
+		if (Application.isEditor)
+			idToItemType.Add (id, itemType);
+		else {
+			Debug.LogError ("Cannot add ID mappings during runtime!");
+			throw new UnityException ("The code tried doing something illegal. Please tell Tima at timoffex@gmail.com.");
+		}
+	}
+
+	public IEnumerable<KeyValuePair<uint, ItemType>> GetItemTypeMappings () {
+		if (idToItemType == null) {
+			idToItemType = new ItemTypeIDMapType ();
+			instance = this;
+		}
+
+		return idToItemType;
+	}
+
+	public uint GetUnusedItemTypeID () {
+		return GetUnusedIDFor (idToItemType);
+	}
+
+
+
+
+
+	private uint GetUnusedIDFor (System.Collections.IDictionary dict) {
+		uint id = (uint) Random.Range (1, int.MaxValue);
+
+		while (dict.Contains (id))
+			id = (uint)Random.Range (1, int.MaxValue); // TODO: technically, a little unsafe
+
+		return id;
+	}
+
+
+
 
 	[System.Serializable] public class FurnitureIDMapType : SerializableDictionary<uint, GameObject> { }
+	[System.Serializable] public class ItemTypeIDMapType : SerializableDictionary<uint, ItemType> { }
+
 	private static MetaInformation instance;
 	public static MetaInformation Instance () {
 		return instance;

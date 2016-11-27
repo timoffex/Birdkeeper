@@ -53,6 +53,7 @@ public class Game {
 
 	public List<FurnitureInfo> furnitureInShop = new List<FurnitureInfo> (); // empty by default
 
+	public Inventory inventory = new Inventory (); // empty by default
 
 
 
@@ -104,7 +105,7 @@ public class Game {
 			newFurniture.PlaceAtLocation (newShop, f.position);
 		}
 
-
+		GameObject.Instantiate (MetaInformation.Instance ().shopEditorCanvasPrefab); // TODO TEMPORARY
 		GameObject.Instantiate (MetaInformation.Instance ().eventSystemPrefab);
 		GameObject.Instantiate (MetaInformation.Instance ().playerPrefab);
 	}
@@ -146,6 +147,9 @@ public class Game {
 			saveFile.WriteLine (line);
 		}
 
+		foreach (ItemStack stack in inventory.GetItemStacks ())
+			saveFile.WriteLine (string.Format ("IS {0} {1}", stack.ItemType.ItemTypeID, stack.Count));
+
 		saveFile.Close ();
 	}
 
@@ -173,6 +177,11 @@ public class Game {
 				IntPair position = new IntPair (int.Parse (furniturePos [0]), int.Parse (furniturePos [1]));
 
 				furnitureInShop.Add (new FurnitureInfo (fid, position));
+			} else if (line.StartsWith ("IS ")) {
+				string[] itemStackParams = line.Substring (3).Split (' ');
+				uint id = uint.Parse (itemStackParams [0]);
+				int ct = int.Parse (itemStackParams [1]);
+				inventory.AddStack (new ItemStack (MetaInformation.Instance ().GetItemTypeByID (id), ct));
 			}
 		}
 

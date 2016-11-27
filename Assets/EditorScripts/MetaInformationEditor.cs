@@ -35,10 +35,10 @@ public class MetaInformationEditor : Editor {
 
 
 
-		GUILayout.Label ("Furniture ID Mappings");
+		GUILayout.Label ("Known Furniture");
 
 		foreach (var kv in info.GetFurnitureMappings ()) {
-			GUILayout.Label (string.Format ("{0}: {1}", kv.Key, kv.Value));
+			GUILayout.Label (string.Format ("{0}: {1}", kv.Value, kv.Key));
 		}
 
 
@@ -52,6 +52,13 @@ public class MetaInformationEditor : Editor {
 				}
 			}
 		});
+
+
+		GUILayout.Label ("Known Item Types");
+
+		foreach (var kv in info.GetItemTypeMappings ()) {
+			GUILayout.Label (string.Format ("{0}: {1}", kv.Value, kv.Key));
+		}
 	}
 
 	private void GameObjectFieldFor (GameObject go, string label, Action<GameObject> setter) {

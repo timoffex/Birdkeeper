@@ -34,7 +34,7 @@ public class DisplayLoadedGames : MonoBehaviour {
 
 
 	private void CreateNewGameButton () {
-		GameObject newGameButton = GameObject.Instantiate (newGamePrefab, transform) as GameObject;
+		GameObject.Instantiate (newGamePrefab, transform);
 	}
 
 	private void CreateEntryFor (string filePath) {
