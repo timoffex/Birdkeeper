@@ -26,4 +26,14 @@ public class ItemType {
 	public override int GetHashCode () {
 		return (int)ItemTypeID;
 	}
+
+
+
+	public void SetIcon (Sprite spr) {
+		icon = spr;
+	}
+
+	public void SetName (string nam) {
+		name = nam;
+	}
 }

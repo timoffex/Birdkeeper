@@ -35,6 +35,7 @@ public class MetaInformationEditor : Editor {
 
 
 
+		GUILayout.Space (5);
 		GUILayout.Label ("Known Furniture");
 
 		foreach (var kv in info.GetFurnitureMappings ()) {
@@ -54,11 +55,62 @@ public class MetaInformationEditor : Editor {
 		});
 
 
+		GUILayout.Space (5);
 		GUILayout.Label ("Known Item Types");
 
+
 		foreach (var kv in info.GetItemTypeMappings ()) {
-			GUILayout.Label (string.Format ("{0}: {1}", kv.Value, kv.Key));
+
+			Rect fullItemRect = GUILayoutUtility.GetRect (0, 25, GUILayout.ExpandWidth (true));
+
+			GUI.BeginGroup (fullItemRect);
+
+			Rect iconRect = new Rect (0, 0, 25, 25);
+			Rect nameRect = new Rect (25, 0, fullItemRect.width - 25, 25);
+
+
+			Texture2D texture = null;
+			if (kv.Value.Icon != null)
+				texture = TextureFromSprite (kv.Value.Icon);
+			
+			GUI.Box (iconRect, texture);
+			CheckForDrag<Sprite> (iconRect, false, (spr) => {
+				Undo.RecordObject (info, string.Format ("MetaInformation Change Icon For Item {0}", kv.Key));
+				kv.Value.SetIcon (spr);
+			});
+
+
+			EditorGUI.BeginChangeCheck ();
+			var newName = GUI.TextField (nameRect, string.Format ("{0}", kv.Value.Name, kv.Key));
+			if (EditorGUI.EndChangeCheck ()) {
+				Undo.RecordObject (info, string.Format ("MetaInformation Change Item Name For Item {0}", kv.Key));
+				kv.Value.SetName (newName);
+			}
+
+
+			GUI.EndGroup ();
 		}
+
+		if (GUILayout.Button ("Create Item Type", GUILayout.ExpandWidth (false))) {
+			uint id = info.GetUnusedItemTypeID ();
+			var item = new ItemType ("New Item", id, null);
+			info.AddMappingForItemType (id, item);
+		}
+	}
+
+
+	private static Texture2D TextureFromSprite (Sprite sp) {
+		if (sp.rect.width != sp.texture.width) {
+			Texture2D newText = new Texture2D((int)sp.rect.width,(int)sp.rect.height);
+			Color[] newColors = sp.texture.GetPixels((int)sp.textureRect.x, 
+				(int)sp.textureRect.y, 
+				(int)sp.textureRect.width, 
+				(int)sp.textureRect.height );
+			newText.SetPixels(newColors);
+			newText.Apply();
+			return newText;
+		} else
+			return sp.texture;
 	}
 
 	private void GameObjectFieldFor (GameObject go, string label, Action<GameObject> setter) {
@@ -85,6 +137,34 @@ public class MetaInformationEditor : Editor {
 					foreach (UnityEngine.Object draggedObj in DragAndDrop.objectReferences) {
 						if (draggedObj is GameObject)
 							process (draggedObj as GameObject);
+					}
+				}
+			}
+			break;
+		}
+	}
+
+	private void CheckForDrag<T> (Rect area, bool allowMultiples, Action<T> process) {
+		Event evt = Event.current;
+
+		switch (evt.type) {
+		case EventType.DragUpdated:
+		case EventType.DragPerform:
+			if (area.Contains (evt.mousePosition)) {
+				DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+
+				if (evt.type == EventType.DragPerform) {
+					DragAndDrop.AcceptDrag ();
+
+					foreach (object draggedObj in DragAndDrop.objectReferences) {
+						if (draggedObj is T) {
+							process ((T)draggedObj);
+
+							if (!allowMultiples)
+								break;
+						} else {
+							Debug.Log (string.Format ("Please enter an object of type {0}", typeof(T).Name));
+						}
 					}
 				}
 			}
