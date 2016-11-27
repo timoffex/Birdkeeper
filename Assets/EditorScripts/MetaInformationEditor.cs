@@ -43,7 +43,7 @@ public class MetaInformationEditor : Editor {
 		}
 
 
-		DropArea ((obj) => {
+		GameObjectDropArea ((obj) => {
 			if (obj.GetComponent<Furniture> () != null) {
 				if (!info.ContainsMappingForFurnitureNamed (obj.name)) {
 					Undo.RecordObject (info, "MetaInformation Add Furniture Mapping");
@@ -120,28 +120,12 @@ public class MetaInformationEditor : Editor {
 			setter (newGO);
 	}
 
-	private void DropArea (Action<GameObject> process) {
+	private void GameObjectDropArea (Action<GameObject> process) {
 		Event evt = Event.current;
 		Rect dropArea = GUILayoutUtility.GetRect (0, 50, GUILayout.ExpandWidth (true));
 		GUI.Box (dropArea, "Drag & Drop Furniture Prefabs");
 
-		switch (evt.type) {
-		case EventType.DragUpdated:
-		case EventType.DragPerform:
-			if (dropArea.Contains (evt.mousePosition)) {
-				DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-
-				if (evt.type == EventType.DragPerform) {
-					DragAndDrop.AcceptDrag ();
-
-					foreach (UnityEngine.Object draggedObj in DragAndDrop.objectReferences) {
-						if (draggedObj is GameObject)
-							process (draggedObj as GameObject);
-					}
-				}
-			}
-			break;
-		}
+		CheckForDrag<GameObject> (dropArea, true, process);
 	}
 
 	private void CheckForDrag<T> (Rect area, bool allowMultiples, Action<T> process) {
@@ -163,7 +147,9 @@ public class MetaInformationEditor : Editor {
 							if (!allowMultiples)
 								break;
 						} else {
-							Debug.Log (string.Format ("Please enter an object of type {0}", typeof(T).Name));
+							string errorText = string.Format ("Please enter an object of type {0}", typeof(T).Name);
+							Debug.Log (errorText);
+							EditorWindow.focusedWindow.ShowNotification (new GUIContent (errorText));
 						}
 					}
 				}
