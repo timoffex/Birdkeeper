@@ -20,8 +20,9 @@ public class MetaInformation : MonoBehaviour {
 
 	public GameObject roomPrefab;
 	public GameObject playerPrefab;
-	public GameObject shopEditorCanvasPrefab;
 	public GameObject eventSystemPrefab;
+	public GameObject shopEditorCanvasPrefab;
+	public GameObject shopPhaseDayCanvasPrefab;
 
 
 	void Awake () {

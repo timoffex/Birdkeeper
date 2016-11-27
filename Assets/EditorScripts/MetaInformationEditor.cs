@@ -23,15 +23,21 @@ public class MetaInformationEditor : Editor {
 			info.roomPrefab = newRoom;
 		});
 
+		GameObjectFieldFor (info.eventSystemPrefab, "Event System Prefab", (newES) => {
+			Undo.RecordObject (info, "MetaInformation Change Event System Prefab");
+			info.eventSystemPrefab = newES;
+		});
+
 		GameObjectFieldFor (info.shopEditorCanvasPrefab, "Shop Editor Canvas Prefab", (newES) => {
 			Undo.RecordObject (info, "MetaInformation Change Shop Editor Canvas Prefab");
 			info.shopEditorCanvasPrefab = newES;
 		});
 
-		GameObjectFieldFor (info.eventSystemPrefab, "Event System Prefab", (newES) => {
-			Undo.RecordObject (info, "MetaInformation Change Event System Prefab");
-			info.eventSystemPrefab = newES;
+		GameObjectFieldFor (info.shopPhaseDayCanvasPrefab, "Shop Phase Day Canvas Prefab", (newES) => {
+			Undo.RecordObject (info, "MetaInformation Change Shop Phase Day Canvas Prefab");
+			info.shopPhaseDayCanvasPrefab = newES;
 		});
+
 
 
 

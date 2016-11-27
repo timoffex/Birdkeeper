@@ -105,7 +105,7 @@ public class Game {
 			newFurniture.PlaceAtLocation (newShop, f.position);
 		}
 
-		GameObject.Instantiate (MetaInformation.Instance ().shopEditorCanvasPrefab); // TODO TEMPORARY
+		GameObject.Instantiate (MetaInformation.Instance ().shopPhaseDayCanvasPrefab);
 		GameObject.Instantiate (MetaInformation.Instance ().eventSystemPrefab);
 		GameObject.Instantiate (MetaInformation.Instance ().playerPrefab);
 	}

@@ -5,7 +5,11 @@ using System.Collections.Generic;
 public class ShopEventSystem : EventTrigger {
 
 	private static ShopEventSystem instance;
-	public static ShopEventSystem Instance () { return instance; }
+	public static ShopEventSystem Instance () { 
+		if (instance == null)
+			instance = GameObject.FindObjectOfType<ShopEventSystem> ();
+		return instance;
+	}
 
 
 	public delegate void ListenerCallback ();
@@ -20,20 +24,11 @@ public class ShopEventSystem : EventTrigger {
 	}
 
 
-	private List<Listener> clickListeners;
+	private List<Listener> clickListeners = new List<Listener> ();
 
 	
 
 
-	// Use this for initialization
-	void Start () {
-		if (instance != null)
-			Debug.LogError ("Bad: Creating multiple ShopEventSystem instances!");
-		else
-			instance = this;
-
-		clickListeners = new List<Listener> ();
-	}
 	
 
 

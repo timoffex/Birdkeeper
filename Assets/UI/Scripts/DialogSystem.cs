@@ -9,7 +9,7 @@ public class DialogSystem : MonoBehaviour {
 	}
 
 	private static Transform GetCanvas () {
-		return GameObject.Find ("Canvas").GetComponent<Transform> (); // TODO
+		return GameObject.FindObjectOfType<Canvas> ().GetComponent<Transform> ().root; // TODO
 	}
 
 
