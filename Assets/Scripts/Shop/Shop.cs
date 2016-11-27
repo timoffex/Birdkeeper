@@ -10,10 +10,9 @@ public class Shop : MonoBehaviour {
 	public static Shop Instance () {
 		return Game.current.shop;
 	}
-
-
-	[UniqueToObject]
-	public int numTilesX, numTilesY;
+		
+	public int numTilesX { get { return Game.current.shopSizeX; } }
+	public int numTilesY { get { return Game.current.shopSizeY; } }
 
 	// Number of grid tiles for every floor tile.
 	public int numGridTilesPerFloorTile;

@@ -26,6 +26,8 @@ public class ShopFurnitureGrid {
 	/// <param name="furniture">Furniture.</param>
 	public void PlaceFurniture (int xpos, int ypos, Furniture furniture) {
 		containedFurniture.Add (furniture);
+		Game.current.AddFurnitureToShop (furniture);
+
 		for (int x = 0; x < furniture.gridX; x++)
 			for (int y = 0; y < furniture.gridY; y++)
 				if (furniture.GetGrid (x, y))
