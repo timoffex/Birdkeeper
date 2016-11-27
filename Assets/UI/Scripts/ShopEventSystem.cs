@@ -43,8 +43,10 @@ public class ShopEventSystem : EventTrigger {
 
 
 	public override void OnPointerClick (PointerEventData eventData) {
-		if (MouseClick ())
+		Debug.Log ("Detected click!");
+		if (MouseClick ()) {
 			eventData.Use ();
+		}
 	}
 
 	public bool MouseClick () {

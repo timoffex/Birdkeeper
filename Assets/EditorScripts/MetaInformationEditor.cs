@@ -65,37 +65,9 @@ public class MetaInformationEditor : Editor {
 		GUILayout.Label ("Known Item Types");
 
 
-		foreach (var kv in info.GetItemTypeMappings ()) {
+		foreach (var kv in info.GetItemTypeMappings ())
+			DisplayItem (kv.Key, kv.Value);
 
-			Rect fullItemRect = GUILayoutUtility.GetRect (0, 25, GUILayout.ExpandWidth (true));
-
-			GUI.BeginGroup (fullItemRect);
-
-			Rect iconRect = new Rect (0, 0, 25, 25);
-			Rect nameRect = new Rect (25, 0, fullItemRect.width - 25, 25);
-
-
-			Texture2D texture = null;
-			if (kv.Value.Icon != null)
-				texture = TextureFromSprite (kv.Value.Icon);
-			
-			GUI.Box (iconRect, texture);
-			CheckForDrag<Sprite> (iconRect, false, (spr) => {
-				Undo.RecordObject (info, string.Format ("MetaInformation Change Icon For Item {0}", kv.Key));
-				kv.Value.SetIcon (spr);
-			});
-
-
-			EditorGUI.BeginChangeCheck ();
-			var newName = GUI.TextField (nameRect, string.Format ("{0}", kv.Value.Name, kv.Key));
-			if (EditorGUI.EndChangeCheck ()) {
-				Undo.RecordObject (info, string.Format ("MetaInformation Change Item Name For Item {0}", kv.Key));
-				kv.Value.SetName (newName);
-			}
-
-
-			GUI.EndGroup ();
-		}
 
 		if (GUILayout.Button ("Create Item Type", GUILayout.ExpandWidth (false))) {
 			uint id = info.GetUnusedItemTypeID ();
@@ -103,6 +75,45 @@ public class MetaInformationEditor : Editor {
 			info.AddMappingForItemType (id, item);
 		}
 	}
+
+
+
+	private void DisplayItem (uint id, ItemType type) {
+		MetaInformation info = target as MetaInformation;
+
+		Rect fullItemRect = GUILayoutUtility.GetRect (0, 25, GUILayout.ExpandWidth (true));
+
+		GUI.BeginGroup (fullItemRect);
+
+		Rect iconRect = new Rect (0, 0, 25, 25);
+		Rect nameRect = new Rect (25, 0, fullItemRect.width - 125, 25);
+		Rect idRect = new Rect (iconRect.width + nameRect.width, 0, 100, 25);
+
+
+		Texture2D texture = null;
+		if (type.Icon != null)
+			texture = TextureFromSprite (type.Icon);
+
+		GUI.Box (iconRect, texture);
+		CheckForDrag<Sprite> (iconRect, false, (spr) => {
+			Undo.RecordObject (info, string.Format ("MetaInformation Change Icon For Item {0}", id));
+			type.SetIcon (spr);
+		});
+
+
+		EditorGUI.BeginChangeCheck ();
+		var newName = GUI.TextField (nameRect, string.Format ("{0}", type.Name));
+		if (EditorGUI.EndChangeCheck ()) {
+			Undo.RecordObject (info, string.Format ("MetaInformation Change Item Name For Item {0}", id));
+			type.SetName (newName);
+		}
+
+		GUI.Label (idRect, id.ToString ());
+
+
+		GUI.EndGroup ();
+	}
+
 
 
 	private static Texture2D TextureFromSprite (Sprite sp) {

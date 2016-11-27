@@ -178,6 +178,7 @@ public class Game {
 
 				furnitureInShop.Add (new FurnitureInfo (fid, position));
 			} else if (line.StartsWith ("IS ")) {
+				Debug.Log (line);
 				string[] itemStackParams = line.Substring (3).Split (' ');
 				uint id = uint.Parse (itemStackParams [0]);
 				int ct = int.Parse (itemStackParams [1]);

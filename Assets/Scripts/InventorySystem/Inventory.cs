@@ -6,7 +6,11 @@ public class Inventory {
 
 	private class ItemStackList : List<ItemStack> { }
 
-	[SerializeField] private ItemStackList itemStacks = new ItemStackList ();
+	[SerializeField] private ItemStackList itemStacks;
+
+	public Inventory () {
+		itemStacks = new ItemStackList ();
+	}
 
 
 	public void AddItem (ItemType itemType) {
@@ -42,6 +46,7 @@ public class Inventory {
 
 
 	public IEnumerable<ItemStack> GetItemStacks () {
-		return itemStacks;
+		for (int i = 0; i < itemStacks.Count; i++)
+			yield return itemStacks[i];
 	}
 }

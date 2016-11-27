@@ -6,7 +6,7 @@ public class ItemStack {
 	[SerializeField] private int count;
 
 
-	public ItemType ItemType { get { return ItemType; } }
+	public ItemType ItemType { get { return itemType; } }
 	public int Count { get { return count; } }
 
 
