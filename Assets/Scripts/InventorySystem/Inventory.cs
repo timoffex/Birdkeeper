@@ -22,6 +22,18 @@ public class Inventory {
 			itemStacks.Add (new ItemStack (itemType, 1));
 	}
 
+
+
+	public void SubtractStack (ItemStack stack) {
+		int idx = itemStacks.FindIndex ((st) => st.ItemType.Equals (stack.ItemType));
+		ItemStack myStack = itemStacks [idx];
+
+		myStack.IncrementCount (-stack.Count);
+
+		if (myStack.Count <= 0)
+			itemStacks.RemoveAt (idx);
+	}
+
 	public void AddStack (ItemStack stack) {
 		ItemStack existingStack = itemStacks.Find ((st) => st.ItemType.Equals (stack.ItemType));
 
@@ -30,6 +42,7 @@ public class Inventory {
 		else
 			itemStacks.Add (stack);
 	}
+
 
 	public bool HasItem (ItemType item) {
 		return HasHowManyOf (item) > 0;
@@ -43,6 +56,12 @@ public class Inventory {
 		else
 			return 0;
 	}
+
+
+	public bool HasStack (ItemStack stack) {
+		return HasHowManyOf (stack.ItemType) >= stack.Count;
+	}
+
 
 
 	public IEnumerable<ItemStack> GetItemStacks () {
