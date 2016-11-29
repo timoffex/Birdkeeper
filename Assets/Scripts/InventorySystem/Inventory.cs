@@ -64,6 +64,10 @@ public class Inventory {
 
 
 
+	/// <summary>
+	/// Each stack is guaranteed to be of a unique type.
+	/// </summary>
+	/// <returns>The item stacks.</returns>
 	public IEnumerable<ItemStack> GetItemStacks () {
 		for (int i = 0; i < itemStacks.Count; i++)
 			yield return itemStacks[i];
