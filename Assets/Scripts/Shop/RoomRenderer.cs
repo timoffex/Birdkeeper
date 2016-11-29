@@ -4,10 +4,6 @@ using System.Collections;
 [RequireComponent(typeof(Shop))]
 public class RoomRenderer : MonoBehaviour {
 
-
-	// Contains xVector and yVector.
-	public Tile generalTile;
-
 	// Floor tile prefab. Pivot at far-away corner.
 	public GameObject floorTile;
 
@@ -46,8 +42,8 @@ public class RoomRenderer : MonoBehaviour {
 		Vector2 xVector, yVector;
 
 
-		xVector = generalTile.GetXVector ();
-		yVector = generalTile.GetYVector ();
+		xVector = MetaInformation.Instance ().tileXVector;
+		yVector = MetaInformation.Instance ().tileYVector;
 
 
 
@@ -136,8 +132,8 @@ public class RoomRenderer : MonoBehaviour {
 
 			GridRenderer.RenderGrid (shop.GetGrid, shop.numGridX, shop.numGridY,
 				transform.localToWorldMatrix,
-				generalTile.GetXVector () / shop.numGridTilesPerFloorTile,
-				generalTile.GetYVector () / shop.numGridTilesPerFloorTile,
+				MetaInformation.Instance ().tileXVector / MetaInformation.Instance ().numGridSquaresPerTile,
+				MetaInformation.Instance ().tileYVector / MetaInformation.Instance ().numGridSquaresPerTile,
 				Color.blue);
 
 

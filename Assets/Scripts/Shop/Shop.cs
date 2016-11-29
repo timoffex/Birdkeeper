@@ -14,15 +14,13 @@ public class Shop : MonoBehaviour {
 	public int numTilesX { get { return Game.current.shopSizeX; } }
 	public int numTilesY { get { return Game.current.shopSizeY; } }
 
-	// Number of grid tiles for every floor tile.
-	public int numGridTilesPerFloorTile;
 
 	public int numGridX {
-		get { return numTilesX * numGridTilesPerFloorTile; }
+		get { return numTilesX * MetaInformation.Instance ().numGridSquaresPerTile; }
 	}
 
 	public int numGridY {
-		get { return numTilesY * numGridTilesPerFloorTile; }
+		get { return numTilesY * MetaInformation.Instance ().numGridSquaresPerTile; }
 	}
 
 	private ShopFurnitureGrid _furnitureGrid;
@@ -106,8 +104,8 @@ public class Shop : MonoBehaviour {
 		Vector2 dif = wrld - (Vector2) transform.position;
 
 
-		var xvec = room.generalTile.GetXVector () / numGridTilesPerFloorTile;
-		var yvec = room.generalTile.GetYVector () / numGridTilesPerFloorTile;
+		var xvec = MetaInformation.Instance ().tileXVector / MetaInformation.Instance ().numGridSquaresPerTile;
+		var yvec = MetaInformation.Instance ().tileYVector / MetaInformation.Instance ().numGridSquaresPerTile;
 
 		// a*XV + b*YV = dif
 		// [XV | YV] * [a,b]' = dif
@@ -126,13 +124,13 @@ public class Shop : MonoBehaviour {
 	/// <returns>The world coordinates of the center of the tile.</returns>
 	/// <param name="shopCoords">Shop coordinates.</param>
 	public Vector2 shopToWorldCoordinates (IntPair shopCoords) {
-		var xvec = room.generalTile.GetXVector () / numGridTilesPerFloorTile;
-		var yvec = room.generalTile.GetYVector () / numGridTilesPerFloorTile;
+		var xvec = MetaInformation.Instance ().tileXVector / MetaInformation.Instance ().numGridSquaresPerTile;
+		var yvec = MetaInformation.Instance ().tileYVector / MetaInformation.Instance ().numGridSquaresPerTile;
 
-		var dif3D = shopCoords.x * xvec + shopCoords.y * yvec;
-		var newPos = transform.position + dif3D;
+		var dif = shopCoords.x * xvec + shopCoords.y * yvec;
+		var newPos = (Vector2)transform.position + dif;
 
-		return (Vector2) newPos;
+		return newPos;
 	}
 
 

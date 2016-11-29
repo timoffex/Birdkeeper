@@ -23,6 +23,11 @@ public class MetaInformation : MonoBehaviour {
 	private GeneralIDMapType idToGeneral;
 
 
+
+	public Vector2 tileXVector;
+	public Vector2 tileYVector;
+	public int numGridSquaresPerTile;
+
 	public GameObject roomPrefab;
 	public GameObject playerPrefab;
 	public GameObject eventSystemPrefab;
@@ -38,6 +43,36 @@ public class MetaInformation : MonoBehaviour {
 			DestroyImmediate (gameObject);
 		}
 	}
+
+
+
+	/// <summary>
+	/// Preferred in editor scripts over finding the shop object.
+	/// </summary>
+	/// <returns>The to shop coordinates.</returns>
+	/// <param name="world">World.</param>
+	public IntPair WorldToShopVector (Vector2 world) {
+		var shop = GameObject.FindObjectOfType<Shop> ();
+
+		Vector2 dif = world;
+
+
+		var xvec = tileXVector / numGridSquaresPerTile;
+		var yvec = tileYVector / numGridSquaresPerTile;
+
+		// a*XV + b*YV = dif
+		// [XV | YV] * [a,b]' = dif
+		// [a,b]' = [Xx Yx; Xy Yy]^-1 * dif
+		// [a,b]' = [Yy -Yx; -Xy Xx] * dif / (XxYy - YxXy)
+
+		var shopVec = new Vector2 (yvec.y * dif.x - yvec.x * dif.y, xvec.x * dif.y - xvec.y * dif.x)
+			/ (xvec.x * yvec.y - yvec.x * xvec.y);
+
+		return new IntPair (
+			(int)Mathf.Floor (shopVec.x),
+			(int)Mathf.Floor (shopVec.y));
+	}
+
 
 
 	public GameObject GetFurniturePrefabByID (uint id) {

@@ -12,6 +12,28 @@ public class MetaInformationEditor : Editor {
 		MetaInformation info = target as MetaInformation;
 
 
+		EditorGUI.BeginChangeCheck ();
+		var newTileX = EditorGUILayout.Vector2Field ("Tile X Vector", info.tileXVector);
+		if (EditorGUI.EndChangeCheck ()) {
+			Undo.RecordObject (info, "MetaInformation Change Tile X Vector");
+			info.tileXVector = newTileX;
+		}
+
+
+		EditorGUI.BeginChangeCheck ();
+		var newTileY = EditorGUILayout.Vector2Field ("Tile Y Vector", info.tileYVector);
+		if (EditorGUI.EndChangeCheck ()) {
+			Undo.RecordObject (info, "MetaInformation Change Tile Y Vector");
+			info.tileYVector = newTileY;
+		}
+
+		EditorGUI.BeginChangeCheck ();
+		var newNumGridSquaresPerTile = EditorGUILayout.IntField ("# Grid Squares / Tile", info.numGridSquaresPerTile);
+		if (EditorGUI.EndChangeCheck ()) {
+			Undo.RecordObject (info, "MetaInformation Change Num Grid Squares Per Tile");
+			info.numGridSquaresPerTile = newNumGridSquaresPerTile;
+		}
+
 
 		GameObjectFieldFor (info.playerPrefab, "Player Prefab", (newPlayer) => {
 			Undo.RecordObject (info, "MetaInformation Change Player Prefab");

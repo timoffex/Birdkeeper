@@ -28,10 +28,8 @@ public class FurnitureEditor : Editor {
 	}
 
 	private void DoGridHandles (Furniture f) {
-		RoomRenderer roomRenderer = GameObject.Find ("Room").GetComponent<RoomRenderer> ();
-		Shop shop = roomRenderer.GetComponent<Shop> ();
-		Vector3 xvec = roomRenderer.generalTile.GetXVector () / shop.numGridTilesPerFloorTile;
-		Vector3 yvec = roomRenderer.generalTile.GetYVector () / shop.numGridTilesPerFloorTile;
+		Vector3 xvec = MetaInformation.Instance ().tileXVector / MetaInformation.Instance ().numGridSquaresPerTile;
+		Vector3 yvec = MetaInformation.Instance ().tileYVector / MetaInformation.Instance ().numGridSquaresPerTile;
 
 		var pos = f.transform.position + f.gridCornerOffset;
 

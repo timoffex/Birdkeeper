@@ -23,10 +23,8 @@ public class ShopMoverGrid_Editor : Editor {
 	}
 
 	private void DoGridHandles (ShopMoverGrid f) {
-		RoomRenderer roomRenderer = GameObject.Find ("Room").GetComponent<RoomRenderer> ();
-		Shop shop = roomRenderer.GetComponent<Shop> ();
-		Vector3 xvec = roomRenderer.generalTile.GetXVector () / shop.numGridTilesPerFloorTile;
-		Vector3 yvec = roomRenderer.generalTile.GetYVector () / shop.numGridTilesPerFloorTile;
+		Vector3 xvec = MetaInformation.Instance ().tileXVector / MetaInformation.Instance ().numGridSquaresPerTile;
+		Vector3 yvec = MetaInformation.Instance ().tileYVector / MetaInformation.Instance ().numGridSquaresPerTile;
 
 		var pos = f.transform.position + (Vector3) f.gridOffset;
 
@@ -44,9 +42,9 @@ public class ShopMoverGrid_Editor : Editor {
 			Undo.RecordObject (f, "Furniture Change Grid X");
 
 
-			IntPair offset = shop.worldToShopCoordinates (newPos - pos + shop.transform.position);
-			f.gridWidth = offset.x - 1;
-			f.gridHeight = offset.y - 1;
+			IntPair offset = MetaInformation.Instance ().WorldToShopVector (newPos - pos);
+			f.gridWidth = offset.x;
+			f.gridHeight = offset.y;
 		});
 
 

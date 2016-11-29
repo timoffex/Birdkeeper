@@ -55,10 +55,9 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 	private SpriteRenderer spriteRenderer;
 
 	void Awake () {
-		var room = GameObject.FindObjectOfType<RoomRenderer> ();
-		float gridPerTile = room.GetComponent<Shop> ().numGridTilesPerFloorTile;
-		gridXVec = room.generalTile.GetXVector () / gridPerTile;
-		gridYVec = room.generalTile.GetYVector () / gridPerTile;
+		float gridPerTile = MetaInformation.Instance ().numGridSquaresPerTile;
+		gridXVec = MetaInformation.Instance ().tileXVector / gridPerTile;
+		gridYVec = MetaInformation.Instance ().tileYVector / gridPerTile;
 
 
 		spriteRenderer = GetComponent<SpriteRenderer> ();
