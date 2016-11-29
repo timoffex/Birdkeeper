@@ -119,21 +119,24 @@ public class MetaInformationEditor : Editor {
 		Rect nameRect = new Rect (25, 0, fullItemRect.width - 125, 25);
 		Rect idRect = new Rect (iconRect.width + nameRect.width, 0, 100, 25);
 
-		Texture2D texture = type.Icon.texture;
+		if (type.Icon != null) {
+			Texture2D texture = type.Icon.texture;
 
-		if (type.Icon.rect.width == type.Icon.texture.width)
-			GUI.Box (iconRect, texture);
-		else {
-			float width = type.Icon.texture.width;
-			float height = type.Icon.texture.height;
+			if (type.Icon.rect.width == type.Icon.texture.width)
+				GUI.Box (iconRect, texture);
+			else {
+				float width = type.Icon.texture.width;
+				float height = type.Icon.texture.height;
 
-			Rect sourceRect = type.Icon.textureRect;
-			Rect normalizedSourceRect = new Rect (sourceRect.x / width, sourceRect.y / height,
-				                            sourceRect.width / width, sourceRect.height / height);
+				Rect sourceRect = type.Icon.textureRect;
+				Rect normalizedSourceRect = new Rect (sourceRect.x / width, sourceRect.y / height,
+					                            sourceRect.width / width, sourceRect.height / height);
 
-			Graphics.DrawTexture (iconRect, texture, normalizedSourceRect,
-				(int)type.Icon.border [0], (int)type.Icon.border [1], (int)type.Icon.border [2], (int)type.Icon.border [3]);
-		}
+				Graphics.DrawTexture (iconRect, texture, normalizedSourceRect,
+					(int)type.Icon.border [0], (int)type.Icon.border [1], (int)type.Icon.border [2], (int)type.Icon.border [3]);
+			}
+		} else
+			GUI.Box (iconRect, (Texture2D)null);
 
 		CheckForDrag<Sprite> (iconRect, false, (spr) => {
 			Undo.RecordObject (info, string.Format ("MetaInformation Change Icon For Item {0}", id));
