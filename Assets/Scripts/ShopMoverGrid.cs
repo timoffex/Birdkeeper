@@ -69,7 +69,7 @@ public class ShopMoverGrid : ShopMover {
 
 
 
-	public override IEnumerator MoveToPosition (IntPair pos, SuccessCallback callback = null) {
+	public override IEnumerator MoveToPosition (IntPair pos, SuccessCallback callback) {
 
 		if (animator != null) animator.SetBool (AnimationStandards.IS_MOVING, true);
 

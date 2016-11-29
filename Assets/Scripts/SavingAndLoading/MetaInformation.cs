@@ -99,6 +99,16 @@ public class MetaInformation : MonoBehaviour {
 		return idToItemType;
 	}
 
+	public int GetNumberOfRegisteredItems () {
+		if (idToItemType == null) {
+			idToItemType = new ItemTypeIDMapType ();
+			instance = this;
+		}
+
+		
+		return idToItemType.Count;
+	}
+
 	public uint GetUnusedItemTypeID () {
 		return GetUnusedIDFor (idToItemType);
 	}

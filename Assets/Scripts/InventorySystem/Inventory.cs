@@ -38,7 +38,7 @@ public class Inventory {
 		ItemStack existingStack = itemStacks.Find ((st) => st.ItemType.Equals (stack.ItemType));
 
 		if (existingStack != null)
-			stack.IncrementCount (stack.Count);
+			existingStack.IncrementCount (stack.Count);
 		else
 			itemStacks.Add (stack);
 	}
