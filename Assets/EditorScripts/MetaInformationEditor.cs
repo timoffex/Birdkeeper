@@ -74,6 +74,14 @@ public class MetaInformationEditor : Editor {
 			var item = new ItemType ("New Item", id, null);
 			info.AddMappingForItemType (id, item);
 		}
+
+
+
+		GUILayout.Space (5);
+		GUILayout.Label ("Other ID Mappings");
+
+		foreach (var kv in info.GetGeneralIDMappings ())
+			GUILayout.Label (string.Format ("Prefab Name: {0}\t| ID: {1}", kv.Value.name, kv.Key));
 	}
 
 

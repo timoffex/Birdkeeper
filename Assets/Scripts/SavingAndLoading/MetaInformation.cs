@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
+using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
 
 
 /// <summary>
 /// This class contains all meta-information associated with our game.
-/// It links furniture IDs and furniture prefabs.
+/// It links furniture IDs to furniture prefabs, item IDs to item scripts, and general IDs to general prefabs.
 /// </summary>
 public class MetaInformation : MonoBehaviour {
 	/// <summary>
@@ -16,6 +17,10 @@ public class MetaInformation : MonoBehaviour {
 
 	[SerializeField]
 	private ItemTypeIDMapType idToItemType;
+
+
+	[SerializeField]
+	private GeneralIDMapType idToGeneral;
 
 
 	public GameObject roomPrefab;
@@ -40,9 +45,10 @@ public class MetaInformation : MonoBehaviour {
 	}
 
 	public void AddMappingForFurniture (uint id, GameObject furniturePrefab) {
-		if (Application.isEditor)
+		if (Application.isEditor) {
 			idToFurniturePrefab.Add (id, furniturePrefab);
-		else {
+			ApplyPrefabChanges ();
+		} else {
 			Debug.LogError ("Cannot add ID mappings during runtime!");
 			throw new UnityException ("The code tried doing something illegal. Please tell Tima at timoffex@gmail.com.");
 		}
@@ -75,9 +81,10 @@ public class MetaInformation : MonoBehaviour {
 	}
 
 	public void AddMappingForItemType (uint id, ItemType itemType) {
-		if (Application.isEditor)
+		if (Application.isEditor) {
 			idToItemType.Add (id, itemType);
-		else {
+			ApplyPrefabChanges ();
+		} else {
 			Debug.LogError ("Cannot add ID mappings during runtime!");
 			throw new UnityException ("The code tried doing something illegal. Please tell Tima at timoffex@gmail.com.");
 		}
@@ -99,6 +106,45 @@ public class MetaInformation : MonoBehaviour {
 
 
 
+	public GameObject GetGeneralObjectByID (uint id) {
+		return idToGeneral [id];
+	}
+
+	public void AddMappingForGeneralObject (uint id, GameObject gameObject) {
+		if (Application.isEditor) {
+			idToGeneral.Add (id, gameObject);
+			ApplyPrefabChanges ();
+		} else {
+			Debug.LogError ("Cannot add ID mappings during runtime!");
+			throw new UnityException ("The code tried doing something illegal. Please tell Tima at timoffex@gmail.com.");
+		}
+	}
+
+	public void RemoveGeneralMappingForID (uint id) {
+		if (Application.isEditor) {
+			idToGeneral.Remove (id);
+			ApplyPrefabChanges ();
+		} else {
+			Debug.LogError ("Cannot add ID mappings during runtime!");
+			throw new UnityException ("The code tried doing something illegal. Please tell Tima at timoffex@gmail.com.");
+		}
+	}
+
+	public IEnumerable<KeyValuePair<uint, GameObject>> GetGeneralIDMappings () {
+		if (idToGeneral == null) {
+			idToGeneral = new GeneralIDMapType ();
+			instance = this;
+		}
+
+		return idToGeneral;
+	}
+
+	public uint GetUnusedGeneralID () {
+		return GetUnusedIDFor (idToGeneral);
+	}
+
+
+
 
 	private uint GetUnusedIDFor (System.Collections.IDictionary dict) {
 		uint id = (uint) Random.Range (1, int.MaxValue);
@@ -114,10 +160,64 @@ public class MetaInformation : MonoBehaviour {
 
 	[System.Serializable] public class FurnitureIDMapType : SerializableDictionary<uint, GameObject> { }
 	[System.Serializable] public class ItemTypeIDMapType : SerializableDictionary<uint, ItemType> { }
+	[System.Serializable] public class GeneralIDMapType : SerializableDictionary<uint, GameObject> { }
 
 	private static MetaInformation instance;
 	public static MetaInformation Instance () {
+		if (instance != null)
+			return instance;
+		
+
+		MetaInformation foundInstance = GameObject.FindObjectOfType<MetaInformation> ();
+		if (foundInstance != null) {
+			instance = foundInstance;
+			return instance;
+		}
+
+
+		if (Application.isEditor) {
+			// Attempt to add our MetaInformation object to the scene!
+			string[] guids = AssetDatabase.FindAssets ("MetaInformation t:prefab", new string[] {"Assets/Prefabs"});
+
+			string[] paths = guids.Select ((s) => AssetDatabase.GUIDToAssetPath (s)).ToArray ();
+
+			if (paths.Length == 1) {
+				Debug.LogFormat ("Loading MetaInformation from path: ", paths [0]);
+
+				GameObject instancePrefab = AssetDatabase.LoadAssetAtPath<GameObject> (paths [0]);
+				GameObject instanceGO = GameObject.Instantiate (instancePrefab);
+				instanceGO = PrefabUtility.ConnectGameObjectToPrefab (instanceGO, instancePrefab);
+
+				instance = instanceGO.GetComponent<MetaInformation> ();
+				if (instance == null) {
+					Debug.LogError ("Loaded MetaInformation prefab but did not find MetaInformation script... destroying loaded object.");
+					DestroyImmediate (instanceGO);
+				}
+
+				return instance;
+			} else if (paths.Length > 1) {
+				Debug.LogError ("Multiple MetaInformation prefabs found:\n" + paths.Aggregate ((s1, s2) => s1 + "\n" + s2));
+			} else {
+				Debug.LogError ("Could not find MetaInformation prefab.");
+			}
+		}
+
+		return null;
+	}
+
+	/// <summary>
+	/// If the instance is null, will not try to instantiate it. Useful in OnDestroy () scripts.
+	/// </summary>
+	/// <returns>The safe.</returns>
+	public static MetaInformation InstanceSafe () {
 		return instance;
+	}
+
+
+	private void ApplyPrefabChanges () {
+		PrefabUtility.ReplacePrefab (gameObject,
+			PrefabUtility.GetPrefabParent (gameObject),
+			ReplacePrefabOptions.ConnectToPrefab);
 	}
 }
 

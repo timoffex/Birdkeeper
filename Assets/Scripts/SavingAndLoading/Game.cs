@@ -55,6 +55,8 @@ public class Game {
 
 	public Inventory inventory = new Inventory (); // empty by default
 
+	public List<GameObject> generalObjectPrefabs = new List<GameObject> ();
+
 
 
 
@@ -108,6 +110,9 @@ public class Game {
 		GameObject.Instantiate (MetaInformation.Instance ().shopPhaseDayCanvasPrefab);
 		GameObject.Instantiate (MetaInformation.Instance ().eventSystemPrefab);
 		GameObject.Instantiate (MetaInformation.Instance ().playerPrefab);
+
+		foreach (GameObject prefab in generalObjectPrefabs)
+			GameObject.Instantiate (prefab);
 	}
 
 
@@ -150,6 +155,10 @@ public class Game {
 		foreach (ItemStack stack in inventory.GetItemStacks ())
 			saveFile.WriteLine (string.Format ("IS {0} {1}", stack.ItemType.ItemTypeID, stack.Count));
 
+
+		foreach (GameIDHolder obj in GameObject.FindObjectsOfType<GameIDHolder> ())
+			saveFile.WriteLine (string.Format ("GEN {0}", obj.GameID));
+
 		saveFile.Close ();
 	}
 
@@ -178,11 +187,15 @@ public class Game {
 
 				furnitureInShop.Add (new FurnitureInfo (fid, position));
 			} else if (line.StartsWith ("IS ")) {
-				Debug.Log (line);
 				string[] itemStackParams = line.Substring (3).Split (' ');
 				uint id = uint.Parse (itemStackParams [0]);
 				int ct = int.Parse (itemStackParams [1]);
 				inventory.AddStack (new ItemStack (MetaInformation.Instance ().GetItemTypeByID (id), ct));
+			} else if (line.StartsWith ("GEN ")) {
+				string[] myParams = line.Substring (4).Split (' ');
+				uint id = uint.Parse (myParams [0]);
+
+				generalObjectPrefabs.Add (MetaInformation.Instance ().GetGeneralObjectByID (id));
 			}
 		}
 
