@@ -89,12 +89,22 @@ public class MetaInformationEditor : Editor {
 		Rect nameRect = new Rect (25, 0, fullItemRect.width - 125, 25);
 		Rect idRect = new Rect (iconRect.width + nameRect.width, 0, 100, 25);
 
+		Texture2D texture = type.Icon.texture;
 
-		Texture2D texture = null;
-		if (type.Icon != null)
-			texture = TextureFromSprite (type.Icon);
+		if (type.Icon.rect.width == type.Icon.texture.width)
+			GUI.Box (iconRect, texture);
+		else {
+			float width = type.Icon.texture.width;
+			float height = type.Icon.texture.height;
 
-		GUI.Box (iconRect, texture);
+			Rect sourceRect = type.Icon.textureRect;
+			Rect normalizedSourceRect = new Rect (sourceRect.x / width, sourceRect.y / height,
+				                            sourceRect.width / width, sourceRect.height / height);
+
+			Graphics.DrawTexture (iconRect, texture, normalizedSourceRect,
+				(int)type.Icon.border [0], (int)type.Icon.border [1], (int)type.Icon.border [2], (int)type.Icon.border [3]);
+		}
+
 		CheckForDrag<Sprite> (iconRect, false, (spr) => {
 			Undo.RecordObject (info, string.Format ("MetaInformation Change Icon For Item {0}", id));
 			type.SetIcon (spr);
@@ -112,22 +122,6 @@ public class MetaInformationEditor : Editor {
 
 
 		GUI.EndGroup ();
-	}
-
-
-
-	private static Texture2D TextureFromSprite (Sprite sp) {
-		if (sp.rect.width != sp.texture.width) {
-			Texture2D newText = new Texture2D((int)sp.rect.width,(int)sp.rect.height);
-			Color[] newColors = sp.texture.GetPixels((int)sp.textureRect.x, 
-				(int)sp.textureRect.y, 
-				(int)sp.textureRect.width, 
-				(int)sp.textureRect.height );
-			newText.SetPixels(newColors);
-			newText.Apply();
-			return newText;
-		} else
-			return sp.texture;
 	}
 
 	private void GameObjectFieldFor (GameObject go, string label, Action<GameObject> setter) {
