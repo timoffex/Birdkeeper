@@ -21,7 +21,7 @@ public class AIMoveRandomlyAndOfferTrades : MonoBehaviour {
 	private IEnumerator BeginAI () {
 
 		while (true) {
-			switch (Random.Range (0, 2)) {
+			switch (Random.Range (0, 3)) {
 			case 0:
 				// Offer a trade.
 				var info = MetaInformation.Instance ();
@@ -60,6 +60,12 @@ public class AIMoveRandomlyAndOfferTrades : MonoBehaviour {
 				Furniture target = shop.GetFurnitureAtIndex (Random.Range (0, shop.GetFurnitureAmount ()));
 
 				yield return myShopMover.MoveToPosition (target.GetStandingPosition (), (succ) => {});
+
+				break;
+
+			case 2:
+
+				yield return DialogSystem.Instance ().DisplayMessage ("You got a message...");
 
 				break;
 			}
