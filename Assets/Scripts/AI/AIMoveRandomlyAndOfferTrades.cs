@@ -17,11 +17,10 @@ public class AIMoveRandomlyAndOfferTrades : MonoBehaviour {
 	}
 
 
-
 	private IEnumerator BeginAI () {
 
 		while (true) {
-			switch (Random.Range (0, 3)) {
+			switch (Random.Range (0, 2)) {
 			case 0:
 				// Offer a trade.
 				var info = MetaInformation.Instance ();
@@ -40,9 +39,17 @@ public class AIMoveRandomlyAndOfferTrades : MonoBehaviour {
 							                     new ItemStack (offType, numOfferedItem),
 							                     new ItemStack (reqType, numRequestItem));
 
+						bool didSucceed = false;
 						yield return TradingDialogUtility.OfferTrade (offer, (success) => {
-							Debug.LogFormat ("Trade was{0} successful.", success ? "" : " not");
+							didSucceed = success;
 						});
+
+
+						if (didSucceed)
+							yield return DialogSystem.Instance ().DisplayMessage ("Trade succeeded.");
+						else
+							yield return DialogSystem.Instance ().DisplayMessage ("Trade failed.");
+
 
 						break;
 					} else
@@ -60,12 +67,6 @@ public class AIMoveRandomlyAndOfferTrades : MonoBehaviour {
 				Furniture target = shop.GetFurnitureAtIndex (Random.Range (0, shop.GetFurnitureAmount ()));
 
 				yield return myShopMover.MoveToPosition (target.GetStandingPosition (), (succ) => {});
-
-				break;
-
-			case 2:
-
-				yield return DialogSystem.Instance ().DisplayMessage ("You got a message...");
 
 				break;
 			}
