@@ -112,7 +112,12 @@ public class MetaInformation : MonoBehaviour {
 
 
 	public ItemType GetItemTypeByID (uint id) {
-		return idToItemType [id];
+		ItemType val;
+
+		if (idToItemType.TryGetValue (id, out val))
+			return val;
+		else
+			return null;
 	}
 
 	public ItemType GetItemTypeByName (string name) {

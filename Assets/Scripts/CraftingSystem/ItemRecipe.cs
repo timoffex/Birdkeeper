@@ -8,19 +8,20 @@ public class ItemRecipe {
 	/// <summary>
 	/// Every stack should be for a unique item type.
 	/// </summary>
-	[SerializeField] private ItemStackList requiredItems;
+	[SerializeField] private ItemStack[] requiredItems;
 
 
 	protected ItemRecipe () {
-		requiredItems = new ItemStackList ();
+		requiredItems = new ItemStack [0];
 	}
 
 
 	public ItemRecipe (ItemStack[] items) {
-		requiredItems = new ItemStackList ();
+		var list = new List<ItemStack> ();
 		foreach (ItemStack stack in items)
 			if (stack != null)
-				requiredItems.Add (stack);
+				list.Add (stack);
+		requiredItems = list.ToArray ();
 	}
 
 
@@ -28,12 +29,20 @@ public class ItemRecipe {
 		return requiredItems.All ((stack) => inv.HasHowManyOf (stack.ItemType) >= stack.Count);
 	}
 
-	public IEnumerable<ItemStack> GetRequiredItems () {
-		return requiredItems;
+	/// <summary>
+	/// Subtracts the required ingredients from the inventory.
+	/// Precondition: CanBeCraftedGiven (inv)
+	/// </summary>
+	/// <param name="inv">Inv.</param>
+	public void UseIngredientsFrom (Inventory inv) {
+		foreach (ItemStack ingredient in requiredItems)
+			inv.SubtractStack (ingredient);
 	}
 
 
-	[Serializable] public class ItemStackList : List<ItemStack> { }
+	public IEnumerable<ItemStack> GetRequiredItems () {
+		return requiredItems;
+	}
 
 
 	public static ItemRecipe NoRecipe () {

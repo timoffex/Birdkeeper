@@ -8,8 +8,8 @@ public class ItemStackDisplayer : MonoBehaviour {
 	public Text itemCount;
 
 	public void DisplayStack (ItemStack stack) {
-		itemIcon.sprite = stack.ItemType.Icon;
-		itemName.text = stack.ItemType.Name;
-		itemCount.text = stack.Count.ToString ();
+		if (itemIcon != null) itemIcon.sprite = stack.ItemType.Icon;
+		if (itemName != null) itemName.text = stack.ItemType.Name;
+		if (itemCount != null) itemCount.text = stack.Count.ToString ();
 	}
 }

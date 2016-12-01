@@ -171,7 +171,7 @@ public class MetaInformationEditor : Editor {
 		for (int i = 0; i < allRequiredItems.Length; i++) {
 			ItemStack stack = allRequiredItems [i];
 			ItemStack newStack;
-			if (DisplayItemStack (target, stack, out newStack)) {
+			if (ItemDisplayEditorUtility.DisplayEditableItemStack (target, stack, out newStack)) {
 				allRequiredItems [i] = newStack;
 				recipeChanged = true;
 			}
@@ -195,47 +195,6 @@ public class MetaInformationEditor : Editor {
 			Undo.RecordObject (target, string.Format ("MetaInformation Changed Recipe For Item {0}", type.Name));
 			type.SetRecipe (new ItemRecipe (allRequiredItems));
 		}
-	}
-
-	private bool DisplayItemStack (MetaInformation target, ItemStack stack, out ItemStack newStack) {
-		ItemType itemType = target.GetItemTypeByID (stack.ItemTypeID);
-		uint itemID = itemType.ItemTypeID;
-		string itemName = itemType.Name;
-
-
-		ItemType[] allItems = target.GetItemTypeMappings ().Select ((kv) => kv.Value).ToArray ();
-		string[] allItemNames = allItems.Select ((item) => item.Name).ToArray ();
-
-		int itemIndex = Array.FindIndex (allItems, (item) => item.ItemTypeID == itemID);
-
-		if (itemIndex == -1) {
-			Debug.LogErrorFormat ("Item not registered!");
-			newStack = null;
-			return false;
-		}
-
-		bool madeChange = false;
-		newStack = stack;
-		EditorGUILayout.BeginHorizontal ();
-
-		EditorGUI.BeginChangeCheck ();
-		int newItemIndex = EditorGUILayout.Popup (itemIndex, allItemNames);
-
-		int newCount = EditorGUILayout.IntField (stack.Count);
-		if (EditorGUI.EndChangeCheck ()) {
-			newStack = new ItemStack (allItems [newItemIndex], newCount);
-			madeChange = true;
-		}
-
-		if (GUILayout.Button ("-")) {
-			newStack = null;
-			madeChange = true;
-		}
-
-		EditorGUILayout.EndHorizontal ();
-		
-
-		return madeChange;
 	}
 
 

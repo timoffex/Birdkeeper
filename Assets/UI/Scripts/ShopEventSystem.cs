@@ -49,6 +49,8 @@ public class ShopEventSystem : EventTrigger {
 		}
 	}
 
+
+
 	public bool MouseClick () {
 		return MouseClickAt (Input.mousePosition);
 	}
