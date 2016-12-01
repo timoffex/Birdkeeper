@@ -17,10 +17,16 @@ public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IS
 	{
 		keys.Clear();
 		values.Clear();
-		foreach(KeyValuePair<TKey, TValue> pair in this)
-		{
-			keys.Add(pair.Key);
-			values.Add(pair.Value);
+
+		KeyCollection oldKeys = this.Keys;
+
+
+		foreach (uint key in oldKeys) {
+			TValue value;
+			if (this.TryGetValue (key, out value)) {
+				keys.Add (key);
+				values.Add (value);
+			}
 		}
 	}
 
