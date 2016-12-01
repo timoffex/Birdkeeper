@@ -21,7 +21,7 @@ public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IS
 		KeyCollection oldKeys = this.Keys;
 
 
-		foreach (uint key in oldKeys) {
+		foreach (TKey key in oldKeys) {
 			TValue value;
 			if (this.TryGetValue (key, out value)) {
 				keys.Add (key);
