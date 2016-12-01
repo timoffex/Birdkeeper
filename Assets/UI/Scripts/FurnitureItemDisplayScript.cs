@@ -13,9 +13,9 @@ public class FurnitureItemDisplayScript : MonoBehaviour {
 			foreach (Transform child in transform)
 				Destroy (child.gameObject);
 
-			foreach (var furnitureItemStack in g.furnitureInventory) {
+			foreach (var furnitureItemStack in g.furnitureInventory.GetFurnitureStacks ()) {
 				var displayer = GameObject.Instantiate (furnitureDisplayPrefab, transform) as FurnitureItemDisplayer;
-				displayer.DisplayFurnitureItem (furnitureItemStack.fid, furnitureItemStack.count);
+				displayer.DisplayFurnitureItem (furnitureItemStack);
 			}
 
 		} else

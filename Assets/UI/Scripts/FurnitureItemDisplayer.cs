@@ -11,13 +11,15 @@ public class FurnitureItemDisplayer : MonoBehaviour, IPointerDownHandler {
 	public Text furnitureName;
 	public Text furnitureCount;
 
-	private System.Action dragOutDelegate;
+	private Furniture_hovering hoverPrefab;
+	private FurnitureStack representedStack;
+	private bool okayToDrag = false;
 
-	public void DisplayFurnitureItem (uint fid, uint count) {
+	public void DisplayFurnitureItem (FurnitureStack stack) {
 		MetaInformation info = MetaInformation.Instance ();
 
 		if (info != null) {
-			GameObject furnitureObj = info.GetFurniturePrefabByID (fid);
+			GameObject furnitureObj = info.GetFurniturePrefabByID (stack.FurnitureID);
 
 			if (furnitureObj != null) {
 
@@ -25,14 +27,11 @@ public class FurnitureItemDisplayer : MonoBehaviour, IPointerDownHandler {
 
 				if (furnitureIcon != null) furnitureIcon.sprite = furniture.GetIcon ();
 				if (furnitureName != null) furnitureName.text = furnitureObj.name;
-				if (furnitureCount != null) furnitureCount.text = count.ToString ();
+				if (furnitureCount != null) furnitureCount.text = stack.Count.ToString ();
 
-				dragOutDelegate = delegate {
-					Debug.Log ("Creating furniture.");
-
-					var draggedObject = GameObject.Instantiate (furniture.GetHoveringPrefab ());
-					StartCoroutine (StartPlacing (fid, draggedObject));
-				};
+				representedStack = stack;
+				okayToDrag = true;
+				hoverPrefab = furniture.GetHoveringPrefab ();
 
 			} else
 				Debug.LogErrorFormat ("Furniture doesn't exist! Something's wrong.");
@@ -43,16 +42,58 @@ public class FurnitureItemDisplayer : MonoBehaviour, IPointerDownHandler {
 	}
 
 	public void OnPointerDown (PointerEventData data) {
-		if (dragOutDelegate != null)
-			dragOutDelegate ();
+		if (okayToDrag)
+			StartCoroutine (StartPlacing (representedStack, GameObject.Instantiate (hoverPrefab)));
 	}
 
 
 
-	private IEnumerator StartPlacing (uint fid, Furniture_hovering draggedObject) {
+	private IEnumerator StartPlacing (FurnitureStack stack, Furniture_hovering draggedObject) {
+
+		if (stack.Count > 0) {
+			if (furnitureCount != null)
+				furnitureCount.text = (stack.Count - 1).ToString ();
+
+			while (true) {
+				if (Input.GetMouseButton (0)) {
+					draggedObject.PositionOverMouse ();
+					yield return new WaitForFixedUpdate ();
+				} else {
+					if (PlaceHoveringFurniture (stack.FurnitureID, draggedObject)) {
+						// Placed successfully. Subtract item from Game.current.furnitureInventory
+						Game.current.furnitureInventory.SubtractOne (stack.FurnitureID);
+					} else {
+						// Didn't place successfully. Restore the count.
+						furnitureCount.text = stack.Count.ToString ();
+					}
+
+					Destroy (draggedObject.gameObject);
+					break;
+				}
+			}
+
+		} else {
+			Debug.Log ("You don't have enough of this furniture item.");
+			Destroy (draggedObject.gameObject);
+		}
+
+	}
 
 
+	private bool PlaceHoveringFurniture (uint fid, Furniture_hovering draggedObject) {
+		Shop shop = Game.current.shop;
 
-		yield return null;
+		if (shop != null) {
+			var shopCoords = draggedObject.GetShopPosition ();
+
+			var furnitureObj = Furniture.InstantiateFurnitureByID (fid);
+			var furniture = furnitureObj.GetComponent<Furniture> ();
+			furniture.PlaceAtLocation (shop, shopCoords);
+
+			return true;
+		} else {
+			Debug.LogError ("No shop object found!");
+			return false;
+		}
 	}
 }

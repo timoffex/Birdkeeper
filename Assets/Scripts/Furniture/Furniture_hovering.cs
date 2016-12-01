@@ -21,6 +21,9 @@ public class Furniture_hovering : MonoBehaviour {
 	private Vector3 gridYVec;
 
 
+	private IntPair shopPosition;
+
+
 	void Awake () {
 		float gridPerTile = MetaInformation.Instance ().numGridSquaresPerTile;
 		gridXVec = MetaInformation.Instance ().tileXVector / gridPerTile;
@@ -38,5 +41,25 @@ public class Furniture_hovering : MonoBehaviour {
 			gridXVec,
 			gridYVec, Color.white);
 	
+	}
+
+
+	public void PositionOverMouse () {
+		Shop shop = Game.current.shop;
+
+		if (shop != null) {
+			
+			shopPosition = shop.worldToShopCoordinates (Camera.main.ScreenToWorldPoint (Input.mousePosition));
+
+			var snappedCoords = shop.shopToWorldCoordinates (shopPosition);
+			
+
+			transform.position = (Vector3)snappedCoords - gridCornerOffset;
+		} else
+			transform.position = Camera.main.ScreenToWorldPoint (Input.mousePosition);
+	}
+
+	public IntPair GetShopPosition () {
+		return shopPosition;
 	}
 }

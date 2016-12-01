@@ -68,7 +68,7 @@ public class Game {
 	public List<FurnitureInfo> furnitureInShop = new List<FurnitureInfo> (); // empty by default
 
 	public Inventory inventory = new Inventory (); // empty by default
-	public List<FurnitureItemStack> furnitureInventory = new List<FurnitureItemStack> (); // empty by default
+	public FurnitureInventory furnitureInventory = new FurnitureInventory (); // empty by default
 
 	public List<GameObject> generalObjectPrefabs = new List<GameObject> ();
 
@@ -202,8 +202,8 @@ public class Game {
 		foreach (ItemStack stack in inventory.GetItemStacks ())
 			saveFile.WriteLine (string.Format ("IS {0} {1}", stack.ItemType.ItemTypeID, stack.Count));
 
-		foreach (FurnitureItemStack fis in furnitureInventory)
-			saveFile.WriteLine (string.Format ("FI {0} {1}", fis.fid, fis.count));
+		foreach (FurnitureStack fis in furnitureInventory.GetFurnitureStacks ())
+			saveFile.WriteLine (string.Format ("FI {0} {1}", fis.FurnitureID, fis.Count));
 
 
 		foreach (GameIDHolder obj in GameObject.FindObjectsOfType<GameIDHolder> ())
@@ -251,7 +251,7 @@ public class Game {
 				uint fid = uint.Parse (myParams [0]);
 				uint count = uint.Parse (myParams [1]);
 
-				furnitureInventory.Add (new FurnitureItemStack (fid, count));
+				furnitureInventory.Add (new FurnitureStack (fid, (int)count));
 			}
 		}
 
