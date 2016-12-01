@@ -256,6 +256,6 @@ public class Game {
 		}
 
 
-		SwitchToPhase (GamePhase.DayPhase);
+		SwitchToPhase (GamePhase.EditPhase);
 	}
 }
