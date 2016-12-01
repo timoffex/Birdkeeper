@@ -37,6 +37,11 @@ public class CraftingPanelScript : MonoBehaviour {
 		optionsZone.gameObject.SetActive (true);
 
 		foreach (ItemType item in craftableItems) {
+			if (item == null) {
+				Debug.LogError ("Item shouldn't be null! Check CraftingWorkbench and CraftingPanel scripts.");
+				continue;
+			}
+
 			var itemDisplay = GameObject.Instantiate (itemTypeDisplayPrefab, optionsZone) as ItemDisplayer;
 			itemDisplay.DisplayItem (item);
 

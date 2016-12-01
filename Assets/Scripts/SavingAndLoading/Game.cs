@@ -14,8 +14,10 @@ public class Game {
 	private static Game _current;
 	public static Game current {
 		get {
-			if (_current == null)
+			if (_current == null) {
+				Debug.Log ("Game was null. Creating the Game object..");
 				_current = new Game ();
+			}
 
 			return _current;
 		}
@@ -40,6 +42,18 @@ public class Game {
 
 
 
+	public class FurnitureItemStack {
+		public FurnitureItemStack (uint fid, uint count) {
+			this.fid = fid;
+			this.count = count;
+		}
+
+		public uint fid;
+		public uint count;
+	}
+
+
+
 	/* Useful references. */
 
 	public Shop shop;
@@ -54,6 +68,7 @@ public class Game {
 	public List<FurnitureInfo> furnitureInShop = new List<FurnitureInfo> (); // empty by default
 
 	public Inventory inventory = new Inventory (); // empty by default
+	public List<FurnitureItemStack> furnitureInventory = new List<FurnitureItemStack> (); // empty by default
 
 	public List<GameObject> generalObjectPrefabs = new List<GameObject> ();
 
@@ -73,15 +88,15 @@ public class Game {
 		case GamePhase.DayPhase:
 			SwitchToShopPhase ();
 			break;
+		case GamePhase.EditPhase:
+			SwitchToEditPhase ();
+			break;
 		}
 	}
 
-	/// <summary>
-	/// Assumes the shop script is already created, and just creates a scene from
-	/// the information within it.
-	/// </summary>
+
 	private void SwitchToShopPhase () {
-		string validSceneName = "GENERATED SCENE";
+		string validSceneName = "Shop Phase Scene";
 
 		while (SceneManager.GetSceneByName (validSceneName).IsValid ())
 			validSceneName = validSceneName + "1";
@@ -115,6 +130,38 @@ public class Game {
 			GameObject.Instantiate (prefab);
 	}
 
+
+	private void SwitchToEditPhase () {
+		string validSceneName = "Edit Phase Scene";
+
+		while (SceneManager.GetSceneByName (validSceneName).IsValid ())
+			validSceneName = validSceneName + "1";
+
+		Scene newScene = SceneManager.CreateScene (validSceneName);
+		Scene currentScene = SceneManager.GetActiveScene ();
+		SceneManager.UnloadScene (currentScene);
+		SceneManager.SetActiveScene (newScene);
+
+		GameObject roomObj = GameObject.Instantiate (MetaInformation.Instance ().roomPrefab) as GameObject;
+		Shop newShop = roomObj.GetComponent<Shop> ();
+		shop = newShop;
+
+
+		FurnitureInfo[] oldFurniture = new FurnitureInfo[furnitureInShop.Count];
+		furnitureInShop.CopyTo (oldFurniture);
+		furnitureInShop.Clear ();
+
+		foreach (FurnitureInfo f in oldFurniture) {
+			var newFurnitureObj = Furniture.InstantiateFurnitureByID (f.furnitureID);
+			var newFurniture = newFurnitureObj.GetComponent<Furniture> ();
+
+			newFurniture.PlaceAtLocation (newShop, f.position);
+		}
+
+		GameObject.Instantiate (MetaInformation.Instance ().shopPhaseEditCanvasPrefab);
+		GameObject.Instantiate (MetaInformation.Instance ().eventSystemPrefab);
+
+	}
 
 
 	/* GAME SAVING / LOADING / CREATION */
@@ -154,6 +201,9 @@ public class Game {
 
 		foreach (ItemStack stack in inventory.GetItemStacks ())
 			saveFile.WriteLine (string.Format ("IS {0} {1}", stack.ItemType.ItemTypeID, stack.Count));
+
+		foreach (FurnitureItemStack fis in furnitureInventory)
+			saveFile.WriteLine (string.Format ("FI {0} {1}", fis.fid, fis.count));
 
 
 		foreach (GameIDHolder obj in GameObject.FindObjectsOfType<GameIDHolder> ())
@@ -196,6 +246,12 @@ public class Game {
 				uint id = uint.Parse (myParams [0]);
 
 				generalObjectPrefabs.Add (MetaInformation.Instance ().GetGeneralObjectByID (id));
+			} else if (line.StartsWith ("FI ")) {
+				string[] myParams = line.Substring (3).Split (' ');
+				uint fid = uint.Parse (myParams [0]);
+				uint count = uint.Parse (myParams [1]);
+
+				furnitureInventory.Add (new FurnitureItemStack (fid, count));
 			}
 		}
 

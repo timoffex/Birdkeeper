@@ -18,12 +18,17 @@ public class CraftingWorkbench : MonoBehaviour {
 			Debug.LogError ("ShopEventSystem not found!");
 		else {
 			ShopEventSystem.Instance ().RegisterClickListener (myCollider, delegate {
-				
 				var craftingPanel = CraftingPanelScript.TryFindInstance ();
 
 				craftingPanel.craftableItems = new List<ItemType> ();
-				foreach (uint craftableID in craftableItemIDs)
-					craftingPanel.craftableItems.Add (info.GetItemTypeByID (craftableID));
+				foreach (uint craftableID in craftableItemIDs) {
+					ItemType myItem = info.GetItemTypeByID (craftableID);
+
+					if (myItem != null)
+						craftingPanel.craftableItems.Add (myItem);
+					else
+						Debug.LogErrorFormat ("Bad Item ID: {0}", craftableID);
+				}
 
 				craftingPanel.transform.SetAsLastSibling ();
 				craftingPanel.gameObject.SetActive (true);

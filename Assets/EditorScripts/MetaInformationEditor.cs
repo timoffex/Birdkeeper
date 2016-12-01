@@ -62,6 +62,11 @@ public class MetaInformationEditor : Editor {
 			info.shopPhaseDayCanvasPrefab = newES;
 		});
 
+		GameObjectFieldFor (info.shopPhaseEditCanvasPrefab, "Shop Phase Edit Canvas Prefab", (newES) => {
+			Undo.RecordObject (info, "MetaInformation Change Shop Phase Edit Canvas Prefab");
+			info.shopPhaseEditCanvasPrefab = newES;
+		});
+
 
 
 
@@ -89,7 +94,9 @@ public class MetaInformationEditor : Editor {
 		GUILayout.Label ("Known Item Types");
 
 
-		foreach (var kv in info.GetItemTypeMappings ())
+		// Necessary because DisplayItem may modify item mappings
+		var allItemMappings = info.GetItemTypeMappings ().ToList ();
+		foreach (var kv in allItemMappings)
 			DisplayItem (info, kv.Key, kv.Value);
 
 

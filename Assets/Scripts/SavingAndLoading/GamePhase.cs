@@ -1,5 +1,5 @@
 ﻿
 
 public enum GamePhase {
-	DayPhase
+	DayPhase, EditPhase
 }

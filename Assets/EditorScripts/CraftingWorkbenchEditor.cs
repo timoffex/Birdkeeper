@@ -27,7 +27,10 @@ public class CraftingWorkbenchEditor : Editor {
 				currentCraftableIDs [i] = 0;
 				madeChange = true;
 			} else if (ItemDisplayEditorUtility.DisplayEditableItemSelection (info, currentItem, out newItem)) {
-				currentCraftableIDs [i] = newItem.ItemTypeID;
+				if (newItem != null)
+					currentCraftableIDs [i] = newItem.ItemTypeID;
+				else
+					currentCraftableIDs [i] = 0;
 				madeChange = true;
 			}
 		}

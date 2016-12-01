@@ -33,6 +33,7 @@ public class MetaInformation : MonoBehaviour {
 	public GameObject eventSystemPrefab;
 	public GameObject shopEditorCanvasPrefab;
 	public GameObject shopPhaseDayCanvasPrefab;
+	public GameObject shopPhaseEditCanvasPrefab;
 
 
 	void Awake () {
@@ -52,8 +53,6 @@ public class MetaInformation : MonoBehaviour {
 	/// <returns>The to shop coordinates.</returns>
 	/// <param name="world">World.</param>
 	public IntPair WorldToShopVector (Vector2 world) {
-		var shop = GameObject.FindObjectOfType<Shop> ();
-
 		Vector2 dif = world;
 
 
@@ -140,7 +139,26 @@ public class MetaInformation : MonoBehaviour {
 			instance = this;
 		}
 
-		return idToItemType;
+		bool remakeDict = false;
+
+		List<KeyValuePair<uint, ItemType>> mySanitizedEntries = new List<KeyValuePair<uint, ItemType>> ();
+		foreach (var entry in idToItemType)
+			if (entry.Key != 0 && entry.Value != null)
+				mySanitizedEntries.Add (entry);
+			else 
+				remakeDict = true;
+
+
+		if (remakeDict) {
+			Debug.Log ("MetaInformation found a null or 0-id entry.");
+			idToItemType = new ItemTypeIDMapType ();
+
+			foreach (var entry in mySanitizedEntries)
+				idToItemType [entry.Key] = entry.Value;
+		}
+		
+
+		return mySanitizedEntries;
 	}
 
 	public int GetNumberOfRegisteredItems () {
