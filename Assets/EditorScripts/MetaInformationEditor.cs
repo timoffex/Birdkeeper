@@ -2,6 +2,7 @@
 using UnityEngine;
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 [CustomEditor(typeof(MetaInformation))]
@@ -10,6 +11,7 @@ public class MetaInformationEditor : Editor {
 
 	public override void OnInspectorGUI () {
 		MetaInformation info = target as MetaInformation;
+		info.SetCurrent ();
 
 
 		EditorGUI.BeginChangeCheck ();
@@ -88,7 +90,7 @@ public class MetaInformationEditor : Editor {
 
 
 		foreach (var kv in info.GetItemTypeMappings ())
-			DisplayItem (kv.Key, kv.Value);
+			DisplayItem (info, kv.Key, kv.Value);
 
 
 		if (GUILayout.Button ("Create Item Type", GUILayout.ExpandWidth (false))) {
@@ -108,7 +110,7 @@ public class MetaInformationEditor : Editor {
 
 
 
-	private void DisplayItem (uint id, ItemType type) {
+	private void DisplayItem (MetaInformation target, uint id, ItemType type) {
 		MetaInformation info = target as MetaInformation;
 
 		Rect fullItemRect = GUILayoutUtility.GetRect (0, 25, GUILayout.ExpandWidth (true));
@@ -138,7 +140,7 @@ public class MetaInformationEditor : Editor {
 		} else
 			GUI.Box (iconRect, (Texture2D)null);
 
-		CheckForDrag<Sprite> (iconRect, false, (spr) => {
+		CheckForDragDrop<Sprite> (iconRect, false, (spr) => {
 			Undo.RecordObject (info, string.Format ("MetaInformation Change Icon For Item {0}", id));
 			type.SetIcon (spr);
 		});
@@ -155,7 +157,87 @@ public class MetaInformationEditor : Editor {
 
 
 		GUI.EndGroup ();
+
+		DisplayItemRecipe (target, type);
 	}
+
+
+	private void DisplayItemRecipe (MetaInformation target, ItemType type) {
+		GUILayout.Label (string.Format ("Recipe for {0}", type.Name));
+
+		ItemStack[] allRequiredItems = type.Recipe.GetRequiredItems ().ToArray ();
+		bool recipeChanged = false;
+
+		for (int i = 0; i < allRequiredItems.Length; i++) {
+			ItemStack stack = allRequiredItems [i];
+			ItemStack newStack;
+			if (DisplayItemStack (target, stack, out newStack)) {
+				allRequiredItems [i] = newStack;
+				recipeChanged = true;
+			}
+		}
+
+		if (GUILayout.Button ("Add to Recipe")) {
+			recipeChanged = true;
+
+			ItemStack[] appendedRecipe = new ItemStack[allRequiredItems.Length + 1];
+			for (int i = 0; i < allRequiredItems.Length; i++)
+				appendedRecipe [i] = allRequiredItems [i];
+
+			ItemType it = target.GetItemTypeMappings ().First ().Value;
+
+			appendedRecipe [appendedRecipe.Length - 1] = new ItemStack (it, 0);
+			allRequiredItems = appendedRecipe;
+		}
+
+
+		if (recipeChanged) {
+			Undo.RecordObject (target, string.Format ("MetaInformation Changed Recipe For Item {0}", type.Name));
+			type.SetRecipe (new ItemRecipe (allRequiredItems));
+		}
+	}
+
+	private bool DisplayItemStack (MetaInformation target, ItemStack stack, out ItemStack newStack) {
+		ItemType itemType = target.GetItemTypeByID (stack.ItemTypeID);
+		uint itemID = itemType.ItemTypeID;
+		string itemName = itemType.Name;
+
+
+		ItemType[] allItems = target.GetItemTypeMappings ().Select ((kv) => kv.Value).ToArray ();
+		string[] allItemNames = allItems.Select ((item) => item.Name).ToArray ();
+
+		int itemIndex = Array.FindIndex (allItems, (item) => item.ItemTypeID == itemID);
+
+		if (itemIndex == -1) {
+			Debug.LogErrorFormat ("Item not registered!");
+			newStack = null;
+			return false;
+		}
+
+		bool madeChange = false;
+		newStack = stack;
+		EditorGUILayout.BeginHorizontal ();
+
+		EditorGUI.BeginChangeCheck ();
+		int newItemIndex = EditorGUILayout.Popup (itemIndex, allItemNames);
+
+		int newCount = EditorGUILayout.IntField (stack.Count);
+		if (EditorGUI.EndChangeCheck ()) {
+			newStack = new ItemStack (allItems [newItemIndex], newCount);
+			madeChange = true;
+		}
+
+		if (GUILayout.Button ("-")) {
+			newStack = null;
+			madeChange = true;
+		}
+
+		EditorGUILayout.EndHorizontal ();
+		
+
+		return madeChange;
+	}
+
 
 	private void GameObjectFieldFor (GameObject go, string label, Action<GameObject> setter) {
 		EditorGUI.BeginChangeCheck ();
@@ -169,10 +251,10 @@ public class MetaInformationEditor : Editor {
 		Rect dropArea = GUILayoutUtility.GetRect (0, 50, GUILayout.ExpandWidth (true));
 		GUI.Box (dropArea, "Drag & Drop Furniture Prefabs");
 
-		CheckForDrag<GameObject> (dropArea, true, process);
+		CheckForDragDrop<GameObject> (dropArea, true, process);
 	}
 
-	private void CheckForDrag<T> (Rect area, bool allowMultiples, Action<T> process) {
+	private void CheckForDragDrop<T> (Rect area, bool allowMultiples, Action<T> process) {
 		Event evt = Event.current;
 
 		switch (evt.type) {
@@ -198,6 +280,7 @@ public class MetaInformationEditor : Editor {
 					}
 				}
 			}
+
 			break;
 		}
 	}

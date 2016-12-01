@@ -2,17 +2,27 @@
 
 [System.Serializable]
 public class ItemStack {
-	[SerializeField] private ItemType itemType;
+	[SerializeField] private uint itemTypeID;
 	[SerializeField] private int count;
 
 
-	public ItemType ItemType { get { return itemType; } }
+	public ItemType ItemType { get { return MetaInformation.Instance ().GetItemTypeByID (itemTypeID); } }
+	public uint ItemTypeID { get { return itemTypeID; } }
 	public int Count { get { return count; } }
 
 
 	public ItemStack (ItemType type, int ct) {
-		itemType = type;
+		itemTypeID = type.ItemTypeID;
 		count = ct;
+	}
+
+
+	public bool ContainsType (ItemType type) {
+		return ItemTypeID == type.ItemTypeID;
+	}
+
+	public bool SameTypeAs (ItemStack stack) {
+		return ItemTypeID == stack.ItemTypeID;
 	}
 
 

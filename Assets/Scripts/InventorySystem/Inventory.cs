@@ -35,7 +35,7 @@ public class Inventory {
 	}
 
 	public void AddStack (ItemStack stack) {
-		ItemStack existingStack = itemStacks.Find ((st) => st.ItemType.Equals (stack.ItemType));
+		ItemStack existingStack = itemStacks.Find ((st) => st.SameTypeAs (stack));
 
 		if (existingStack != null)
 			existingStack.IncrementCount (stack.Count);
@@ -49,7 +49,7 @@ public class Inventory {
 	}
 
 	public int HasHowManyOf (ItemType item) {
-		ItemStack stack = itemStacks.Find ((st) => st.ItemType.Equals (item));
+		ItemStack stack = itemStacks.Find ((st) => st.ContainsType (item));
 
 		if (stack != null)
 			return stack.Count;

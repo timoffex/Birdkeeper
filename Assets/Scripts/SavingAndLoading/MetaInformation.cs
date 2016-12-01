@@ -115,6 +115,10 @@ public class MetaInformation : MonoBehaviour {
 		return idToItemType [id];
 	}
 
+	public ItemType GetItemTypeByName (string name) {
+		return idToItemType.Where ((kv) => kv.Value.Name.Equals (name)).FirstOrDefault ().Value;
+	}
+
 	public void AddMappingForItemType (uint id, ItemType itemType) {
 		if (Application.isEditor) {
 			idToItemType.Add (id, itemType);
@@ -248,6 +252,10 @@ public class MetaInformation : MonoBehaviour {
 		}
 
 		return null;
+	}
+
+	public void SetCurrent () {
+		instance = this;
 	}
 
 	/// <summary>
