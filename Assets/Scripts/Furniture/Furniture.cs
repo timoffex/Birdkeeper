@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class Furniture : MonoBehaviour, IEditorDraggable {
+public class Furniture : MonoBehaviour {
 
 
 	/// <summary>
@@ -14,31 +14,29 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 
 
 
-	public int gridX;
-	public int gridY;
-	private bool[,] objGrid;
-
 	/// <summary>
 	/// Offset of far-away corner on the grid.
 	/// </summary>
 	public Vector3 gridCornerOffset;
+	public int gridX, gridY;
+
 
 
 	public bool renderGrid = false;
 
-	public Sprite icon;
 
 	/// <summary>
 	/// Used when the furniture is being dragged from the editor.
 	/// </summary>
 	public GameObject hoveringPrefab;
+	public Sprite icon;
 
 
 	private Shop shop;
 	private Vector3 gridXVec;
 	private Vector3 gridYVec;
 
-	[UniqueToObject]
+
 	private IntPair shopPosition;
 	private IntPair ShopPosition {
 		get {
@@ -61,11 +59,6 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 
 
 		spriteRenderer = GetComponent<SpriteRenderer> ();
-
-		objGrid = new bool [gridX, gridY];
-		for (int x = 0; x < gridX; x++)
-			for (int y = 0; y < gridY; y++)
-				objGrid [x, y] = true;
 	}
 
 	void Start () {
@@ -75,13 +68,14 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 
 
 	/// <summary>
-	/// Returns objGrid[x,y] considering furniture's rotation.
+	/// Returns objGrid[x,y] considering furniture's rotation. Actually just returns true
+	/// if coordinates are in range.
 	/// </summary>
 	/// <returns><c>true</c>, if grid was gotten, <c>false</c> otherwise.</returns>
 	/// <param name="x">The x coordinate.</param>
 	/// <param name="y">The y coordinate.</param>
 	public bool GetGrid (int x, int y) {
-		return objGrid [x, y] && (x >= 0 && y >= 0 && x < gridX && y < gridY);
+		return (x >= 0 && y >= 0 && x < gridX && y < gridY);
 	}
 
 
@@ -97,7 +91,9 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 				Matrix4x4.TRS (gridCornerOffset, Quaternion.identity, Vector3.one)
 					* transform.localToWorldMatrix;
 
-			GridRenderer.RenderGrid (objGrid,
+			GridRenderer.RenderGrid ((x,y) => GetGrid (x,y),
+				gridX,
+				gridY,
 				localToWorld,
 				gridXVec,
 				gridYVec, Color.white);
@@ -106,19 +102,6 @@ public class Furniture : MonoBehaviour, IEditorDraggable {
 
 	public Sprite GetIcon () {
 		return icon;
-	}
-
-	public bool PlaceCloneAtPosition (Vector3 placementCoords) {
-		var shop = GameObject.FindObjectOfType<Shop> ();
-		var clone = GameObject.Instantiate (gameObject).GetComponent<Furniture> ();
-		var cornerLocation = shop.worldToShopCoordinates (placementCoords);
-
-		if (clone.PlaceAtLocation (shop, cornerLocation))
-			return true;
-		else {
-			Destroy (clone.gameObject);
-			return false;
-		}
 	}
 
 
