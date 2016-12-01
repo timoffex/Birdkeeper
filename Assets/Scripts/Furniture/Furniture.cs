@@ -28,7 +28,7 @@ public class Furniture : MonoBehaviour {
 	/// <summary>
 	/// Used when the furniture is being dragged from the editor.
 	/// </summary>
-	public GameObject hoveringPrefab;
+	public Furniture_hovering hoveringPrefab;
 	public Sprite icon;
 
 
@@ -128,7 +128,7 @@ public class Furniture : MonoBehaviour {
 	}
 
 
-	public GameObject GetHoveringPrefab () {
+	public Furniture_hovering GetHoveringPrefab () {
 		return hoveringPrefab;
 	}
 

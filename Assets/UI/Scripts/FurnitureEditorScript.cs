@@ -58,7 +58,7 @@ public class FurnitureEditorScript : MonoBehaviour {
 		onClickTrigger.callback = new EventTrigger.TriggerEvent ();
 		onClickTrigger.callback.AddListener ((data) => {
 			var hoverer = GameObject.Instantiate (furniturePrefabScript.GetHoveringPrefab ());
-			var fedf = hoverer.AddComponent<FurnitureEditorDraggedFurniture> ();
+			var fedf = hoverer.gameObject.AddComponent<FurnitureEditorDraggedFurniture> ();
 			fedf.furnitureID = fid;
 			fedf.draggedObject = furniturePrefabScript;
 

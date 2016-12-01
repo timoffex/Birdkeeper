@@ -30,6 +30,8 @@ public class FurnitureItemDisplayer : MonoBehaviour, IPointerDownHandler {
 				dragOutDelegate = delegate {
 					Debug.Log ("Creating furniture.");
 
+					var draggedObject = GameObject.Instantiate (furniture.GetHoveringPrefab ());
+					StartCoroutine (StartPlacing (fid, draggedObject));
 				};
 
 			} else
@@ -47,7 +49,10 @@ public class FurnitureItemDisplayer : MonoBehaviour, IPointerDownHandler {
 
 
 
-	private IEnumerator StartPlacing () {
+	private IEnumerator StartPlacing (uint fid, Furniture_hovering draggedObject) {
+
+
+
 		yield return null;
 	}
 }

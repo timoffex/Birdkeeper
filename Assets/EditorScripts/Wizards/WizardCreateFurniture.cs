@@ -27,7 +27,7 @@ public class WizardCreateFurniture : ScriptableWizard {
 		Furniture_hovering hovering = myFurnitureHovering.AddComponent<Furniture_hovering> ();
 
 
-		furniture.hoveringPrefab = myFurniture;
+		furniture.hoveringPrefab = hovering;
 		hovering.originalFurniture = furniture;
 	}
 
