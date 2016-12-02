@@ -10,9 +10,39 @@ FIELD shopPhaseEditCanvasPrefab Prefab Assets/UI/Prefabs/ShopPhaseEditCanvasPref
 Furniture Mappings
 	1829519687 Assets/Prefabs/LogChair.prefab
 	41568608 Assets/Prefabs/Cauldron.prefab
+	305574382 Assets/Prefabs/FinchCage.prefab
+	598015497 Assets/Prefabs/GlassSet.prefab
+	1322477333 Assets/Prefabs/Houseplant.prefab
+	1055436988 Assets/Prefabs/IndoorTree.prefab
+	435603281 Assets/Prefabs/TnHoney.prefab
 Item Type Mappings
-	858003622 'Item A' Assets/Images/Feather_white.png
-	1878090194 'Item B' null
+	858003622 'Feather' Assets/Images/Feather_white.png
+	1878090194 'Feather in a Bottle' Assets/Images/InventoryIcons3.png
 		858003622 1
-		1878090194 2
+		1626868489 1
+	1626868489 'Bottle' Assets/Images/InventoryIcons.png
+	806917880 'Fairy Ring' Assets/Images/InventoryIcons.png
+	446002884 'Jar of Dirt' Assets/Images/InventoryIcons.png
+		1626868489 1
+		806917880 1
+	1147482104 'Stardust' Assets/Images/InventoryIcons.png
+	1365517813 'Sage' Assets/Images/InventoryIcons.png
+	489053865 'Absinthe' Assets/Images/InventoryIcons2.png
+	1217941994 'Wax' Assets/Images/InventoryIcons2.png
+	856579382 'String' Assets/Images/InventoryIcons2.png
+	476958790 'Candle' Assets/Images/InventoryIcons2.png
+		1217941994 1
+		856579382 1
+	856784391 'Snake Venom' Assets/Images/InventoryIcons2.png
+	957089515 'Apple' Assets/Images/InventoryIcons3.png
+	2024411916 'Apple Juice' Assets/Images/InventoryIcons3.png
+		1626868489 1
+		957089515 1
+	179780504 'Poison Apple' Assets/Images/InventoryIcons3.png
+		957089515 1
+		856784391 2
+	854492556 'Squid Ink' Assets/Images/InventoryIcons3.png
+	1804398187 'Pen' Assets/Images/InventoryIcons3.png
+		858003622 1
+		854492556 1
 General Mappings
