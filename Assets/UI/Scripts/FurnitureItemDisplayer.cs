@@ -88,9 +88,9 @@ public class FurnitureItemDisplayer : MonoBehaviour, IPointerDownHandler {
 
 			var furnitureObj = Furniture.InstantiateFurnitureByID (fid);
 			var furniture = furnitureObj.GetComponent<Furniture> ();
-			furniture.PlaceAtLocation (shop, shopCoords);
 
-			return true;
+
+			return furniture.PlaceAtLocation (shop, shopCoords);
 		} else {
 			Debug.LogError ("No shop object found!");
 			return false;
