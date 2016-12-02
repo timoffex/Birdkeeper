@@ -401,6 +401,8 @@ public class MetaInformation : MonoBehaviour {
 				line = reader.ReadLine ();
 			}
 		}
+
+		reader.Close ();
 	}
 
 	private void Clean () {
