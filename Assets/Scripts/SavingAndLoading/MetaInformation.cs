@@ -2,6 +2,7 @@
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 
 /// <summary>
@@ -9,18 +10,9 @@ using System.Linq;
 /// It links furniture IDs to furniture prefabs, item IDs to item scripts, and general IDs to general prefabs.
 /// </summary>
 public class MetaInformation : MonoBehaviour {
-	/// <summary>
-	/// Should not be changed during runtime. Maps Furniture IDs to prefabs.
-	/// </summary>
-	[SerializeField]
-	private FurnitureIDMapType idToFurniturePrefab;
-
-	[SerializeField]
-	private ItemTypeIDMapType idToItemType;
-
-
-	[SerializeField]
-	private GeneralIDMapType idToGeneral;
+	[SerializeField] private FurnitureIDMapType idToFurniturePrefab;
+	[SerializeField] private ItemTypeIDMapType idToItemType;
+	[SerializeField] private GeneralIDMapType idToGeneral;
 
 
 
@@ -37,12 +29,7 @@ public class MetaInformation : MonoBehaviour {
 
 
 	void Awake () {
-		if (Instance () == null) {
-			instance = this;
-		} else if (instance != this) {
-			Debug.Log ("Destroying self!");
-			DestroyImmediate (gameObject);
-		}
+		SetCurrent ();
 	}
 
 
@@ -290,10 +277,252 @@ public class MetaInformation : MonoBehaviour {
 	}
 
 
+	private string GetSaveFilePath () {
+		return System.IO.Path.Combine (Application.dataPath, "MetaInformationSavefile.metainfo");
+	}
+
+
 	private void ApplyPrefabChanges () {
 		PrefabUtility.ReplacePrefab (gameObject,
 			PrefabUtility.GetPrefabParent (gameObject),
 			ReplacePrefabOptions.ConnectToPrefab);
+	}
+
+
+	private string FieldValueToString (object obj) {
+		if (obj is int)
+			return string.Format ("int {0}", obj.ToString ());
+		else if (obj is Vector2)
+			return string.Format ("Vector2 ({0},{1})", ((Vector2)obj).x, ((Vector2)obj).y);
+		else if (obj is GameObject)
+			return string.Format ("Prefab {0}", AssetDatabase.GetAssetPath (PrefabUtility.GetPrefabObject ((Object)obj)));
+		else {
+			Debug.LogErrorFormat ("FieldValueToString doesn't support object! {0}", obj.ToString ());
+			return string.Format ("UNKNOWN {0}", obj.ToString ());
+		}
+	}
+
+	private object StringValueToObject (string objString) {
+		int firstSpace = objString.IndexOf (' ');
+		string type = objString.Substring (0, firstSpace);
+		string value = objString.Substring (firstSpace + 1);
+
+		if (type.Equals ("int"))
+			return int.Parse (value);
+		if (type.Equals ("Vector2")) {
+			int commaIdx = value.IndexOf (',');
+			int lastIdx = value.Length - 1;
+			return new Vector2 (float.Parse (value.Substring (1, commaIdx - 1)),
+				float.Parse (value.Substring (commaIdx + 1, lastIdx - commaIdx - 1)));
+		} else if (type.Equals ("Prefab"))
+			return AssetDatabase.LoadAssetAtPath<GameObject> (value);
+		else {
+			Debug.LogErrorFormat ("Unimplemented MetaInformation type: {0}", type);
+			return null;
+		}
+	}
+
+
+	public void Save () {
+		StreamWriter writer;
+
+
+		if (!File.Exists (GetSaveFilePath ())) {
+			Debug.Log ("Creating meta information save file.");
+			writer = File.CreateText (GetSaveFilePath ());
+		} else {
+			writer = new StreamWriter (GetSaveFilePath ());
+		}
+
+
+		/* save all public variables */
+		foreach (var field in this.GetType ().GetFields ())
+			if (field.IsPublic)
+				writer.WriteLine ("FIELD {0} {1}", field.Name, FieldValueToString (field.GetValue (this)));
+
+
+		writer.WriteLine ("Furniture Mappings");
+		foreach (var kv in idToFurniturePrefab) {
+			uint furnitureID = kv.Key;
+			Object prefab = PrefabUtility.GetPrefabObject (kv.Value);
+			string prefabPath = AssetDatabase.GetAssetPath (prefab);
+
+			writer.WriteLine (string.Format ("\t{0} {1}", furnitureID, prefabPath));
+		}
+
+		writer.WriteLine ("Item Type Mappings");
+		foreach (var kv in idToItemType) {
+			uint itemTypeID = kv.Key;
+			ItemType type = kv.Value;
+
+			string itemName = type.Name;
+			string spritePath = "null";
+			if (type.Icon != null) spritePath = AssetDatabase.GetAssetPath (type.Icon);
+
+			writer.WriteLine (string.Format ("\t{0} '{1}' {2}", itemTypeID, itemName, spritePath));
+			foreach (var stack in type.Recipe.GetRequiredItems ())
+				writer.WriteLine (string.Format ("\t\t{0} {1}", stack.ItemTypeID, stack.Count));
+		}
+
+		writer.WriteLine ("General Mappings");
+		foreach (var kv in idToGeneral) {
+			uint genID = kv.Key;
+			Object prefab = PrefabUtility.GetPrefabObject (kv.Value);
+			string prefabPath = AssetDatabase.GetAssetPath (prefab);
+
+			writer.WriteLine (string.Format ("\t{0} {1}", genID, prefabPath));
+		}
+
+		writer.Close ();
+	}
+
+
+	public void Load () {
+		if (!File.Exists (GetSaveFilePath ()))
+			return;
+		
+
+		StreamReader reader = new StreamReader (GetSaveFilePath ());
+
+		Clean ();
+		string line = reader.ReadLine ();
+		while (line != null) {
+
+			if (line.StartsWith ("FIELD"))
+				line = LoadProcessFieldLine (reader, line);
+			else if (line.Equals ("Furniture Mappings"))
+				line = LoadProcessFurnitureMappings (reader, line);
+			else if (line.Equals ("Item Type Mappings"))
+				line = LoadProcessItemTypeMappings (reader, line);
+			else if (line.Equals ("General Mappings"))
+				line = LoadProcessGeneralMappings (reader, line);
+			else if (!string.IsNullOrEmpty (line)) {
+				Debug.LogFormat ("Ignoring line: {0}", line);
+				line = reader.ReadLine ();
+			}
+		}
+	}
+
+	private void Clean () {
+		idToFurniturePrefab.Clear ();
+		idToItemType.Clear ();
+		idToGeneral.Clear ();
+	}
+
+
+	private string LoadProcessFieldLine (StreamReader reader, string line) {
+		int space1 = line.IndexOf (' ');
+		int space2 = line.IndexOf (' ', space1 + 1);
+
+		string name = line.Substring (space1 + 1, space2 - space1 - 1);
+		string typeAndValue = line.Substring (space2 + 1);
+
+		var myField = typeof(MetaInformation).GetField ("name");
+		if (myField != null) {
+			var val = StringValueToObject (typeAndValue);
+
+			try {
+				myField.SetValue (this, val);
+			} catch {
+				Debug.LogErrorFormat ("Wrong type in MetaInformation savefile. Ignoring {0}", name);
+			}
+		}
+
+		return reader.ReadLine ();
+	}
+
+	private string LoadProcessFurnitureMappings (StreamReader reader, string line) {
+
+		string nextLine = reader.ReadLine ();
+
+		while (nextLine != null && nextLine.StartsWith ("\t")) {
+			int firstIdx = 1;
+			int space1 = nextLine.IndexOf (' ');
+
+			uint fid = uint.Parse (nextLine.Substring (firstIdx, space1 - firstIdx));
+			string prefabPath = nextLine.Substring (space1 + 1);
+			GameObject furniturePrefab = AssetDatabase.LoadAssetAtPath<GameObject> (prefabPath);
+
+
+			if (furniturePrefab != null)
+				idToFurniturePrefab [fid] = furniturePrefab;
+			else
+				Debug.LogErrorFormat ("Could not locate prefab at {0}", prefabPath);
+
+			nextLine = reader.ReadLine ();
+		}
+
+		return nextLine;
+	}
+
+	private string LoadProcessItemTypeMappings (StreamReader reader, string line) {
+
+		string nextLine = reader.ReadLine ();
+
+		while (nextLine != null && nextLine.StartsWith ("\t")) {
+			int firstIdx = 1;
+			int space1 = nextLine.IndexOf (' ');
+			int quote1 = nextLine.IndexOf ('\'');
+			int quote2 = nextLine.IndexOf ('\'', quote1 + 1);
+			int space2 = nextLine.IndexOf (' ', quote2 + 1);
+
+			uint itemID = uint.Parse (nextLine.Substring (firstIdx, space1 - firstIdx));
+			string itemName = nextLine.Substring (quote1 + 1, quote2 - quote1 - 1);
+			string spritePath = nextLine.Substring (space2 + 1);
+
+			Sprite sprite;
+			if (spritePath.Equals ("null"))
+				sprite = null;
+			else
+				sprite = AssetDatabase.LoadAssetAtPath<Sprite> (spritePath);
+
+			ItemType type = new ItemType (itemName, itemID, sprite);
+
+			nextLine = reader.ReadLine ();
+
+			List<ItemStack> recipeStacks = new List<ItemStack> ();
+			while (nextLine != null && nextLine.StartsWith ("\t\t")) {
+				// Read in recipe for item
+				firstIdx = 2;
+				space1 = nextLine.IndexOf (' ');
+
+				uint stackItemID = uint.Parse (nextLine.Substring (firstIdx, space1 - firstIdx));
+				int stackCount = int.Parse (nextLine.Substring (space1 + 1));
+
+				recipeStacks.Add (new ItemStack (stackItemID, stackCount));
+				nextLine = reader.ReadLine ();
+			}
+
+			type.SetRecipe (new ItemRecipe (recipeStacks.ToArray ()));
+
+			idToItemType [itemID] = type;
+		}
+
+		return nextLine;
+	}
+
+	private string LoadProcessGeneralMappings (StreamReader reader, string line) {
+
+		string nextLine = reader.ReadLine ();
+
+		while (nextLine != null && nextLine.StartsWith ("\t")) {
+			int firstIdx = 1;
+			int space1 = nextLine.IndexOf (' ');
+
+			uint genID = uint.Parse (nextLine.Substring (firstIdx, space1 - firstIdx));
+			string prefabPath = nextLine.Substring (space1 + 1);
+			GameObject generalPrefab = AssetDatabase.LoadAssetAtPath<GameObject> (prefabPath);
+
+
+			if (generalPrefab != null)
+				idToGeneral [genID] = generalPrefab;
+			else
+				Debug.LogErrorFormat ("Could not locate prefab at {0}", prefabPath);
+			
+			nextLine = reader.ReadLine ();
+		}
+
+		return nextLine;
 	}
 }
 

@@ -1,0 +1,18 @@
+FIELD tileXVector Vector2 (0.88,-0.44)
+FIELD tileYVector Vector2 (-0.88,-0.44)
+FIELD numGridSquaresPerTile int 3
+FIELD roomPrefab Prefab Assets/Prefabs/Room.prefab
+FIELD playerPrefab Prefab Assets/Prefabs/Boxman.prefab
+FIELD eventSystemPrefab Prefab Assets/UI/Prefabs/EventSystem.prefab
+FIELD shopEditorCanvasPrefab Prefab Assets/Prefabs/ShopEditorCanvas.prefab
+FIELD shopPhaseDayCanvasPrefab Prefab Assets/Prefabs/ShopPhaseDayCanvasPrefab.prefab
+FIELD shopPhaseEditCanvasPrefab Prefab Assets/UI/Prefabs/ShopPhaseEditCanvasPrefab.prefab
+Furniture Mappings
+	1829519687 Assets/Prefabs/LogChair.prefab
+	41568608 Assets/Prefabs/Cauldron.prefab
+Item Type Mappings
+	858003622 'Item A' Assets/Images/Feather_white.png
+	1878090194 'Item B' null
+		858003622 1
+		1878090194 2
+General Mappings

@@ -16,6 +16,11 @@ public class ItemStack {
 		count = ct;
 	}
 
+	public ItemStack (uint typeID, int ct) {
+		itemTypeID = typeID;
+		count = ct;
+	}
+
 
 	public bool ContainsType (ItemType type) {
 		return ItemTypeID == type.ItemTypeID;

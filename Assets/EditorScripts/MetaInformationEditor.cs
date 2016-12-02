@@ -14,6 +14,13 @@ public class MetaInformationEditor : Editor {
 		info.SetCurrent ();
 
 
+		if (GUILayout.Button ("Save to default file"))
+			info.Save ();
+
+		if (GUILayout.Button ("Load from default file"))
+			info.Load ();
+
+
 		EditorGUI.BeginChangeCheck ();
 		var newTileX = EditorGUILayout.Vector2Field ("Tile X Vector", info.tileXVector);
 		if (EditorGUI.EndChangeCheck ()) {

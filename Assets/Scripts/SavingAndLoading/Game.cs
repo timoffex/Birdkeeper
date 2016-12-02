@@ -170,17 +170,18 @@ public class Game {
 	/// Creates a game with default values.
 	/// </summary>
 	public void CreateEmpty () {
-		Scene newScene = SceneManager.CreateScene ("GENERATED SCENE");
-		Scene currentScene = SceneManager.GetActiveScene ();
-		SceneManager.UnloadScene (currentScene);
-		SceneManager.SetActiveScene (newScene);
+		MetaInformation info = MetaInformation.Instance ();
+
+		// Add 3 of each existing furniture to furniture inventory
+		foreach (var mapping in info.GetFurnitureMappings ())
+			furnitureInventory.Add (new FurnitureStack (mapping.Key, 3));
+
+		// Add 10 of each existing item to inventory
+		foreach (var mapping in info.GetItemTypeMappings ())
+			inventory.AddStack (new ItemStack (mapping.Value, 10));
 
 
-		GameObject roomObj = GameObject.Instantiate (MetaInformation.Instance ().roomPrefab);
-		shop = roomObj.GetComponent<Shop> ();
-		GameObject.Instantiate (MetaInformation.Instance ().shopEditorCanvasPrefab);
-		GameObject.Instantiate (MetaInformation.Instance ().eventSystemPrefab);
-		GameObject.Instantiate (MetaInformation.Instance ().playerPrefab);
+		SwitchToPhase (GamePhase.EditPhase);
 	}
 
 
