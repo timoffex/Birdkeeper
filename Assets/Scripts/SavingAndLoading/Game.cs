@@ -178,7 +178,7 @@ public class Game {
 
 		// Add 10 of each existing item to inventory
 		foreach (var mapping in info.GetItemTypeMappings ())
-			inventory.AddStack (new ItemStack (mapping.Value, 10));
+			inventory.AddStack (new ItemStack (mapping.Key, 10));
 
 
 		SwitchToPhase (GamePhase.EditPhase);
@@ -241,7 +241,7 @@ public class Game {
 				string[] itemStackParams = line.Substring (3).Split (' ');
 				uint id = uint.Parse (itemStackParams [0]);
 				int ct = int.Parse (itemStackParams [1]);
-				inventory.AddStack (new ItemStack (MetaInformation.Instance ().GetItemTypeByID (id), ct));
+				inventory.AddStack (new ItemStack (id, ct));
 			} else if (line.StartsWith ("GEN ")) {
 				string[] myParams = line.Substring (4).Split (' ');
 				uint id = uint.Parse (myParams [0]);
