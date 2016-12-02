@@ -87,7 +87,7 @@ public class MetaInformation : MonoBehaviour {
 
 
 	public uint GetUnusedFurnitureID () {
-		return GetUnusedIDFor (idToFurniturePrefab);
+		return GetUnusedIDFor<GameObject> (idToFurniturePrefab);
 	}
 
 	public bool ContainsMappingForFurnitureNamed (string name) {
@@ -159,7 +159,7 @@ public class MetaInformation : MonoBehaviour {
 	}
 
 	public uint GetUnusedItemTypeID () {
-		return GetUnusedIDFor (idToItemType);
+		return GetUnusedIDFor<ItemType> (idToItemType);
 	}
 
 
@@ -199,16 +199,16 @@ public class MetaInformation : MonoBehaviour {
 	}
 
 	public uint GetUnusedGeneralID () {
-		return GetUnusedIDFor (idToGeneral);
+		return GetUnusedIDFor<GameObject> (idToGeneral);
 	}
 
 
 
 
-	private uint GetUnusedIDFor (System.Collections.IDictionary dict) {
+	private uint GetUnusedIDFor<V> (IDictionary<uint,V> dict) {
 		uint id = (uint) Random.Range (1, int.MaxValue);
 
-		while (dict.Contains (id))
+		while (dict.ContainsKey (id))
 			id = (uint)Random.Range (1, int.MaxValue); // TODO: technically, a little unsafe
 
 		return id;
