@@ -28,6 +28,7 @@ public class TileEditor : Editor {
 
 		if (EditorGUI.EndChangeCheck ()) {
 			Undo.RecordObject (t, "Tile Change X Vector");
+			EditorUtility.SetDirty (target);
 			t.SetXVector (xVec - t.transform.position);
 		}
 
@@ -40,6 +41,7 @@ public class TileEditor : Editor {
 
 		if (EditorGUI.EndChangeCheck ()) {
 			Undo.RecordObject (t, "Tile Change Y Vector");
+			EditorUtility.SetDirty (target);
 			t.SetYVector (yVec - t.transform.position);
 		}
 	}

@@ -23,6 +23,7 @@ public class FurnitureEditor : Editor {
 
 		if (EditorGUI.EndChangeCheck ()) {
 			Undo.RecordObject (f, "Furniture Change Grid Corner Offset");
+			EditorUtility.SetDirty (f);
 			f.gridCornerOffset = offs - pos;
 		}
 	}
@@ -48,6 +49,7 @@ public class FurnitureEditor : Editor {
 			               0.1f * HandleUtility.GetHandleSize (pos + xExtent), Vector3.zero, Handles.DotCap);
 		if (EditorGUI.EndChangeCheck ()) {
 			Undo.RecordObject (f, "Furniture Change Grid X");
+			EditorUtility.SetDirty (f);
 
 			f.gridX = (int) Mathf.Round((newX - pos).magnitude / xvec.magnitude);
 		}
@@ -58,6 +60,7 @@ public class FurnitureEditor : Editor {
 			               0.1f * HandleUtility.GetHandleSize (pos + yExtent), Vector3.zero, Handles.DotCap);
 		if (EditorGUI.EndChangeCheck ()) {
 			Undo.RecordObject (f, "Furniture Change Grid Y");
+			EditorUtility.SetDirty (f);
 
 			f.gridY = (int) Mathf.Round((newY - pos).magnitude / yvec.magnitude);
 		}

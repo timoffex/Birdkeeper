@@ -17,6 +17,7 @@ public class ShopMoverGrid_Editor : Editor {
 
 		GridEditor.DrawVec3Handle (f.transform.position + (Vector3)f.gridOffset, delegate (Vector3 offs) {
 			Undo.RecordObject (f, "ShopMoverGrid Change Grid Corner Offset");
+			EditorUtility.SetDirty (target);
 			f.gridOffset = offs - f.transform.position;
 		});
 
@@ -40,6 +41,7 @@ public class ShopMoverGrid_Editor : Editor {
 
 		GridEditor.DrawVec3Handle (pos + xExtent + yExtent, delegate (Vector3 newPos) {
 			Undo.RecordObject (f, "Furniture Change Grid X");
+			EditorUtility.SetDirty (target);
 
 
 			IntPair offset = MetaInformation.Instance ().WorldToShopVector (newPos - pos);

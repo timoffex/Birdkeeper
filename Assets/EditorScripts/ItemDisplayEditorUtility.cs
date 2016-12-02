@@ -62,7 +62,7 @@ public static class ItemDisplayEditorUtility {
 		if (itemIndex == -1) {
 			Debug.LogErrorFormat ("Item {0} is not registered!", itemName);
 			newItem = null;
-			return false;
+			return true;
 		}
 
 

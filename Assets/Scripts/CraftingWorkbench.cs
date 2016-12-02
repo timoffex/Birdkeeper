@@ -15,7 +15,7 @@ public class CraftingWorkbench : MonoBehaviour {
 		var evtSys = ShopEventSystem.Instance ();
 
 		if (evtSys == null)
-			Debug.LogError ("ShopEventSystem not found!");
+			Debug.Log ("ShopEventSystem not found.");
 		else {
 			ShopEventSystem.Instance ().RegisterClickListener (myCollider, delegate {
 				var craftingPanel = CraftingPanelScript.TryFindInstance ();

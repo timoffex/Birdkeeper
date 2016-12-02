@@ -13,8 +13,6 @@ public class CraftingWorkbenchEditor : Editor {
 
 		uint[] currentCraftableIDs = workbench.craftableItemIDs;
 
-
-
 		bool madeChange = false;
 
 
@@ -57,9 +55,10 @@ public class CraftingWorkbenchEditor : Editor {
 		// Remove all null entries and save
 		if (madeChange) {
 			uint[] finalCraftable = currentCraftableIDs.Where ((itemID) => itemID != 0).ToArray ();
-
-			Undo.RecordObject (workbench, "CraftingWorkbench Changed Crafting Options");
 			workbench.craftableItemIDs = finalCraftable;
+
+			Undo.RecordObject (workbench, "CraftingWorkbench Change Craftable Items");
+			EditorUtility.SetDirty (workbench);
 		}
 
 	}

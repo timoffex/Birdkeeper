@@ -17,14 +17,17 @@ public class MetaInformationEditor : Editor {
 		if (GUILayout.Button ("Save to default file"))
 			info.Save ();
 
-		if (GUILayout.Button ("Load from default file"))
+		if (GUILayout.Button ("Load from default file")) {
 			info.Load ();
+			EditorUtility.SetDirty (target);
+		}
 
 
 		EditorGUI.BeginChangeCheck ();
 		var newTileX = EditorGUILayout.Vector2Field ("Tile X Vector", info.tileXVector);
 		if (EditorGUI.EndChangeCheck ()) {
 			Undo.RecordObject (info, "MetaInformation Change Tile X Vector");
+			EditorUtility.SetDirty (target);
 			info.tileXVector = newTileX;
 		}
 
@@ -33,6 +36,7 @@ public class MetaInformationEditor : Editor {
 		var newTileY = EditorGUILayout.Vector2Field ("Tile Y Vector", info.tileYVector);
 		if (EditorGUI.EndChangeCheck ()) {
 			Undo.RecordObject (info, "MetaInformation Change Tile Y Vector");
+			EditorUtility.SetDirty (target);
 			info.tileYVector = newTileY;
 		}
 
@@ -40,37 +44,44 @@ public class MetaInformationEditor : Editor {
 		var newNumGridSquaresPerTile = EditorGUILayout.IntField ("# Grid Squares / Tile", info.numGridSquaresPerTile);
 		if (EditorGUI.EndChangeCheck ()) {
 			Undo.RecordObject (info, "MetaInformation Change Num Grid Squares Per Tile");
+			EditorUtility.SetDirty (target);
 			info.numGridSquaresPerTile = newNumGridSquaresPerTile;
 		}
 
 
 		GameObjectFieldFor (info.playerPrefab, "Player Prefab", (newPlayer) => {
 			Undo.RecordObject (info, "MetaInformation Change Player Prefab");
+			EditorUtility.SetDirty (target);
 			info.playerPrefab = newPlayer;
 		});
 
 		GameObjectFieldFor (info.roomPrefab, "Room Prefab", (newRoom) => {
 			Undo.RecordObject (info, "MetaInformation Change Room Prefab");
+			EditorUtility.SetDirty (target);
 			info.roomPrefab = newRoom;
 		});
 
 		GameObjectFieldFor (info.eventSystemPrefab, "Event System Prefab", (newES) => {
 			Undo.RecordObject (info, "MetaInformation Change Event System Prefab");
+			EditorUtility.SetDirty (target);
 			info.eventSystemPrefab = newES;
 		});
 
 		GameObjectFieldFor (info.shopEditorCanvasPrefab, "Shop Editor Canvas Prefab", (newES) => {
 			Undo.RecordObject (info, "MetaInformation Change Shop Editor Canvas Prefab");
+			EditorUtility.SetDirty (target);
 			info.shopEditorCanvasPrefab = newES;
 		});
 
 		GameObjectFieldFor (info.shopPhaseDayCanvasPrefab, "Shop Phase Day Canvas Prefab", (newES) => {
 			Undo.RecordObject (info, "MetaInformation Change Shop Phase Day Canvas Prefab");
+			EditorUtility.SetDirty (target);
 			info.shopPhaseDayCanvasPrefab = newES;
 		});
 
 		GameObjectFieldFor (info.shopPhaseEditCanvasPrefab, "Shop Phase Edit Canvas Prefab", (newES) => {
 			Undo.RecordObject (info, "MetaInformation Change Shop Phase Edit Canvas Prefab");
+			EditorUtility.SetDirty (target);
 			info.shopPhaseEditCanvasPrefab = newES;
 		});
 
@@ -89,6 +100,7 @@ public class MetaInformationEditor : Editor {
 			if (obj.GetComponent<Furniture> () != null) {
 				if (!info.ContainsMappingForFurnitureNamed (obj.name)) {
 					Undo.RecordObject (info, "MetaInformation Add Furniture Mapping");
+					EditorUtility.SetDirty (target);
 					info.AddMappingForFurniture (info.GetUnusedFurnitureID (), obj);
 				} else {
 					Debug.Log (string.Format ("Already have a mapping for {0}", obj.name));
@@ -156,6 +168,7 @@ public class MetaInformationEditor : Editor {
 
 		CheckForDragDrop<Sprite> (iconRect, false, (spr) => {
 			Undo.RecordObject (info, string.Format ("MetaInformation Change Icon For Item {0}", id));
+			EditorUtility.SetDirty (target);
 			type.SetIcon (spr);
 		});
 
@@ -164,6 +177,7 @@ public class MetaInformationEditor : Editor {
 		var newName = GUI.TextField (nameRect, string.Format ("{0}", type.Name));
 		if (EditorGUI.EndChangeCheck ()) {
 			Undo.RecordObject (info, string.Format ("MetaInformation Change Item Name For Item {0}", id));
+			EditorUtility.SetDirty (target);
 			type.SetName (newName);
 		}
 
@@ -207,6 +221,7 @@ public class MetaInformationEditor : Editor {
 
 		if (recipeChanged) {
 			Undo.RecordObject (target, string.Format ("MetaInformation Changed Recipe For Item {0}", type.Name));
+			EditorUtility.SetDirty (target);
 			type.SetRecipe (new ItemRecipe (allRequiredItems));
 		}
 	}
