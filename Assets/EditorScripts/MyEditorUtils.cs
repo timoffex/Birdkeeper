@@ -40,7 +40,7 @@ public static class MyEditorUtils {
 		if (spr == null)
 			GUI.Box (area, (Texture2D)null);
 		else if (spr.rect.width == spr.texture.width)
-			GUI.Box (area, spr.texture);
+			GUI.DrawTexture (area, spr.texture, ScaleMode.ScaleToFit);
 		else {
 			float width = spr.texture.width;
 			float height = spr.texture.height;
@@ -49,7 +49,25 @@ public static class MyEditorUtils {
 			Rect normalizedSourceRect = new Rect (sourceRect.x / width, sourceRect.y / height,
 				sourceRect.width / width, sourceRect.height / height);
 
-			Graphics.DrawTexture (area, spr.texture, normalizedSourceRect,
+			float aspectRatio = sourceRect.width / sourceRect.height;
+
+			Rect areaCorrectAspect;
+			if (aspectRatio >= 1) {
+				var center = area.center;
+				var newSize = new Vector2 (area.width, area.height / aspectRatio);
+				areaCorrectAspect = new Rect ();
+				areaCorrectAspect.size = newSize;
+				areaCorrectAspect.center = center;
+			} else {
+				var center = area.center;
+				var newSize = new Vector2 (area.width * aspectRatio, area.height);
+				areaCorrectAspect = new Rect ();
+				areaCorrectAspect.size = newSize;
+				areaCorrectAspect.center = center;
+			}
+			
+
+			Graphics.DrawTexture (areaCorrectAspect, spr.texture, normalizedSourceRect,
 				(int)spr.border [0], (int)spr.border [1], (int)spr.border [2], (int)spr.border [3]);
 		}
 	}

@@ -110,9 +110,11 @@ public static class ItemDisplayEditorUtility {
 
 
 		// Reserve layout space for the item header.
-		Rect headerRect = GUILayoutUtility.GetRect (0, 36, GUILayout.ExpandWidth (true));
+		Rect outlineRect = GUILayoutUtility.GetRect (0, 40, GUILayout.ExpandWidth (true));
+		Rect headerRect = new Rect (outlineRect.x + 2, outlineRect.y + 2, outlineRect.width - 4, 36);
 
 		#region Display Header
+		GUI.Box (outlineRect, "");
 		GUI.BeginGroup (headerRect);
 
 		// All of our rectangles
