@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: bcdb6f2bf7dee404aac5aa05967bd304
-timeCreated: 1480285527
+timeCreated: 1480746642
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -57,13 +57,13 @@ TextureImporter:
       name: DialogueBox_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 252
-        height: 127
+        x: 53
+        y: 92
+        width: 14
+        height: 14
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 10, y: 10, z: 10, w: 10}
+      border: {x: 6, y: 6, z: 6, w: 6}
       outline: []
       tessellationDetail: 0
     outline: []
