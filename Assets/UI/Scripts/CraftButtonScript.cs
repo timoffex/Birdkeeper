@@ -8,8 +8,8 @@ public class CraftButtonScript : MonoBehaviour {
 	
 	public void Craft () {
 		if (recipeDisplayer.CraftRecipe ())
-			StartCoroutine (DialogSystem.Instance ().DisplayMessage ("Crafted successfully!"));
+			NotificationSystem.ShowNotificationIfPossible ("Crafted successfully!");
 		else
-			StartCoroutine (DialogSystem.Instance ().DisplayMessage ("Could not craft the item :c"));
+			NotificationSystem.ShowNotificationIfPossible ("Could not craft the item :c");
 	}
 }
