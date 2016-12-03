@@ -84,6 +84,10 @@ public class Game {
 
 
 	public void SwitchToPhase (GamePhase phase) {
+
+		/* Auto save! */
+		Save (File.OpenWrite (Path.Combine (Application.persistentDataPath, "AutoSave.sg1")));
+
 		switch (phase) {
 		case GamePhase.DayPhase:
 			SwitchToShopPhase ();
@@ -256,6 +260,7 @@ public class Game {
 			}
 		}
 
+		saveFile.Close ();
 
 		SwitchToPhase (GamePhase.EditPhase);
 	}
