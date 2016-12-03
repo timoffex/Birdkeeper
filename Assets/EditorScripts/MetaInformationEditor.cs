@@ -9,6 +9,9 @@ using System.Collections.Generic;
 public class MetaInformationEditor : Editor {
 
 
+	private Dictionary<uint, bool> showRecipeDict = new Dictionary<uint, bool>();
+
+
 	public override void OnInspectorGUI () {
 		MetaInformation info = target as MetaInformation;
 		info.SetCurrent ();
@@ -115,9 +118,10 @@ public class MetaInformationEditor : Editor {
 
 		// Necessary because DisplayItem may modify item mappings
 		var allItemMappings = info.GetItemTypeMappings ().ToList ();
-		foreach (var kv in allItemMappings)
+		foreach (var kv in allItemMappings) {
 			DisplayItem (info, kv.Key, kv.Value);
-
+			GUILayout.Space (5);
+		}
 
 		if (GUILayout.Button ("Create Item Type", GUILayout.ExpandWidth (false))) {
 			uint id = info.GetUnusedItemTypeID ();
@@ -137,95 +141,26 @@ public class MetaInformationEditor : Editor {
 
 
 	private void DisplayItem (MetaInformation target, uint id, ItemType type) {
-		MetaInformation info = target as MetaInformation;
+		bool showRecipe;
+		if (!showRecipeDict.TryGetValue (id, out showRecipe))
+			showRecipe = false;
 
-		Rect fullItemRect = GUILayoutUtility.GetRect (0, 25, GUILayout.ExpandWidth (true));
-
-		GUI.BeginGroup (fullItemRect);
-
-		Rect iconRect = new Rect (0, 0, 25, 25);
-		Rect nameRect = new Rect (25, 0, fullItemRect.width - 125, 25);
-		Rect idRect = new Rect (iconRect.width + nameRect.width, 0, 100, 25);
-
-		if (type.Icon != null) {
-			Texture2D texture = type.Icon.texture;
-
-			if (type.Icon.rect.width == type.Icon.texture.width)
-				GUI.Box (iconRect, texture);
-			else {
-				float width = type.Icon.texture.width;
-				float height = type.Icon.texture.height;
-
-				Rect sourceRect = type.Icon.textureRect;
-				Rect normalizedSourceRect = new Rect (sourceRect.x / width, sourceRect.y / height,
-					                            sourceRect.width / width, sourceRect.height / height);
-
-				Graphics.DrawTexture (iconRect, texture, normalizedSourceRect,
-					(int)type.Icon.border [0], (int)type.Icon.border [1], (int)type.Icon.border [2], (int)type.Icon.border [3]);
-			}
-		} else
-			GUI.Box (iconRect, (Texture2D)null);
-
-		CheckForDragDrop<Sprite> (iconRect, false, (spr) => {
-			Undo.RecordObject (info, string.Format ("MetaInformation Change Icon For Item {0}", id));
-			EditorUtility.SetDirty (target);
-			type.SetIcon (spr);
-		});
-
-
-		EditorGUI.BeginChangeCheck ();
-		var newName = GUI.TextField (nameRect, string.Format ("{0}", type.Name));
-		if (EditorGUI.EndChangeCheck ()) {
-			Undo.RecordObject (info, string.Format ("MetaInformation Change Item Name For Item {0}", id));
-			EditorUtility.SetDirty (target);
-			type.SetName (newName);
-		}
-
-		GUI.Label (idRect, id.ToString ());
-
-
-		GUI.EndGroup ();
-
-		DisplayItemRecipe (target, type);
-	}
-
-
-	private void DisplayItemRecipe (MetaInformation target, ItemType type) {
-		GUILayout.Label (string.Format ("Recipe for {0}", type.Name));
-
-		ItemStack[] allRequiredItems = type.Recipe.GetRequiredItems ().ToArray ();
-		bool recipeChanged = false;
-
-		for (int i = 0; i < allRequiredItems.Length; i++) {
-			ItemStack stack = allRequiredItems [i];
-			ItemStack newStack;
-			if (ItemDisplayEditorUtility.DisplayEditableItemStack (target, stack, out newStack)) {
-				allRequiredItems [i] = newStack;
-				recipeChanged = true;
+		ItemType newItem;
+		bool newShowRecipe;
+		if (ItemDisplayEditorUtility.DisplayEditableItemType (target, type, showRecipe, out newItem, out newShowRecipe)) {
+			if (newItem == null) {
+				Undo.RecordObject (target, "MetaInformation Deleted Item");
+				EditorUtility.SetDirty (target);
+				target.AddMappingForItemType (id, null);
+			} else {
+				Undo.RecordObject (target, "MetaInformation Changed Item Type");
+				EditorUtility.SetDirty (target);
+				target.AddMappingForItemType (id, newItem);
 			}
 		}
 
-		if (GUILayout.Button ("Add to Recipe")) {
-			recipeChanged = true;
-
-			ItemStack[] appendedRecipe = new ItemStack[allRequiredItems.Length + 1];
-			for (int i = 0; i < allRequiredItems.Length; i++)
-				appendedRecipe [i] = allRequiredItems [i];
-
-			ItemType it = target.GetItemTypeMappings ().First ().Value;
-
-			appendedRecipe [appendedRecipe.Length - 1] = new ItemStack (it, 0);
-			allRequiredItems = appendedRecipe;
-		}
-
-
-		if (recipeChanged) {
-			Undo.RecordObject (target, string.Format ("MetaInformation Changed Recipe For Item {0}", type.Name));
-			EditorUtility.SetDirty (target);
-			type.SetRecipe (new ItemRecipe (allRequiredItems));
-		}
+		showRecipeDict [id] = newShowRecipe;
 	}
-
 
 	private void GameObjectFieldFor (GameObject go, string label, Action<GameObject> setter) {
 		EditorGUI.BeginChangeCheck ();
@@ -239,37 +174,7 @@ public class MetaInformationEditor : Editor {
 		Rect dropArea = GUILayoutUtility.GetRect (0, 50, GUILayout.ExpandWidth (true));
 		GUI.Box (dropArea, "Drag & Drop Furniture Prefabs");
 
-		CheckForDragDrop<GameObject> (dropArea, true, process);
-	}
 
-	private void CheckForDragDrop<T> (Rect area, bool allowMultiples, Action<T> process) {
-		Event evt = Event.current;
-
-		switch (evt.type) {
-		case EventType.DragUpdated:
-		case EventType.DragPerform:
-			if (area.Contains (evt.mousePosition)) {
-				DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-
-				if (evt.type == EventType.DragPerform) {
-					DragAndDrop.AcceptDrag ();
-
-					foreach (object draggedObj in DragAndDrop.objectReferences) {
-						if (draggedObj is T) {
-							process ((T)draggedObj);
-
-							if (!allowMultiples)
-								break;
-						} else {
-							string errorText = string.Format ("Please enter an object of type {0}", typeof(T).Name);
-							Debug.Log (errorText);
-							EditorWindow.focusedWindow.ShowNotification (new GUIContent (errorText));
-						}
-					}
-				}
-			}
-
-			break;
-		}
+		MyEditorUtils.CheckForDragDrop<GameObject> (dropArea, true, process);
 	}
 }

@@ -112,7 +112,11 @@ public class MetaInformation : MonoBehaviour {
 
 	public void AddMappingForItemType (uint id, ItemType itemType) {
 		if (Application.isEditor) {
-			idToItemType.Add (id, itemType);
+			if (itemType == null) {
+				if (idToItemType.ContainsKey (id))
+					idToItemType.Remove (id);
+			} else
+				idToItemType [id] = itemType;
 			ApplyPrefabChanges ();
 		} else {
 			Debug.LogError ("Cannot add ID mappings during runtime!");
