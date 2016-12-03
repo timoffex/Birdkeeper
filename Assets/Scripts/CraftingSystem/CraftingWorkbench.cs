@@ -20,19 +20,22 @@ public class CraftingWorkbench : MonoBehaviour {
 			ShopEventSystem.Instance ().RegisterClickListener (myCollider, delegate {
 				var craftingPanel = CraftingPanelScript.TryFindInstance ();
 
-				craftingPanel.craftableItems = new List<ItemType> ();
-				foreach (uint craftableID in craftableItemIDs) {
-					ItemType myItem = info.GetItemTypeByID (craftableID);
 
-					if (myItem != null)
-						craftingPanel.craftableItems.Add (myItem);
-					else
-						Debug.LogErrorFormat ("Bad Item ID: {0}", craftableID);
-				}
+				if (craftingPanel != null) {
+					craftingPanel.craftableItems = new List<ItemType> ();
+					foreach (uint craftableID in craftableItemIDs) {
+						ItemType myItem = info.GetItemTypeByID (craftableID);
 
-				craftingPanel.transform.SetAsLastSibling ();
-				craftingPanel.gameObject.SetActive (true);
+						if (myItem != null)
+							craftingPanel.craftableItems.Add (myItem);
+						else
+							Debug.LogErrorFormat ("Bad Item ID: {0}", craftableID);
+					}
 
+					craftingPanel.transform.SetAsLastSibling ();
+					craftingPanel.gameObject.SetActive (true);
+				} else
+					Debug.LogError ("Could not find the CraftingPanelScript in scene; not displaying crafting screen.");
 			});
 		}
 	}

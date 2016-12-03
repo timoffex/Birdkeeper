@@ -4,8 +4,8 @@ FIELD numGridSquaresPerTile int 3
 FIELD roomPrefab Prefab Assets/Prefabs/Room.prefab
 FIELD playerPrefab Prefab Assets/Prefabs/Boxman.prefab
 FIELD eventSystemPrefab Prefab Assets/UI/Prefabs/EventSystem.prefab
-FIELD shopEditorCanvasPrefab Prefab Assets/Prefabs/ShopEditorCanvas.prefab
-FIELD shopPhaseDayCanvasPrefab Prefab Assets/Prefabs/ShopPhaseDayCanvasPrefab.prefab
+FIELD shopEditorCanvasPrefab Prefab Assets/UI/Prefabs/ShopEditorCanvas.prefab
+FIELD shopPhaseDayCanvasPrefab Prefab Assets/UI/Prefabs/ShopPhaseDayCanvasPrefab.prefab
 FIELD shopPhaseEditCanvasPrefab Prefab Assets/UI/Prefabs/ShopPhaseEditCanvasPrefab.prefab
 Furniture Mappings
 	1829519687 Assets/Prefabs/LogChair.prefab
