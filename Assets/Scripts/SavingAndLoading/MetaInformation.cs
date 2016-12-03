@@ -359,7 +359,7 @@ public class MetaInformation : MonoBehaviour {
 			string spritePath = "null";
 			if (type.Icon != null) spritePath = AssetDatabase.GetAssetPath (type.Icon);
 
-			writer.WriteLine (string.Format ("\t{0} '{1}' {2}", itemTypeID, itemName, spritePath));
+			writer.WriteLine (string.Format ("\t{0} '{1}' '{3}' {2}", itemTypeID, itemName, spritePath, type.Icon.name));
 			foreach (var stack in type.Recipe.GetRequiredItems ())
 				writer.WriteLine (string.Format ("\t\t{0} {1}", stack.ItemTypeID, stack.Count));
 		}
@@ -466,17 +466,26 @@ public class MetaInformation : MonoBehaviour {
 			int space1 = nextLine.IndexOf (' ');
 			int quote1 = nextLine.IndexOf ('\'');
 			int quote2 = nextLine.IndexOf ('\'', quote1 + 1);
-			int space2 = nextLine.IndexOf (' ', quote2 + 1);
+			int quote3 = nextLine.IndexOf ('\'', quote2 + 1);
+			int quote4 = nextLine.IndexOf ('\'', quote3 + 1);
+			int spaceBeforePath = nextLine.IndexOf (' ', quote4 + 1);
 
 			uint itemID = uint.Parse (nextLine.Substring (firstIdx, space1 - firstIdx));
 			string itemName = nextLine.Substring (quote1 + 1, quote2 - quote1 - 1);
-			string spritePath = nextLine.Substring (space2 + 1);
+
+			string spriteName = nextLine.Substring (quote3 + 1, quote4 - quote3 - 1);
+			string spritePath = nextLine.Substring (spaceBeforePath + 1);
 
 			Sprite sprite;
 			if (spritePath.Equals ("null"))
 				sprite = null;
-			else
-				sprite = AssetDatabase.LoadAssetAtPath<Sprite> (spritePath);
+			else {
+				var sprites = AssetDatabase.LoadAllAssetsAtPath (spritePath).OfType<Sprite> ();
+				sprite = sprites.Where ((spr) => spr.name.Equals (spriteName)).FirstOrDefault ();
+
+				if (sprite == null)
+					Debug.LogFormat ("Could not load sprite {0} from path {1}", spriteName, spritePath);
+			}
 
 			ItemType type = new ItemType (itemName, itemID, sprite);
 
