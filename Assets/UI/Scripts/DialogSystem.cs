@@ -90,10 +90,12 @@ public class DialogSystem : MonoBehaviour {
 	private GameObject CloneAndPositionDialogBox () {
 		var clone = GameObject.Instantiate (dialogBoxPrefab, GetCanvas ()) as GameObject;
 
+
 		var rect = clone.GetComponent<RectTransform> ();
 		rect.anchorMax = Vector2.one;
 		rect.anchorMin = Vector2.one;
 		rect.anchoredPosition = new Vector2 (-24, -24);
+		rect.SetAsLastSibling ();
 
 		return clone;
 	}
