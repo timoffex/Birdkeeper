@@ -2,6 +2,7 @@
 using System.Collections;
 
 
+[RequireComponent (typeof (RectangularGridObject))]
 public class Furniture : MonoBehaviour {
 
 
@@ -18,7 +19,21 @@ public class Furniture : MonoBehaviour {
 	/// Offset of far-away corner on the grid.
 	/// </summary>
 	public Vector3 gridCornerOffset;
-	public int gridX, gridY;
+
+	private RectangularGridObject _myGridInternal;
+	public RectangularGridObject MyGrid {
+		get {
+			if (_myGridInternal == null)
+				_myGridInternal = GetComponent<RectangularGridObject> ();
+			if (_myGridInternal == null) {
+				_myGridInternal = gameObject.AddComponent<RectangularGridObject> ();
+				Debug.Log ("Furniture did not have a RectangularGridObject component; adding automatically!");
+			}
+			return _myGridInternal;
+		}
+	}
+	public int gridX { get { return MyGrid.gridSizeX; } }
+	public int gridY { get { return MyGrid.gridSizeY; } }
 
 
 
@@ -37,17 +52,13 @@ public class Furniture : MonoBehaviour {
 	private Vector3 gridYVec;
 
 
-	private IntPair shopPosition;
+
 	private IntPair ShopPosition {
 		get {
-			return shopPosition;
-		}
-
-		set {
-			shopPosition = value;
-			transform.position = (Vector3)shop.shopToWorldCoordinates (shopPosition) - gridCornerOffset;
+			return MyGrid.GetPosition ();
 		}
 	}
+
 
 
 	private SpriteRenderer spriteRenderer;
@@ -81,7 +92,6 @@ public class Furniture : MonoBehaviour {
 
 	void Update () {
 		spriteRenderer.sortingOrder = 2 * (ShopPosition.x + ShopPosition.y + gridX + gridY - 2);
-		transform.position = (Vector3)shop.shopToWorldCoordinates (ShopPosition) - gridCornerOffset;
 	}
 
 
@@ -113,15 +123,30 @@ public class Furniture : MonoBehaviour {
 		return ShopPosition;
 	}
 
+
+	public bool TrySetPosition (IntPair pos) {
+		if (MyGrid.TrySetPosition (pos)) {
+			UpdateTransformPosition ();
+			return true;
+		} else
+			return false;
+	}
+
+	private void UpdateTransformPosition () {
+		if (shop != null)
+			transform.position = (Vector3)shop.shopToWorldCoordinates (ShopPosition) - gridCornerOffset;
+	}
+
 	public IntPair GetPosition () {
 		return ShopPosition;
 	}
 
 	public bool PlaceAtLocation (Shop shp, IntPair pos) {
-		if (shp.CanPlaceFurniture (pos.x, pos.y, this)) {
-			shop = shp;
-			ShopPosition = pos;
+
+		shop = shp;
+		if (TrySetPosition (pos)) {
 			shop.PlaceFurniture (pos.x, pos.y, this);
+
 			return true;
 		} else
 			return false;

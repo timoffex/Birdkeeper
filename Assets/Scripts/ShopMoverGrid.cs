@@ -1,11 +1,35 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 
+[RequireComponent (typeof (RectangularGridObject))]
 public class ShopMoverGrid : ShopMover {
 
 	private Animator animator;
 
-	private IntPair farCorner = new IntPair (0, 0);
+
+
+	private RectangularGridObject _internalGrid;
+	public RectangularGridObject MyGrid {
+		get {
+			if (_internalGrid == null)
+				_internalGrid = GetComponent<RectangularGridObject> ();
+			if (_internalGrid == null) {
+				_internalGrid = gameObject.AddComponent<RectangularGridObject> ();
+				Debug.Log ("ShopMover did not have RectangularGridObject.. Adding automatically!");
+			}
+
+			return _internalGrid;
+		}
+	}
+
+
+	private IntPair farCorner {
+		get {
+			return MyGrid.GetPosition ();
+		}
+	}
+
 	private IntPair nearCorner {
 		get {
 			return new IntPair (farCorner.x + gridWidth - 1, farCorner.y + gridHeight - 1);
@@ -26,8 +50,17 @@ public class ShopMoverGrid : ShopMover {
 
 
 	public Vector2 gridOffset = new Vector2 (0, 0);
-	public int gridWidth = 1;
-	public int gridHeight = 1;
+	public int gridWidth {
+		get {
+			return MyGrid.gridSizeX;
+		}
+	}
+		
+	public int gridHeight {
+		get {
+			return MyGrid.gridSizeY;
+		}
+	}
 
 
 	/// <summary>
@@ -73,87 +106,96 @@ public class ShopMoverGrid : ShopMover {
 
 		if (animator != null) animator.SetBool (AnimationStandards.IS_MOVING, true);
 
-		IntPair endPoint = pos;//new IntPair (pos.x - (gridWidth+1)/2, pos.y - (gridHeight+1)/2);
+		IntPair endPoint = pos;
 
-		if (!GetShop ().IsPositionInGrid (endPoint)) {
-			callback (false);
-			yield break;
-		}
-
-		int cGridWidth = GetShop ().numGridX - gridWidth + 1;
-		int cGridHeight = GetShop ().numGridY - gridHeight + 1;
-		bool[,] condensedGrid = new bool[cGridWidth, cGridHeight];
-
-		for (int x = 0; x < cGridWidth; x++) {
-			for (int y = 0; y < cGridHeight; y++) {
-
-				condensedGrid [x, y] = false;
-				for (int a = x; a < x + gridWidth && !condensedGrid [x, y]; a++)
-					for (int b = y; b < y + gridHeight  && !condensedGrid [x, y]; b++)
-						if (GetShop ().GetGrid (a, b))
-							condensedGrid [x, y] = true;
-
-			}
-		}
+//		if (!GetShop ().IsPositionInGrid (endPoint)) {
+//			callback (false);
+//			yield break;
+//		}
 
 
-		IntPair[] path = Pathfinding.FindPath (condensedGrid, farCorner, endPoint);
+		Game game = Game.current;
 
-		if (path == null) {
-			if (animator != null) animator.SetBool (AnimationStandards.IS_MOVING, false);
-			callback (false);
-		} else {
-			
-			for (int i = 0; i < path.GetLength (0); i++) {
+		if (game != null) {
+			bool done = false;
 
 
-				/* Gliding script */
-				int dx = path [i].x - farCorner.x;
-				int dy = path [i].y - farCorner.y;
-				float dist = Mathf.Sqrt (dx * dx + dy * dy);
+			while (!done) {
+				IntPair[] path = game.grid.FindPathFor (MyGrid, farCorner, endPoint);
 
-				Vector3 target = (Vector3)GetShop ().shopToWorldCoordinates (path [i]) - (Vector3)gridOffset;
-				Vector3 original = transform.position;
-
-				if (animator != null) {
-					if (dx == 0) {
-						if (dy > 0) {
-							animator.SetBool (AnimationStandards.FACING_FRONT, true);
-							animator.SetBool (AnimationStandards.FACING_RIGHT, false);
-						} else if (dy < 0) {
-							animator.SetBool (AnimationStandards.FACING_FRONT, false);
-							animator.SetBool (AnimationStandards.FACING_RIGHT, true);
-						}
-					} else if (dy == 0) {
-						if (dx > 0) {
-							animator.SetBool (AnimationStandards.FACING_FRONT, true);
-							animator.SetBool (AnimationStandards.FACING_RIGHT, true);
-						} else if (dx < 0) {
-							animator.SetBool (AnimationStandards.FACING_FRONT, false);
-							animator.SetBool (AnimationStandards.FACING_RIGHT, false);
+				if (path == null) {
+					#region callback(false) and exit loop
+					if (animator != null)
+						animator.SetBool (AnimationStandards.IS_MOVING, false);
+					callback (false);
+					done = true;
+					#endregion
+				} else {
+					#region try to follow path; if path succeeds, callback(true) and exit
+					bool pathSucceeded = true;
+					for (int i = 0; i < path.GetLength (0); i++) {
+						var oldPosition = MyGrid.GetPosition ();
+						if (MyGrid.TrySetPosition (path [i])) {
+							yield return Glide (oldPosition, path [i]);
+						} else {
+							// Cannot go to next position! Try finding a path again...
+							pathSucceeded = false;
+							break;
 						}
 					}
+
+
+					if (pathSucceeded) {
+						if (animator != null)
+							animator.SetBool (AnimationStandards.IS_MOVING, false);
+						callback (true);
+						done = true;
+					}
+					#endregion
 				}
+			}
+		} else
+			callback (false);
+	}
 
-				float timeStart = Time.time;
-				float p = 0;
+	private IEnumerator Glide (IntPair startPos, IntPair pos) {
+		
+		Vector3 target = (Vector3)GetShop ().shopToWorldCoordinates (pos) - (Vector3)gridOffset;
+		Vector3 original = transform.position;
 
-				while (p < 1) {
-					p = Mathf.Min (1, (Time.time - timeStart) * speed / dist);
-					transform.position = (1 - p) * original + p * target;
+		IntPair dif = new IntPair (pos.x - startPos.x, pos.y - startPos.y);
+		float dist = Mathf.Sqrt (dif.x * dif.x + dif.y * dif.y);
 
-					yield return new WaitForEndOfFrame ();
+		if (dist != 0) {
+			if (animator != null) {
+				if (dif.x == 0) {
+					if (dif.y > 0) {
+						animator.SetBool (AnimationStandards.FACING_FRONT, true);
+						animator.SetBool (AnimationStandards.FACING_RIGHT, false);
+					} else if (dif.y < 0) {
+						animator.SetBool (AnimationStandards.FACING_FRONT, false);
+						animator.SetBool (AnimationStandards.FACING_RIGHT, true);
+					}
+				} else if (dif.y == 0) {
+					if (dif.x > 0) {
+						animator.SetBool (AnimationStandards.FACING_FRONT, true);
+						animator.SetBool (AnimationStandards.FACING_RIGHT, true);
+					} else if (dif.x < 0) {
+						animator.SetBool (AnimationStandards.FACING_FRONT, false);
+						animator.SetBool (AnimationStandards.FACING_RIGHT, false);
+					}
 				}
-				/* Gliding script */
-
-
-				farCorner = path [i];
 			}
 
+			float timeStart = Time.time;
+			float p = 0;
 
-			if (animator != null) animator.SetBool (AnimationStandards.IS_MOVING, false);
-			callback (true);
+			while (p < 1) {
+				p = Mathf.Min (1, (Time.time - timeStart) * speed / dist);
+				transform.position = (1 - p) * original + p * target;
 
+				yield return new WaitForEndOfFrame ();
+			}
 		}
 	}
 }

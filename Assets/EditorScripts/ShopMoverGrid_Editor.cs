@@ -45,8 +45,8 @@ public class ShopMoverGrid_Editor : Editor {
 
 
 			IntPair offset = MetaInformation.Instance ().WorldToShopVector (newPos - pos);
-			f.gridWidth = offset.x;
-			f.gridHeight = offset.y;
+			f.MyGrid.gridSizeX = offset.x;
+			f.MyGrid.gridSizeY = offset.y;
 		});
 
 

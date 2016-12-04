@@ -51,7 +51,7 @@ public class FurnitureEditor : Editor {
 			Undo.RecordObject (f, "Furniture Change Grid X");
 			EditorUtility.SetDirty (f);
 
-			f.gridX = (int) Mathf.Round((newX - pos).magnitude / xvec.magnitude);
+			f.MyGrid.gridSizeX = (int) Mathf.Round((newX - pos).magnitude / xvec.magnitude);
 		}
 
 
@@ -62,7 +62,7 @@ public class FurnitureEditor : Editor {
 			Undo.RecordObject (f, "Furniture Change Grid Y");
 			EditorUtility.SetDirty (f);
 
-			f.gridY = (int) Mathf.Round((newY - pos).magnitude / yvec.magnitude);
+			f.MyGrid.gridSizeY = (int) Mathf.Round((newY - pos).magnitude / yvec.magnitude);
 		}
 
 

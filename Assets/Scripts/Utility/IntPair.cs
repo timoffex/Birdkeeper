@@ -1,11 +1,15 @@
 ﻿using UnityEngine;
 
 public class IntPair {
-	public int x, y;
+
+	private int _x, _y;
+
+	public int x { get { return _x; } }
+	public int y { get { return _y; } }
 
 	public IntPair (int x, int y) {
-		this.x = x;
-		this.y = y;
+		_x = x;
+		_y = y;
 	}
 
 	public override bool Equals(object obj) {
