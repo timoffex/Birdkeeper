@@ -16,30 +16,30 @@ public class GameIDHolder : MonoBehaviour {
 	void Awake () {
 
 		if (Application.isEditor) {
-			// If my ID is not instantiated, set it up!
-			if (myID == 0) {
-				var info = MetaInformation.Instance ();
-				var prefabType = PrefabUtility.GetPrefabType (gameObject);
+			var info = MetaInformation.Instance ();
+
+			if (info == null) {
+				Debug.LogError ("MetaInformation.Instance() returned null. The MetaInformation object is necessary.");
+
+				DestroyImmediate (this);
+			} else {
+				if (myID == 0 || info.GetGeneralObjectByID (myID) == null) {
+					var prefabType = PrefabUtility.GetPrefabType (gameObject);
+
+					if (prefabType != PrefabType.PrefabInstance) {
+						Debug.LogError ("This script can only be put on an object that is linked to a prefab.");
+						DestroyImmediate (this);
+					} else {
+						GameObject myPrefab = PrefabUtility.GetPrefabObject (gameObject) as GameObject;
+
+						uint newID = info.GetUnusedGeneralID ();
+
+						myID = newID;
+						info.AddMappingForGeneralObject (myID, myPrefab);
 
 
-				if (info == null) {
-					Debug.LogError ("MetaInformation.Instance() returned null. The MetaInformation object is necessary.");
-					DestroyImmediate (this);
-				} else if (prefabType != PrefabType.PrefabInstance) {
-					Debug.LogError ("This script can only be put on an object that is linked to a prefab.");
-					DestroyImmediate (this);
-				} else {
-
-					GameObject myPrefab = PrefabUtility.GetPrefabParent (gameObject) as GameObject;
-
-					uint newID = info.GetUnusedGeneralID ();
-
-
-					myID = newID;
-					info.AddMappingForGeneralObject (myID, myPrefab);
-
-
-					Debug.LogFormat ("Setting ID for {0} to {1}", myPrefab.name, myID);
+						Debug.LogFormat ("Setting ID for {0} to {1}", myPrefab.name, myID);
+					}
 				}
 			}
 		} else if (myID == 0) {

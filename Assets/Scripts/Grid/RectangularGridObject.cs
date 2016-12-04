@@ -19,8 +19,12 @@ public class RectangularGridObject : MonoBehaviour, IGrid2DOccupant {
 			position = new IntPair (0, 0);
 
 		Game g = Game.current;
-		if (g != null)
+		if (g != null) {
 			g.grid.RegisterOccupant (this);
+
+			while (!CanOccupyPosition (g.grid, position))
+				position = new IntPair (position.x + 1, position.y);
+		}
 	}
 
 	void OnDestroy () {
