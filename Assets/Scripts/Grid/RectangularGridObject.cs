@@ -22,7 +22,8 @@ public class RectangularGridObject : MonoBehaviour, IGrid2DOccupant {
 		if (g != null) {
 			g.grid.RegisterOccupant (this);
 
-			while (!CanOccupyPosition (g.grid, position))
+
+			for (int i = 0; i < 100 && !CanOccupyPosition (g.grid, position); i++)
 				position = new IntPair (position.x + 1, position.y);
 		}
 	}
