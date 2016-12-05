@@ -244,6 +244,84 @@ public class Grid2D {
 		if (canOccupy4 && isReachable4) yield return new AStar<IntPair>.EdgeType (v, v4, 1);
 	}
 
+	private IEnumerable<AStar<IntPair>.EdgeType> MemoizedEnumerateNeighborsFor (IGrid2DShape shape, IntPair v, bool[,] isComputed, bool[,] canOccupy) {
+		IntPair v1 = new IntPair (v.x+1, v.y);
+		IntPair v2 = new IntPair (v.x-1, v.y);
+		IntPair v3 = new IntPair (v.x, v.y+1);
+		IntPair v4 = new IntPair (v.x, v.y-1);
+
+		IntPair i = GetPositionIndices (v);
+		IntPair i1 = GetPositionIndices (v1);
+		IntPair i2 = GetPositionIndices (v2);
+		IntPair i3 = GetPositionIndices (v3);
+		IntPair i4 = GetPositionIndices (v4);
+
+		if (occupantPositions.ContainsKey (shape))
+			RemoveArrays (shape, occupantPositions [shape]);
+		bool canOccupy1 = IsSquareInRange (v1);
+		bool canOccupy2 = IsSquareInRange (v2);
+		bool canOccupy3 = IsSquareInRange (v3);
+		bool canOccupy4 = IsSquareInRange (v4);
+
+		if (canOccupy1) {
+			if (isComputed [i1.x, i1.y])
+				canOccupy1 = canOccupy [i1.x, i1.y];
+			else {
+				canOccupy1 = canOccupy [i1.x, i1.y] = CanOccupyPosition (shape, v1);
+				isComputed [i1.x, i1.y] = true;
+			}
+		}
+
+		if (canOccupy2) {
+			if (isComputed [i2.x, i2.y])
+				canOccupy2 = canOccupy [i2.x, i2.y];
+			else {
+				canOccupy2 = canOccupy [i2.x, i2.y] = CanOccupyPosition (shape, v2);
+				isComputed [i2.x, i2.y] = true;
+			}
+		}
+
+		if (canOccupy3) {
+			if (isComputed [i3.x, i3.y])
+				canOccupy3 = canOccupy [i3.x, i3.y];
+			else {
+				canOccupy3 = canOccupy [i3.x, i3.y] = CanOccupyPosition (shape, v3);
+				isComputed [i3.x, i3.y] = true;
+			}
+		}
+
+		if (canOccupy4) {
+			if (isComputed [i4.x, i4.y])
+				canOccupy4 = canOccupy [i4.x, i4.y];
+			else {
+				canOccupy4 = canOccupy [i4.x, i4.y] = CanOccupyPosition (shape, v4);
+				isComputed [i4.x, i4.y] = true;
+			}
+		}
+
+
+		bool isReachable1 = IsXEdgeInRange (v) && !xEdgeOccupied [i.x, i.y];
+		bool isReachable2 = IsXEdgeInRange (v2) && !xEdgeOccupied [i2.x, i2.y];
+		bool isReachable3 = IsYEdgeInRange (v) && !yEdgeOccupied [i.x, i.y];
+		bool isReachable4 = IsYEdgeInRange (v4) && !yEdgeOccupied [i4.x, i4.y];
+		if (occupantPositions.ContainsKey (shape))
+			OccupyArrays (shape, occupantPositions [shape]);
+
+
+
+		if (canOccupy1 && isReachable1) yield return new AStar<IntPair>.EdgeType (v, v1, 1);
+		if (canOccupy2 && isReachable2) yield return new AStar<IntPair>.EdgeType (v, v2, 1);
+		if (canOccupy3 && isReachable3) yield return new AStar<IntPair>.EdgeType (v, v3, 1);
+		if (canOccupy4 && isReachable4) yield return new AStar<IntPair>.EdgeType (v, v4, 1);
+	}
+
+	private AStar<IntPair>.NeighborDelegate NeighborFunction (IGrid2DShape shape) {
+		bool[,] isComputed = new bool[width, height];
+		bool[,] canOccupy = new bool[width, height];
+
+		return (v) => MemoizedEnumerateNeighborsFor (shape, v, isComputed, canOccupy);
+	}
+
 	private float TaxicabDistance (IntPair v1, IntPair v2) {
 		return Mathf.Abs (v1.x - v2.x) + Mathf.Abs (v1.y - v2.y);
 	}
@@ -258,7 +336,7 @@ public class Grid2D {
 
 //		return null;
 		lock (squareOccupied) {
-			return AStar<IntPair>.Solve ((v) => EnumerateNeighborsFor (shape, v), (v) => TaxicabDistance (v, end), start, end);
+			return AStar<IntPair>.Solve (NeighborFunction (shape), (v) => TaxicabDistance (v, end), start, end);
 		}
 	}
 }
