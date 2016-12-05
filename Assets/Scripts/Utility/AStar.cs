@@ -63,7 +63,7 @@ public class AStar<NodeType> {
 //		UnityEngine.Debug.LogFormat ("Goal: {0}", end);
 
 		NodeType minNode;
-		while (FindMin (priority, status, out minNode)) {
+		while (FindMin (priority, status, heuristic, out minNode)) {
 
 //			UnityEngine.Debug.LogFormat ("Node {0}, priority {1}", minNode, priority[minNode]);
 
@@ -126,16 +126,22 @@ public class AStar<NodeType> {
 	}
 
 
-	private static bool FindMin (Dictionary<NodeType, float> weight, Dictionary<NodeType, char> status, out NodeType min) {
+	private static bool FindMin (Dictionary<NodeType, float> weight, Dictionary<NodeType, char> status, Func<NodeType, float> heuristic, out NodeType min) {
 		bool found = false;
 		float minWgt = float.PositiveInfinity;
+		float minHrst = float.PositiveInfinity;
 		min = default (NodeType);
 
 		foreach (var kv in status) {
-			if (kv.Value == 'f' && weight [kv.Key] < minWgt) {
-				min = kv.Key;
-				minWgt = weight [kv.Key];
-				found = true;
+			if (kv.Value == 'f') {
+				float wgt = weight [kv.Key];
+				float hrst = heuristic (kv.Key);
+				if (wgt < minWgt || (wgt == minWgt && hrst < minHrst)) {
+					min = kv.Key;
+					minWgt = weight [kv.Key];
+					minHrst = hrst;
+					found = true;
+				}
 			}
 		}
 
