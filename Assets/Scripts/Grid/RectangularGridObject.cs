@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 
 /// <summary>
 /// Add to objects that should take up space in the game's grid.
 /// </summary>
-public class RectangularGridObject : MonoBehaviour, IGrid2DOccupant {
+public class RectangularGridObject : MonoBehaviour, IGrid2DShape {
 	
 	private IntPair position;
 
@@ -20,18 +21,67 @@ public class RectangularGridObject : MonoBehaviour, IGrid2DOccupant {
 
 		Game g = Game.current;
 		if (g != null) {
-			g.grid.RegisterOccupant (this);
-
-
-			for (int i = 0; i < 100 && !CanOccupyPosition (g.grid, position); i++)
-				position = new IntPair (position.x + 1, position.y);
+			g.grid.RemoveShape (this);
+			foreach (var pos in GenerateSpiral (position))
+				if (g.grid.CanOccupyPosition (this, pos)) {
+					position = pos;
+					break;
+				}
+			g.grid.AddShape (this, position);
 		}
 	}
 
 	void OnDestroy () {
 		Game g = Game.current;
 		if (g != null)
-			g.grid.UnregisterOccupant (this);
+			g.grid.RemoveShape (this);
+	}
+
+
+
+	public IntPair[] FindShortestPathToNearby (Grid2D grid, IntPair start, IntPair end) {
+		IntPair endPoint = null;
+		grid.RemoveShape (this);
+		foreach (var pos in GenerateSpiral (end)) {
+			if (grid.CanOccupyPosition (this, pos)) {
+				endPoint = pos;
+				break;
+			}
+		}
+		grid.AddShape (this, position);
+
+		if (endPoint == null)
+			return null;
+		else
+			return grid.FindShortestPathFor (this, start, endPoint);
+	}
+
+	private IEnumerable<IntPair> GenerateSpiral (IntPair center, int maxIter = 15) {
+		int numToAdd = 1;
+		int index = 0;
+
+		IntPair pos = center;
+		yield return pos;
+
+		while (true) {
+			if (index % 2 == 0)
+				for (int i = 0; i < numToAdd; i++) {
+					pos = new IntPair (pos.x + 1, pos.y);
+					yield return pos;
+				}
+			else {
+				for (int i = 0; i < numToAdd; i++) {
+					pos = new IntPair (pos.x, pos.y + numToAdd);
+					yield return pos;
+				}
+				numToAdd++;
+			}
+
+			index++;
+
+			if (index >= maxIter)
+				break;
+		}
 	}
 
 
@@ -41,9 +91,16 @@ public class RectangularGridObject : MonoBehaviour, IGrid2DOccupant {
 	/// </summary>
 	public bool TrySetPosition (IntPair newPos) {
 		Game g = Game.current;
-		if (g != null && CanOccupyPosition (g.grid, newPos)) {
-			position = newPos;
-			return true;
+		if (g != null) {
+
+			g.grid.RemoveShape (this);
+			if (g.grid.CanOccupyPosition (this, newPos)) {
+				g.grid.MoveShape (this, newPos);
+				position = newPos;
+				return true;
+			}
+			g.grid.AddShape (this, position);
+
 		}
 
 		return false;
@@ -54,39 +111,35 @@ public class RectangularGridObject : MonoBehaviour, IGrid2DOccupant {
 	}
 
 
-	public IntPair[] FindPath (IntPair start, IntPair end) {
-		Game g = Game.current;
-		if (g != null) {
-			return g.grid.FindPathFor (this, start, end);
-		} else
-			return null;
+	public bool DoesOccupySquare (IntPair offset) {
+		return offset.x >= 0 && offset.x < gridSizeX
+		    && offset.y >= 0 && offset.y < gridSizeY;
+	}
+
+	public bool DoesOccupyXEdge (IntPair offset) {
+		return DoesOccupySquare (offset) && DoesOccupySquare (offset + new IntPair (1, 0));
+	}
+
+	public bool DoesOccupyYEdge (IntPair offset) {
+		return DoesOccupySquare (offset) && DoesOccupySquare (offset + new IntPair (0, 1));
 	}
 
 
-	public bool OccupiesSquare (IntPair pos) {
-		return pos.x >= position.x && pos.x < position.x + gridSizeX
-		    && pos.y >= position.y && pos.y < position.y + gridSizeY;
+	public IEnumerable<IntPair> GetOccupiedSquares () {
+		for (int x = 0; x < gridSizeX; x++)
+			for (int y = 0; y < gridSizeY; y++)
+				yield return new IntPair (x, y);
 	}
 
-	public bool OccupiesEdgeBetween (IntPair v1, IntPair v2) {
-		return OccupiesSquare (v1) || OccupiesSquare (v2);
+	public IEnumerable<IntPair> GetOccupiedXEdges () {
+		for (int x = 0; x < gridSizeX-1; x++)
+			for (int y = 0; y < gridSizeY; y++)
+				yield return new IntPair (x, y);
 	}
 
-	public bool CanOccupyPosition (Grid2D grid, IntPair pos) {
-		for (int x = 0; x < gridSizeX; x++) {
-			for (int y = 0; y < gridSizeY; y++) {
-				if (grid.IsVertexOccupied (new IntPair (x + pos.x, y + pos.y), this))
-					return false;
-
-				if (x < gridSizeX - 1 && grid.IsEdgeOccupied (new IntPair (x + pos.x, y + pos.y), new IntPair (x + 1 + pos.x, y + pos.y), this))
-					return false;
-
-				if (y < gridSizeY - 1 && grid.IsEdgeOccupied (new IntPair (x + pos.x, y + pos.y), new IntPair (x + pos.x, y + 1 + pos.y), this))
-					return false;
-			}
-		}
-
-		return true;
+	public IEnumerable<IntPair> GetOccupiedYEdges () {
+		for (int x = 0; x < gridSizeX; x++)
+			for (int y = 0; y < gridSizeY-1; y++)
+				yield return new IntPair (x, y);
 	}
-		
 }

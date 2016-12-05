@@ -1,8 +1,12 @@
 ﻿using UnityEngine;
+using System;
 
+
+[Serializable]
 public class IntPair {
 
-	private int _x, _y;
+	[SerializeField] private int _x;
+	[SerializeField] private int _y;
 
 	public int x { get { return _x; } }
 	public int y { get { return _y; } }
@@ -27,5 +31,14 @@ public class IntPair {
 	public override string ToString ()
 	{
 		return string.Format ("({0}, {1})", x, y);
+	}
+
+
+	public static IntPair operator - (IntPair p1, IntPair p2) {
+		return new IntPair (p1.x - p2.x, p1.y - p2.y);
+	}
+
+	public static IntPair operator + (IntPair p1, IntPair p2) {
+		return new IntPair (p1.x + p2.x, p1.y + p2.y);
 	}
 }

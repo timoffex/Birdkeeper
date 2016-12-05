@@ -75,7 +75,7 @@ public class Game {
 	public List<GameObject> generalObjectPrefabs = new List<GameObject> ();
 
 
-	public Grid2D grid = new Grid2D (0, 0, 50, 50); // TODO smarter min/max values
+	public Grid2D grid = new Grid2D (0, 0, 40, 40); // TODO smarter min/max values
 
 
 

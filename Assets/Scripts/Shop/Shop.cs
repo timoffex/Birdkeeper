@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(RoomRenderer))]
-public class Shop : MonoBehaviour, IGrid2DOccupant {
+public class Shop : MonoBehaviour, IGrid2DShape {
 
 
 
@@ -37,7 +37,7 @@ public class Shop : MonoBehaviour, IGrid2DOccupant {
 	// Use this for initialization
 	void Start () {
 		Game.current.shop = this;
-		Game.current.grid.RegisterOccupant (this);
+		Game.current.grid.AddShape (this, new IntPair (0, 0));
 	}
 
 	/// <summary>
@@ -46,7 +46,7 @@ public class Shop : MonoBehaviour, IGrid2DOccupant {
 	public bool GetGrid (int x, int y) {
 		Game g = Game.current;
 
-		return g != null && g.grid.IsVertexOccupied (new IntPair (x, y));
+		return g != null && g.grid.IsSquareOccupied (new IntPair (x, y));
 	}
 
 
@@ -59,10 +59,8 @@ public class Shop : MonoBehaviour, IGrid2DOccupant {
 	public void PlaceFurniture (int xpos, int ypos, Furniture furniture) {
 		Game g = Game.current;
 
-		if (g != null) {
+		if (g != null)
 			g.AddFurnitureToShop (furniture);
-			g.grid.RegisterOccupant (furniture.MyGrid);
-		}
 	}
 
 
@@ -136,25 +134,8 @@ public class Shop : MonoBehaviour, IGrid2DOccupant {
 			&& position.y >= 0 && position.y < numGridY;
 	}
 
-	public bool IsEntryWay (IntPair v1, IntPair v2) {
-		if (IsOnInnerEdge (v1) && v1.x == numGridX - 1 && v1.y >= 0 && v1.y < 3)
-			return IsOnOuterEdge (v2);
-		else if (IsOnInnerEdge (v2) && v2.x == numGridX - 1 && v2.y >= 0 && v2.y < 3)
-			return IsOnOuterEdge (v1);
-		else
-			return false;
-	}
-	private bool IsOnInnerEdge (IntPair v) {
-		return (v.x == 0 && (v.y >= 0 || v.y < numGridY))
-		|| (v.x == numGridX - 1 && (v.y >= 0 || v.y < numGridY))
-		|| (v.y == 0 && (v.x >= 0 || v.x < numGridX))
-		|| (v.y == numGridY - 1 && (v.x >= 0 || v.x < numGridX));
-	}
-	private bool IsOnOuterEdge (IntPair v) {
-		return (v.x == -1 && (v.y >= 0 || v.y < numGridY))
-			|| (v.x == numGridX && (v.y >= 0 || v.y < numGridY))
-			|| (v.y == -1 && (v.x >= 0 || v.x < numGridX))
-			|| (v.y == numGridY && (v.x >= 0 || v.x < numGridX));
+	public bool IsXEdgeEntryWay (IntPair v) {
+		return v.x == numGridX - 1 && v.y >= 0 && v.y < 4;
 	}
 
 	public IntPair[] FindPath (IntPair start, IntPair end) {
@@ -163,19 +144,38 @@ public class Shop : MonoBehaviour, IGrid2DOccupant {
 
 
 
-	public bool OccupiesSquare (IntPair pos) {
+	public bool DoesOccupySquare (IntPair offset) {
 		return false; // shop doesn't occupy squares
 	}
 
-	public bool OccupiesEdgeBetween (IntPair v1, IntPair v2) {
-		return IsPositionInGrid (v1) != IsPositionInGrid (v2);
-//		if (IsPositionInGrid (v1) != IsPositionInGrid (v2))
-//			return !IsEntryWay (v1, v2);
-//		else
-//			return false;
+	public bool DoesOccupyXEdge (IntPair offset) {
+		if (IsXEdgeEntryWay (offset))
+			return false;
+		else
+			return (offset.x == numGridX - 1 && offset.y >= 0 && offset.y < numGridY)
+				|| (offset.x == -1 && offset.y >= 0 && offset.y < numGridY);
 	}
 
-	public bool CanOccupyPosition (Grid2D grid, IntPair pos) {
-		return pos.x == 0 && pos.y == 0; // shop can only be placed at (0,0)
+	public bool DoesOccupyYEdge (IntPair offset) {
+		return (offset.x >= 0 && offset.x < numGridX && (offset.y == numGridY - 1 || offset.y == -1));
+	}
+
+
+	public IEnumerable<IntPair> GetOccupiedSquares () {
+		yield break;
+	}
+
+	public IEnumerable<IntPair> GetOccupiedXEdges () {
+		for (int y = 4; y < numGridY; y++) {
+			yield return new IntPair (-1, y);
+			yield return new IntPair (numGridX - 1, y);
+		}
+	}
+
+	public IEnumerable<IntPair> GetOccupiedYEdges () {
+		for (int x = 0; x < numGridX; x++) {
+			yield return new IntPair (x, -1);
+			yield return new IntPair (x, numGridY - 1);
+		}
 	}
 }

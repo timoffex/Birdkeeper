@@ -37,8 +37,11 @@ public class AStar<NodeType> {
 	public static NodeType[] Solve (NeighborDelegate neighborsOf, Func<NodeType, float> heuristic, NodeType start, NodeType end) {
 		Dictionary<NodeType, int> numSteps = new Dictionary<NodeType, int> ();
 
-		// node priority; !pathWeight.ContainsKey(x) means pathWeight[x] == inf
+		// weight of minimum path to node; !pathWeight.ContainsKey(x) means pathWeight[x] == inf
 		Dictionary<NodeType, float> pathWeight = new Dictionary<NodeType, float> ();
+
+		// priority of node
+		Dictionary<NodeType, float> priority = new Dictionary<NodeType, float> ();
 
 		// !previous.ContainsKey(x) means x has no parent
 		Dictionary<NodeType, NodeType> previous = new Dictionary<NodeType, NodeType> ();
@@ -49,6 +52,7 @@ public class AStar<NodeType> {
 
 
 		pathWeight [start] = 0;
+		priority [start] = 0;
 		status [start] = 'f';
 		numSteps [start] = 0;
 
@@ -56,10 +60,13 @@ public class AStar<NodeType> {
 		float bestHeuristic = heuristic (start);
 
 
-
+//		UnityEngine.Debug.LogFormat ("Goal: {0}", end);
 
 		NodeType minNode;
-		while (FindMin (pathWeight, status, out minNode)) {
+		while (FindMin (priority, status, out minNode)) {
+
+//			UnityEngine.Debug.LogFormat ("Node {0}, priority {1}", minNode, priority[minNode]);
+
 			status [minNode] = 't';
 			var nodeHeuristic = heuristic (minNode);
 
@@ -90,23 +97,16 @@ public class AStar<NodeType> {
 			foreach (EdgeType edge in neighborsOf (minNode)) {
 				var nextNode = edge.nTo;
 
-				var newWgt = pathWeight [minNode] + edge.nWeight + heuristic (nextNode);
+				var newWgt = pathWeight [minNode] + edge.nWeight;
+				var newPriority = newWgt + heuristic (nextNode);
 
 				if (!status.ContainsKey (nextNode)) {
 					status [nextNode] = 'f';
 					numSteps [nextNode] = numSteps [minNode] + 1;
 					pathWeight [nextNode] = newWgt;
+					priority [nextNode] = newPriority;
 					previous [nextNode] = minNode;
-				} else {
-					float oldWgt = pathWeight [nextNode];
-
-					if (newWgt < oldWgt) {
-						status [nextNode] = 'f';
-						numSteps [nextNode] = numSteps [minNode] + 1;
-						pathWeight [nextNode] = newWgt;
-						previous [nextNode] = minNode;
-					}
-				}
+				} // else, newWgt is at least oldWgt
 			}
 			#endregion
 		}

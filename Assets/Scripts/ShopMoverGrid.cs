@@ -100,9 +100,17 @@ public class ShopMoverGrid : ShopMover {
 		return middlePosition;
 	}
 
+	public override void SetPosition (IntPair pos) {
+		for (int i = 0; i < 10 && !MyGrid.TrySetPosition (pos); i++)
+			pos = new IntPair (pos.x+1, pos.y);
+	}
 
 
-	public override IEnumerator MoveToPosition (IntPair pos, SuccessCallback callback) {
+
+	public override IEnumerator MoveToPosition (IntPair pos, SuccessCallback callback = null) {
+
+		if (callback == null)
+			callback = (s) => {};
 
 		if (animator != null) animator.SetBool (AnimationStandards.IS_MOVING, true);
 
@@ -121,7 +129,7 @@ public class ShopMoverGrid : ShopMover {
 
 
 			while (!done) {
-				IntPair[] path = game.grid.FindPathFor (MyGrid, farCorner, endPoint);
+				IntPair[] path = MyGrid.FindShortestPathToNearby (game.grid, farCorner, endPoint);
 
 				if (path == null) {
 					#region callback(false) and exit loop
