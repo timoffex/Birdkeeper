@@ -46,9 +46,9 @@ public class AIMoveRandomlyAndOfferTrades : MonoBehaviour {
 
 
 						if (didSucceed)
-							yield return DialogSystem.Instance ().DisplayMessage ("Trade succeeded.");
+							NotificationSystem.ShowNotificationIfPossible ("Trade succeeded.");
 						else
-							yield return DialogSystem.Instance ().DisplayMessage ("Trade failed.");
+							NotificationSystem.ShowNotificationIfPossible ("Trade failed.");
 
 
 						break;

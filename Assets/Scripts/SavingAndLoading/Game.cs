@@ -27,6 +27,7 @@ public class Game {
 
 	public class FurnitureInfo {
 		public FurnitureInfo (Furniture f) {
+			furnitureRef = f;
 			position = f.GetPosition ();
 			furnitureID = f.FurnitureTypeID;
 		}
@@ -36,6 +37,7 @@ public class Game {
 			position = pos;
 		}
 
+		public Furniture furnitureRef;
 		public IntPair position;
 		public uint furnitureID;
 	}
@@ -73,6 +75,8 @@ public class Game {
 	public List<GameObject> generalObjectPrefabs = new List<GameObject> ();
 
 
+	public Grid2D grid = new Grid2D (0, 0, 50, 50); // TODO smarter min/max values
+
 
 
 
@@ -84,6 +88,10 @@ public class Game {
 
 
 	public void SwitchToPhase (GamePhase phase) {
+
+		/* Auto save! */
+		Save (File.OpenWrite (Path.Combine (Application.persistentDataPath, "AutoSave.sg1")));
+
 		switch (phase) {
 		case GamePhase.DayPhase:
 			SwitchToShopPhase ();
@@ -119,7 +127,10 @@ public class Game {
 			var newFurnitureObj = Furniture.InstantiateFurnitureByID (f.furnitureID);
 			var newFurniture = newFurnitureObj.GetComponent<Furniture> ();
 
-			newFurniture.PlaceAtLocation (newShop, f.position);
+			if (!newFurniture.PlaceAtLocation (newShop, f.position)) {
+				Debug.Log ("A furniture was in an invalid position in the savefile!");
+				GameObject.Destroy (newFurnitureObj);
+			}
 		}
 
 		GameObject.Instantiate (MetaInformation.Instance ().shopPhaseDayCanvasPrefab);
@@ -155,7 +166,10 @@ public class Game {
 			var newFurnitureObj = Furniture.InstantiateFurnitureByID (f.furnitureID);
 			var newFurniture = newFurnitureObj.GetComponent<Furniture> ();
 
-			newFurniture.PlaceAtLocation (newShop, f.position);
+			if (!newFurniture.PlaceAtLocation (newShop, f.position)) {
+				Debug.Log ("A furniture was in an invalid position in the savefile!");
+				GameObject.Destroy (newFurnitureObj);
+			}
 		}
 
 		GameObject.Instantiate (MetaInformation.Instance ().shopPhaseEditCanvasPrefab);
@@ -256,6 +270,7 @@ public class Game {
 			}
 		}
 
+		saveFile.Close ();
 
 		SwitchToPhase (GamePhase.EditPhase);
 	}

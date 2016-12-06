@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class AStar<NodeType> {
 
@@ -34,58 +35,48 @@ public class AStar<NodeType> {
 	/// <param name="start">Start node.</param>
 	/// <param name="end">End node.</param>
 	public static NodeType[] Solve (NeighborDelegate neighborsOf, Func<NodeType, float> heuristic, NodeType start, NodeType end) {
-		Dictionary<NodeType, int> distance = new Dictionary<NodeType, int> ();
-		Dictionary<NodeType, float> pathWeight = new Dictionary<NodeType, float> ();
-		Dictionary<NodeType, NodeType> previous = new Dictionary<NodeType, NodeType> ();
-		PriorityQueue fringe = new PriorityQueue ();
-		fringe.Enqueue (start, 0);
+		Dictionary<NodeType, int> numSteps = new Dictionary<NodeType, int> ();
 
-		distance [start] = 0;
+		// node priority; !pathWeight.ContainsKey(x) means pathWeight[x] == inf
+		Dictionary<NodeType, float> pathWeight = new Dictionary<NodeType, float> ();
+
+		// !previous.ContainsKey(x) means x has no parent
+		Dictionary<NodeType, NodeType> previous = new Dictionary<NodeType, NodeType> ();
+
+		// !status.ContainsKey(x) means unseen, 'f' means fringe, 't' means tree
+		Dictionary<NodeType, char> status = new Dictionary<NodeType, char> ();
+
+
+
 		pathWeight [start] = 0;
+		status [start] = 'f';
+		numSteps [start] = 0;
 
 		NodeType bestEndCandidate = start;
 		float bestHeuristic = heuristic (start);
 
-		/*
-			Algorithm:
-				Fringe starts with the start node
-				bestEndCandidate = start
 
-				while fringe is not empty:
-					node = pop element from fringe
 
-					if heuristic(node) < bestHeuristic:
-						bestEndCandidate = node
-						bestHeuristic = heuristic(node)
 
-					if node is end node, return path
+		NodeType minNode;
+		while (FindMin (pathWeight, status, out minNode)) {
+			status [minNode] = 't';
+			var nodeHeuristic = heuristic (minNode);
 
-					for each edge from node to W:
-						newDistance = distances[node] + 1
-						newPathWeight = pathWeight[node] + edge weight
-						
-						if newPathWeight < pathWeight[W]:
-							distances[W] = newDistance
-							pathWeight[W] = newPathWeight
-							previous[W] = node
-							fringe.EnqueueOrChangeKey(W, newPathWeight + heuristic(W))
-							
-				return no path
-		*/
 
-		while (!fringe.IsEmpty ()) {
-			var node = (NodeType) fringe.Dequeue ();
-
-			var nodeHeuristic = heuristic (node);
+			#region Update best candidate.
 			if (nodeHeuristic < bestHeuristic) {
-				bestEndCandidate = node;
+				bestEndCandidate = minNode;
 				bestHeuristic = nodeHeuristic;
 			}
+			#endregion
 
-			if (node.Equals (end)) {
-				int pathLength = distance [node];
+			#region If we reached end, stop.
+			if (minNode.Equals (end)) {
+				int pathLength = numSteps [minNode];
 				NodeType[] path = new NodeType[pathLength];
 
+				var node = minNode;
 				for (int i = pathLength - 1; i >= 0; i--) {
 					path [i] = node;
 					node = previous [node];
@@ -93,30 +84,37 @@ public class AStar<NodeType> {
 
 				return path;
 			}
+			#endregion
 
-			foreach (EdgeType edge in neighborsOf (node)) {
-				var W = edge.nTo;
+			#region Update fringe.
+			foreach (EdgeType edge in neighborsOf (minNode)) {
+				var nextNode = edge.nTo;
 
-				var newDist = distance [node] + 1;
-				var newWght = pathWeight [node] + edge.nWeight;
+				var newWgt = pathWeight [minNode] + edge.nWeight + heuristic (nextNode);
 
-				float wWght = 0;
-				if (!pathWeight.TryGetValue (W, out newWght))
-					pathWeight [W] = wWght = float.PositiveInfinity;
+				if (!status.ContainsKey (nextNode)) {
+					status [nextNode] = 'f';
+					numSteps [nextNode] = numSteps [minNode] + 1;
+					pathWeight [nextNode] = newWgt;
+					previous [nextNode] = minNode;
+				} else {
+					float oldWgt = pathWeight [nextNode];
 
-				if (newWght < wWght) {
-					distance [W] = newDist;
-					pathWeight [W] = newWght;
-					previous [W] = node;
-					fringe.EnqueueOrChangeKey (W, -newWght - heuristic (W));
+					if (newWgt < oldWgt) {
+						status [nextNode] = 'f';
+						numSteps [nextNode] = numSteps [minNode] + 1;
+						pathWeight [nextNode] = newWgt;
+						previous [nextNode] = minNode;
+					}
 				}
 			}
+			#endregion
 		}
 
 
 		// Didn't reach end. Return path to "bestEndCandidate"
 		NodeType nodec = bestEndCandidate;
-		int pathLengthc = distance [nodec];
+		int pathLengthc = numSteps [nodec];
 		NodeType[] pathc = new NodeType[pathLengthc];
 
 		for (int i = pathLengthc - 1; i >= 0; i--) {
@@ -125,5 +123,22 @@ public class AStar<NodeType> {
 		}
 
 		return pathc;
+	}
+
+
+	private static bool FindMin (Dictionary<NodeType, float> weight, Dictionary<NodeType, char> status, out NodeType min) {
+		bool found = false;
+		float minWgt = float.PositiveInfinity;
+		min = default (NodeType);
+
+		foreach (var kv in status) {
+			if (kv.Value == 'f' && weight [kv.Key] < minWgt) {
+				min = kv.Key;
+				minWgt = weight [kv.Key];
+				found = true;
+			}
+		}
+
+		return found;
 	}
 }

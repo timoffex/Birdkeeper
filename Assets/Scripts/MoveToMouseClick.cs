@@ -29,13 +29,13 @@ public class MoveToMouseClick : MonoBehaviour {
 
 			IntPair shopCoords = shop.worldToShopCoordinates (Camera.main.ScreenToWorldPoint (Input.mousePosition));
 
-			if (shop.IsPositionInGrid (shopCoords)) {
+//			if (shop.IsPositionInGrid (shopCoords)) {
 				if (movingCoroutine != null)
 					StopCoroutine (movingCoroutine);
 			
 				movingCoroutine = mover.MoveToPosition (shopCoords, MoveCallback);
 				StartCoroutine (movingCoroutine);
-			}
+//			}
 		}
 	}
 }

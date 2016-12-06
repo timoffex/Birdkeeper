@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(RoomRenderer))]
-public class Shop : MonoBehaviour {
+public class Shop : MonoBehaviour, IGrid2DOccupant {
 
 
 
@@ -23,19 +23,6 @@ public class Shop : MonoBehaviour {
 		get { return numTilesY * MetaInformation.Instance ().numGridSquaresPerTile; }
 	}
 
-	private ShopFurnitureGrid _furnitureGrid;
-	private ShopFurnitureGrid furnitureGrid {
-		get {
-			if (_furnitureGrid == null)
-				_furnitureGrid = new ShopFurnitureGrid (numGridX, numGridY);
-			return _furnitureGrid;
-		}
-
-		set {
-			_furnitureGrid = value;
-		}
-	}
-
 
 	private RoomRenderer __roomStored;
 	private RoomRenderer room {
@@ -50,19 +37,18 @@ public class Shop : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		Game.current.shop = this;
+		Game.current.grid.RegisterOccupant (this);
 	}
 
 	/// <summary>
 	/// Returns true if occupied at the given position, false if unoccupied.
 	/// </summary>
 	public bool GetGrid (int x, int y) {
-		return furnitureGrid.GetGrid (x, y);
+		Game g = Game.current;
+
+		return g != null && g.grid.IsVertexOccupied (new IntPair (x, y));
 	}
 
-
-	public bool CanPlaceFurniture (int xpos, int ypos, Furniture furniture) {
-		return furnitureGrid.CanPlaceFurniture (xpos, ypos, furniture);
-	}
 
 	/// <summary>
 	/// precondition: CanPlaceFurniture (xpos, ypos, furniture) == true
@@ -71,20 +57,31 @@ public class Shop : MonoBehaviour {
 	/// <param name="ypos">Ypos.</param>
 	/// <param name="furniture">Furniture.</param>
 	public void PlaceFurniture (int xpos, int ypos, Furniture furniture) {
-		furnitureGrid.PlaceFurniture (xpos, ypos, furniture);
+		Game g = Game.current;
+
+		if (g != null) {
+			g.AddFurnitureToShop (furniture);
+			g.grid.RegisterOccupant (furniture.MyGrid);
+		}
 	}
 
 
 	public int GetFurnitureAmount () {
-		return furnitureGrid.GetFurnitureAmount ();
-	}
+		Game g = Game.current;
 
-	public IEnumerable GetFurniture () {
-		return furnitureGrid.GetFurniture ();
+		if (g != null)
+			return g.furnitureInShop.Count;
+		else
+			return 0;
 	}
 
 	public Furniture GetFurnitureAtIndex (int idx) {
-		return furnitureGrid.GetFurnitureAtIndex (idx);
+		Game g = Game.current;
+
+		if (g != null && idx < g.furnitureInShop.Count) {
+			return g.furnitureInShop [idx].furnitureRef;
+		} else
+			return null;
 	}
 
 	public IntPair worldToShopCoordinates (Vector2 wrld) {
@@ -135,10 +132,50 @@ public class Shop : MonoBehaviour {
 
 
 	public bool IsPositionInGrid (IntPair position) {
-		return furnitureGrid.IsPositionInGrid (position);
+		return position.x >= 0 && position.x < numGridX
+			&& position.y >= 0 && position.y < numGridY;
+	}
+
+	public bool IsEntryWay (IntPair v1, IntPair v2) {
+		if (IsOnInnerEdge (v1) && v1.x == numGridX - 1 && v1.y >= 0 && v1.y < 3)
+			return IsOnOuterEdge (v2);
+		else if (IsOnInnerEdge (v2) && v2.x == numGridX - 1 && v2.y >= 0 && v2.y < 3)
+			return IsOnOuterEdge (v1);
+		else
+			return false;
+	}
+	private bool IsOnInnerEdge (IntPair v) {
+		return (v.x == 0 && (v.y >= 0 || v.y < numGridY))
+		|| (v.x == numGridX - 1 && (v.y >= 0 || v.y < numGridY))
+		|| (v.y == 0 && (v.x >= 0 || v.x < numGridX))
+		|| (v.y == numGridY - 1 && (v.x >= 0 || v.x < numGridX));
+	}
+	private bool IsOnOuterEdge (IntPair v) {
+		return (v.x == -1 && (v.y >= 0 || v.y < numGridY))
+			|| (v.x == numGridX && (v.y >= 0 || v.y < numGridY))
+			|| (v.y == -1 && (v.x >= 0 || v.x < numGridX))
+			|| (v.y == numGridY && (v.x >= 0 || v.x < numGridX));
 	}
 
 	public IntPair[] FindPath (IntPair start, IntPair end) {
 		return Pathfinding.FindPath ((x,y) => GetGrid (x,y), numGridX, numGridY, start, end);
+	}
+
+
+
+	public bool OccupiesSquare (IntPair pos) {
+		return false; // shop doesn't occupy squares
+	}
+
+	public bool OccupiesEdgeBetween (IntPair v1, IntPair v2) {
+		return IsPositionInGrid (v1) != IsPositionInGrid (v2);
+//		if (IsPositionInGrid (v1) != IsPositionInGrid (v2))
+//			return !IsEntryWay (v1, v2);
+//		else
+//			return false;
+	}
+
+	public bool CanOccupyPosition (Grid2D grid, IntPair pos) {
+		return pos.x == 0 && pos.y == 0; // shop can only be placed at (0,0)
 	}
 }

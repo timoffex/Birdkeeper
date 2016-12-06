@@ -11,7 +11,9 @@ public class DisplayMessageOnClick : MonoBehaviour {
 		if (col == null)
 			col = gameObject.AddComponent<BoxCollider2D> ();
 
-		ShopEventSystem.Instance ().RegisterClickListener (col, () => BeginDisplayingMessage ());
+		ShopEventSystem shop = ShopEventSystem.Instance ();
+		if (shop != null)
+			shop.RegisterClickListener (col, () => BeginDisplayingMessage ());
 	}
 
 	void BeginDisplayingMessage () {
