@@ -152,6 +152,13 @@ public class ShopGrid {
 		int firstYBelowShop = -rect.gridSizeY;
 
 
+		if (end.x > firstXBelowShop && end.x < 0 && end.y < firstYAboveShop && end.y > firstYBelowShop)
+			end = new IntPair (firstXBelowShop, end.y);
+
+		if (end.y > firstYBelowShop && end.y < 0 && end.x < firstXAboveShop && end.x > firstXBelowShop)
+			end = new IntPair (end.x, firstYBelowShop);
+
+
 		Func<IntPair, bool> corner00 = (f) => f.x <= firstXBelowShop && f.y <= firstYBelowShop;
 		Func<IntPair, bool> cornerX0 = (f) => f.x >= firstXAboveShop && f.y <= firstYBelowShop;
 		Func<IntPair, bool> corner0Y = (f) => f.x <= firstXBelowShop && f.y >= firstYAboveShop;
@@ -201,19 +208,25 @@ public class ShopGrid {
 				midY = new IntPair (start.x, firstYAboveShop);
 			
 			return IntPathFactory.MakeCPath (start, midY, end);
+		} else if (oppY) {
+
+			// go around shop on the X axis
+			int minXPath = Mathf.Abs (start.y - firstYBelowShop) + Mathf.Abs (end.y - firstYBelowShop);
+			int maxXPath = Mathf.Abs (start.y - firstYAboveShop) + Mathf.Abs (end.y - firstYAboveShop);
+
+			IntPair midX;
+			if (minXPath < maxXPath)
+				midX = new IntPair (firstXBelowShop, start.y);
+			else
+				midX = new IntPair (firstXAboveShop, start.y);
+
+			return IntPathFactory.MakeCPath (start, midX, end);
 		}
 
-		// go around shop on the X axis
-		int minXPath = Mathf.Abs (start.y - firstYBelowShop) + Mathf.Abs (end.y - firstYBelowShop);
-		int maxXPath = Mathf.Abs (start.y - firstYAboveShop) + Mathf.Abs (end.y - firstYAboveShop);
-
-		IntPair midX;
-		if (minXPath < maxXPath)
-			midX = new IntPair (firstXBelowShop, start.y);
+		if (start.x <= firstXBelowShop || start.x >= firstXAboveShop)
+			return IntPathFactory.MakeCornerPathYFirst (start, end);
 		else
-			midX = new IntPair (firstXAboveShop, start.y);
-
-		return IntPathFactory.MakeCPath (start, midX, end);
+			return IntPathFactory.MakeCornerPathXFirst (start, end);
 	}
 
 

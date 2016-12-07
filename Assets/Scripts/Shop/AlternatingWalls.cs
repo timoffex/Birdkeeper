@@ -25,7 +25,7 @@ public class AlternatingWalls : MonoBehaviour, IWallRenderer {
 
 		var sr = wall.GetComponent<SpriteRenderer> ();
 		sr.sortingLayerName = "Room Tiles";
-		sr.sortingOrder = 2 * (x + y);
+		sr.sortingOrder = 6 * (x + y);
 	}
 
 }
