@@ -8,8 +8,13 @@ public class DialogSystem : MonoBehaviour {
 		return instance;
 	}
 
-	private static Transform GetCanvas () {
-		return GameObject.FindObjectOfType<Canvas> ().GetComponent<Transform> ().root; // TODO
+	private static Transform GetDialogPanel () {
+		var dp = GameObject.FindGameObjectWithTag ("DialogPanel");
+
+		if (dp == null)
+			return null;
+		else
+			return dp.transform;
 	}
 
 
@@ -88,16 +93,41 @@ public class DialogSystem : MonoBehaviour {
 
 
 	private GameObject CloneAndPositionDialogBox () {
-		var clone = GameObject.Instantiate (dialogBoxPrefab, GetCanvas ()) as GameObject;
+		var dialogPanel = GetDialogPanel ();
+
+		if (dialogPanel != null) {
+			var clone = GameObject.Instantiate (dialogBoxPrefab, dialogPanel) as GameObject;
 
 
-		var rect = clone.GetComponent<RectTransform> ();
-		rect.anchorMax = Vector2.one;
-		rect.anchorMin = Vector2.one;
-		rect.anchoredPosition = new Vector2 (-24, -24);
-		rect.SetAsLastSibling ();
+			var rect = clone.GetComponent<RectTransform> ();
+			rect.anchorMax = Vector2.one;
+			rect.anchorMin = Vector2.one;
+			rect.anchoredPosition = new Vector2 (-24, -24);
+			rect.SetAsLastSibling ();
 
-		return clone;
+			return clone;
+		} else {
+			Debug.Log ("No dialog panel in scene.");
+
+			var canvas = FindObjectOfType<Canvas> ();
+
+			if (canvas == null) {
+				Debug.Log ("No canvas in scene.");
+
+				return GameObject.Instantiate (dialogBoxPrefab) as GameObject;
+			} else {
+				var clone = GameObject.Instantiate (dialogBoxPrefab, canvas.transform) as GameObject;
+
+
+				var rect = clone.GetComponent<RectTransform> ();
+				rect.anchorMax = Vector2.one;
+				rect.anchorMin = Vector2.one;
+				rect.anchoredPosition = new Vector2 (-24, -24);
+				rect.SetAsLastSibling ();
+
+				return clone;
+			}
+		}
 	}
 
 	private DialogBox.ChoiceSelect CombineDelegates (DialogBox.ChoiceSelect c0, DialogBox.ChoiceSelect c1) {
