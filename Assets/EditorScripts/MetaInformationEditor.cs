@@ -91,25 +91,53 @@ public class MetaInformationEditor : Editor {
 
 
 
+
 		GUILayout.Space (5);
 		GUILayout.Label ("Known Furniture");
 
-		foreach (var kv in info.GetFurnitureMappings ()) {
-			GUILayout.Label (string.Format ("{0}: {1}", kv.Value, kv.Key));
+		var oldFurnitureMappings = info.GetFurnitureMappings ().ToList ();
+		foreach (var kv in oldFurnitureMappings) {
+			EditorGUI.BeginChangeCheck ();
+			var newValue = EditorGUILayout.ObjectField (kv.Key.ToString (), kv.Value, typeof(Furniture), false);
+			if (EditorGUI.EndChangeCheck ()) {
+				Undo.RecordObject (info, "MetaInformation Change Furniture ID Mapping");
+				EditorUtility.SetDirty (info);
+				info.AddMappingForFurniture (kv.Key, newValue as GameObject);
+			}
+		}
+
+		EditorGUI.BeginChangeCheck ();
+		var newFurniturePrefab = EditorGUILayout.ObjectField ("Add New Furniture", null, typeof(Furniture), false);
+		if (EditorGUI.EndChangeCheck ()) {
+			Undo.RecordObject (info, "MetaInformation Add Furniture ID Mapping");
+			EditorUtility.SetDirty (info);
+			info.AddMappingForFurniture (info.GetUnusedCustomerID (), newFurniturePrefab as GameObject);
 		}
 
 
-		GameObjectDropArea ((obj) => {
-			if (obj.GetComponent<Furniture> () != null) {
-				if (!info.ContainsMappingForFurnitureNamed (obj.name)) {
-					Undo.RecordObject (info, "MetaInformation Add Furniture Mapping");
-					EditorUtility.SetDirty (target);
-					info.AddMappingForFurniture (info.GetUnusedFurnitureID (), obj);
-				} else {
-					Debug.Log (string.Format ("Already have a mapping for {0}", obj.name));
-				}
+
+		GUILayout.Space (5);
+		GUILayout.Label ("Known Customers");
+
+		var oldCustomerMappings = info.GetCustomerIDMappings ().ToList ();
+		foreach (var kv in oldCustomerMappings) {
+			EditorGUI.BeginChangeCheck ();
+			var newValue = EditorGUILayout.ObjectField (kv.Key.ToString (), kv.Value, typeof(GameObject), false);
+			if (EditorGUI.EndChangeCheck ()) {
+				Undo.RecordObject (info, "MetaInformation Change Customer ID Mapping");
+				EditorUtility.SetDirty (info);
+				info.AddMappingForCustomerPrefab (kv.Key, newValue as GameObject);
 			}
-		});
+		}
+
+		EditorGUI.BeginChangeCheck ();
+		var newCustomerPrefab = EditorGUILayout.ObjectField ("Add New Customer", null, typeof(GameObject), false);
+		if (EditorGUI.EndChangeCheck ()) {
+			Undo.RecordObject (info, "MetaInformation Add Customer ID Mapping");
+			EditorUtility.SetDirty (info);
+			info.AddMappingForCustomerPrefab (info.GetUnusedCustomerID (), newCustomerPrefab as GameObject);
+		}
+
 
 
 		GUILayout.Space (5);
@@ -136,6 +164,8 @@ public class MetaInformationEditor : Editor {
 
 		foreach (var kv in info.GetGeneralIDMappings ())
 			GUILayout.Label (string.Format ("Prefab Name: {0}\t| ID: {1}", kv.Value.name, kv.Key));
+
+
 	}
 
 

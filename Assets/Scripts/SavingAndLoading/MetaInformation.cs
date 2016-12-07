@@ -12,7 +12,8 @@ using System.IO;
 public class MetaInformation : MonoBehaviour {
 	[SerializeField] private FurnitureIDMapType idToFurniturePrefab;
 	[SerializeField] private ItemTypeIDMapType idToItemType;
-	[SerializeField] private GeneralIDMapType idToGeneral;
+	[SerializeField] private GameObjectToIDMapType idToGeneral;
+	[SerializeField] private GameObjectToIDMapType idToCustomerPrefab;
 
 
 
@@ -60,7 +61,7 @@ public class MetaInformation : MonoBehaviour {
 	}
 
 
-
+	#region Furniture Map
 	public GameObject GetFurniturePrefabByID (uint id) {
 		return idToFurniturePrefab [id];
 	}
@@ -93,10 +94,11 @@ public class MetaInformation : MonoBehaviour {
 	public bool ContainsMappingForFurnitureNamed (string name) {
 		return idToFurniturePrefab.Values.Where ((obj) => obj.name.Equals (name)).Count () > 0;
 	}
+	#endregion
 
 
 
-
+	#region Item Map
 	public ItemType GetItemTypeByID (uint id) {
 		ItemType val;
 
@@ -165,10 +167,11 @@ public class MetaInformation : MonoBehaviour {
 	public uint GetUnusedItemTypeID () {
 		return GetUnusedIDFor<ItemType> (idToItemType);
 	}
+	#endregion
 
 
 
-
+	#region General Map
 	public GameObject GetGeneralObjectByID (uint id) {
 		return idToGeneral [id];
 	}
@@ -195,7 +198,7 @@ public class MetaInformation : MonoBehaviour {
 
 	public IEnumerable<KeyValuePair<uint, GameObject>> GetGeneralIDMappings () {
 		if (idToGeneral == null) {
-			idToGeneral = new GeneralIDMapType ();
+			idToGeneral = new GameObjectToIDMapType ();
 			instance = this;
 		}
 
@@ -205,6 +208,52 @@ public class MetaInformation : MonoBehaviour {
 	public uint GetUnusedGeneralID () {
 		return GetUnusedIDFor<GameObject> (idToGeneral);
 	}
+	#endregion
+
+
+
+	#region Customer Map
+
+	public GameObject GetCustomerPrefabByID (uint id) {
+		return idToCustomerPrefab [id];
+	}
+
+	public void AddMappingForCustomerPrefab (uint id, GameObject prefab) {
+		if (Application.isEditor) {
+			idToCustomerPrefab.Add (id, prefab);
+			ApplyPrefabChanges ();
+		} else {
+			Debug.LogError ("Cannot add ID mappings during runtime!");
+			throw new UnityException ("The code tried doing something illegal. Please tell Tima at timoffex@gmail.com.");
+		}
+	}
+
+	public void RemoveCustomerMappingForID (uint id) {
+		if (Application.isEditor) {
+			idToCustomerPrefab.Remove (id);
+			ApplyPrefabChanges ();
+		} else {
+			Debug.LogError ("Cannot add ID mappings during runtime!");
+			throw new UnityException ("The code tried doing something illegal. Please tell Tima at timoffex@gmail.com.");
+		}
+	}
+
+	public IEnumerable<KeyValuePair<uint, GameObject>> GetCustomerIDMappings () {
+		if (idToCustomerPrefab == null) {
+			idToCustomerPrefab = new GameObjectToIDMapType ();
+			instance = this;
+		}
+
+		return idToCustomerPrefab;
+	}
+
+	public uint GetUnusedCustomerID () {
+		return GetUnusedIDFor<GameObject> (idToCustomerPrefab);
+	}
+	#endregion
+
+
+
 
 
 
@@ -223,7 +272,7 @@ public class MetaInformation : MonoBehaviour {
 
 	[System.Serializable] public class FurnitureIDMapType : SerializableDictionary<uint, GameObject> { }
 	[System.Serializable] public class ItemTypeIDMapType : SerializableDictionary<uint, ItemType> { }
-	[System.Serializable] public class GeneralIDMapType : SerializableDictionary<uint, GameObject> { }
+	[System.Serializable] public class GameObjectToIDMapType : SerializableDictionary<uint, GameObject> { }
 
 	private static MetaInformation instance;
 	public static MetaInformation Instance () {
@@ -377,6 +426,15 @@ public class MetaInformation : MonoBehaviour {
 			writer.WriteLine (string.Format ("\t{0} {1}", genID, prefabPath));
 		}
 
+		writer.WriteLine ("Customer Mappings");
+		foreach (var kv in idToCustomerPrefab) {
+			uint customerID = kv.Key;
+			Object prefab = PrefabUtility.GetPrefabObject (kv.Value);
+			string prefabPath = AssetDatabase.GetAssetPath (prefab);
+
+			writer.WriteLine (string.Format ("\t{0} {1}", customerID, prefabPath));
+		}
+
 		writer.Close ();
 	}
 
@@ -400,6 +458,8 @@ public class MetaInformation : MonoBehaviour {
 				line = LoadProcessItemTypeMappings (reader, line);
 			else if (line.Equals ("General Mappings"))
 				line = LoadProcessGeneralMappings (reader, line);
+			else if (line.Equals ("Customer Mappings"))
+				line = LoadProcessCustomerMappings (reader, line);
 			else if (!string.IsNullOrEmpty (line)) {
 				Debug.LogFormat ("Ignoring line: {0}", line);
 				line = reader.ReadLine ();
@@ -534,6 +594,30 @@ public class MetaInformation : MonoBehaviour {
 			else
 				Debug.LogErrorFormat ("Could not locate prefab at {0}", prefabPath);
 			
+			nextLine = reader.ReadLine ();
+		}
+
+		return nextLine;
+	}
+
+	private string LoadProcessCustomerMappings (StreamReader reader, string line) {
+
+		string nextLine = reader.ReadLine ();
+
+		while (nextLine != null && nextLine.StartsWith ("\t")) {
+			int firstIdx = 1;
+			int space1 = nextLine.IndexOf (' ');
+
+			uint customerID = uint.Parse (nextLine.Substring (firstIdx, space1 - firstIdx));
+			string prefabPath = nextLine.Substring (space1 + 1);
+			GameObject customerPrefab = AssetDatabase.LoadAssetAtPath<GameObject> (prefabPath);
+
+
+			if (customerPrefab != null)
+				idToCustomerPrefab [customerID] = customerPrefab;
+			else
+				Debug.LogErrorFormat ("Could not locate prefab at {0}", prefabPath);
+
 			nextLine = reader.ReadLine ();
 		}
 
