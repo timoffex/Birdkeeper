@@ -98,20 +98,20 @@ public class MetaInformationEditor : Editor {
 		var oldFurnitureMappings = info.GetFurnitureMappings ().ToList ();
 		foreach (var kv in oldFurnitureMappings) {
 			EditorGUI.BeginChangeCheck ();
-			var newValue = EditorGUILayout.ObjectField (kv.Key.ToString (), kv.Value, typeof(Furniture), false);
-			if (EditorGUI.EndChangeCheck ()) {
+			var newValue = EditorGUILayout.ObjectField (kv.Key.ToString (), kv.Value, typeof(GameObject), false) as GameObject;
+			if (EditorGUI.EndChangeCheck () && newValue.GetComponent<Furniture> () != null) {
 				Undo.RecordObject (info, "MetaInformation Change Furniture ID Mapping");
 				EditorUtility.SetDirty (info);
-				info.AddMappingForFurniture (kv.Key, newValue as GameObject);
+				info.AddMappingForFurniture (kv.Key, newValue);
 			}
 		}
 
 		EditorGUI.BeginChangeCheck ();
-		var newFurniturePrefab = EditorGUILayout.ObjectField ("Add New Furniture", null, typeof(Furniture), false);
-		if (EditorGUI.EndChangeCheck ()) {
+		var newFurniturePrefab = EditorGUILayout.ObjectField ("Add New Furniture", null, typeof(GameObject), false) as GameObject;
+		if (EditorGUI.EndChangeCheck () && newFurniturePrefab.GetComponent<Furniture> () != null) {
 			Undo.RecordObject (info, "MetaInformation Add Furniture ID Mapping");
 			EditorUtility.SetDirty (info);
-			info.AddMappingForFurniture (info.GetUnusedCustomerID (), newFurniturePrefab as GameObject);
+			info.AddMappingForFurniture (info.GetUnusedCustomerID (), newFurniturePrefab);
 		}
 
 
