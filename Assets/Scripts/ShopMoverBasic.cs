@@ -40,6 +40,10 @@ public class ShopMoverBasic : ShopMover {
 		return position;
 	}
 
+	public override void SetPosition (IntPair pos) {
+		position = pos;
+	}
+
 
 	public override IEnumerator MoveToPosition (IntPair targetPos, SuccessCallback callback) {
 		

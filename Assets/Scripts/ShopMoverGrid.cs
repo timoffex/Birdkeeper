@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 
+
 [RequireComponent (typeof (RectangularGridObject))]
 public class ShopMoverGrid : ShopMover {
 
@@ -24,11 +25,7 @@ public class ShopMoverGrid : ShopMover {
 	}
 
 
-	private IntPair farCorner {
-		get {
-			return MyGrid.GetPosition ();
-		}
-	}
+	private IntPair farCorner = new IntPair (0, 0);
 
 	private IntPair nearCorner {
 		get {
@@ -74,18 +71,13 @@ public class ShopMoverGrid : ShopMover {
 	void Start () {
 		spriteRenderer = GetComponent<SpriteRenderer> ();
 		animator = GetComponent<Animator> ();
-		StartCoroutine (LateStart ());
 
+		transform.position = GetShop ().shopToWorldCoordinates (farCorner) - gridOffset;
 	}
 
 	void Update () {
 		var ncf = nearCornerFloat;
 		spriteRenderer.sortingOrder = (int) Mathf.Floor (2 * (ncf.x + ncf.y) - 2);
-	}
-
-	IEnumerator LateStart () {
-		yield return new WaitForEndOfFrame ();
-		transform.position = GetShop ().shopToWorldCoordinates (farCorner) - gridOffset;
 	}
 
 
@@ -100,58 +92,59 @@ public class ShopMoverGrid : ShopMover {
 		return middlePosition;
 	}
 
+	public override void SetPosition (IntPair pos) {
+		farCorner = pos;
+	}
 
 
-	public override IEnumerator MoveToPosition (IntPair pos, SuccessCallback callback) {
+
+	public override IEnumerator MoveToPosition (IntPair pos, SuccessCallback callback = null) {
+
+		if (callback == null)
+			callback = (s) => {};
 
 		if (animator != null) animator.SetBool (AnimationStandards.IS_MOVING, true);
 
 		IntPair endPoint = pos;
 
-//		if (!GetShop ().IsPositionInGrid (endPoint)) {
-//			callback (false);
-//			yield break;
-//		}
 
 
 		Game game = Game.current;
 
 		if (game != null) {
-			bool done = false;
+			ShopGrid grid = game.shopGrid;
+
+			if (grid != null) {
+				bool done = false;
 
 
-			while (!done) {
-				IntPair[] path = game.grid.FindPathFor (MyGrid, farCorner, endPoint);
+				while (!done) {
+					IntPath path = grid.FindPath (MyGrid, farCorner, endPoint);
 
-				if (path == null) {
-					#region callback(false) and exit loop
-					if (animator != null)
-						animator.SetBool (AnimationStandards.IS_MOVING, false);
-					callback (false);
-					done = true;
-					#endregion
-				} else {
-					#region try to follow path; if path succeeds, callback(true) and exit
-					bool pathSucceeded = true;
-					for (int i = 0; i < path.GetLength (0); i++) {
-						var oldPosition = MyGrid.GetPosition ();
-						if (MyGrid.TrySetPosition (path [i])) {
-							yield return Glide (oldPosition, path [i]);
-						} else {
-							// Cannot go to next position! Try finding a path again...
-							pathSucceeded = false;
-							break;
-						}
-					}
-
-
-					if (pathSucceeded) {
+					if (path == null) {
+						#region callback(false) and exit loop
 						if (animator != null)
 							animator.SetBool (AnimationStandards.IS_MOVING, false);
-						callback (true);
+						callback (false);
 						done = true;
+						#endregion
+					} else {
+						#region try to follow path; if path succeeds, callback(true) and exit
+						bool pathSucceeded = true;
+						for (int i = 0; i < path.Length; i++) {
+							yield return Glide (farCorner, path [i]);
+							farCorner = path [i];
+						}
+
+
+						if (pathSucceeded) {
+							if (animator != null)
+								animator.SetBool (AnimationStandards.IS_MOVING, false);
+							callback (true);
+							done = true;
+						}
+						#endregion
 					}
-					#endregion
 				}
 			}
 		} else

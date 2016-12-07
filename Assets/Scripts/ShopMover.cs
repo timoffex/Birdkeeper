@@ -21,6 +21,12 @@ public abstract class ShopMover : MonoBehaviour {
 	public abstract IntPair GetPosition ();
 
 
+	/// <summary>
+	/// Sets the ShopMover's position. Warning: this CAN fail.
+	/// </summary>
+	/// <param name="pos">Position.</param>
+	public abstract void SetPosition (IntPair pos);
+
 
 	public delegate void SuccessCallback (bool success);
 

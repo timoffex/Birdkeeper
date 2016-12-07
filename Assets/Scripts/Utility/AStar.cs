@@ -37,8 +37,11 @@ public class AStar<NodeType> {
 	public static NodeType[] Solve (NeighborDelegate neighborsOf, Func<NodeType, float> heuristic, NodeType start, NodeType end) {
 		Dictionary<NodeType, int> numSteps = new Dictionary<NodeType, int> ();
 
-		// node priority; !pathWeight.ContainsKey(x) means pathWeight[x] == inf
+		// weight of minimum path to node; !pathWeight.ContainsKey(x) means pathWeight[x] == inf
 		Dictionary<NodeType, float> pathWeight = new Dictionary<NodeType, float> ();
+
+		// priority of node
+		Dictionary<NodeType, float> priority = new Dictionary<NodeType, float> ();
 
 		// !previous.ContainsKey(x) means x has no parent
 		Dictionary<NodeType, NodeType> previous = new Dictionary<NodeType, NodeType> ();
@@ -46,21 +49,27 @@ public class AStar<NodeType> {
 		// !status.ContainsKey(x) means unseen, 'f' means fringe, 't' means tree
 		Dictionary<NodeType, char> status = new Dictionary<NodeType, char> ();
 
+		// contains all of the nodes that are on the fringe
+		LinkedList<NodeType> fringeList = new LinkedList<NodeType> ();
+
 
 
 		pathWeight [start] = 0;
+		priority [start] = 0;
 		status [start] = 'f';
 		numSteps [start] = 0;
+		fringeList.AddLast (start);
 
 		NodeType bestEndCandidate = start;
 		float bestHeuristic = heuristic (start);
 
-
-
+//		UnityEngine.Debug.LogFormat ("Goal: {0}", end);
 
 		NodeType minNode;
-		while (FindMin (pathWeight, status, out minNode)) {
-			status [minNode] = 't';
+		while (PopMin (priority, status, heuristic, fringeList, out minNode)) {
+
+//			UnityEngine.Debug.LogFormat ("Node {0}, priority {1}", minNode, priority[minNode]);
+
 			var nodeHeuristic = heuristic (minNode);
 
 
@@ -82,6 +91,7 @@ public class AStar<NodeType> {
 					node = previous [node];
 				}
 
+
 				return path;
 			}
 			#endregion
@@ -90,20 +100,21 @@ public class AStar<NodeType> {
 			foreach (EdgeType edge in neighborsOf (minNode)) {
 				var nextNode = edge.nTo;
 
-				var newWgt = pathWeight [minNode] + edge.nWeight + heuristic (nextNode);
+				var newWgt = pathWeight [minNode] + edge.nWeight;
+				var newPriority = newWgt + heuristic (nextNode);
 
 				if (!status.ContainsKey (nextNode)) {
 					status [nextNode] = 'f';
 					numSteps [nextNode] = numSteps [minNode] + 1;
 					pathWeight [nextNode] = newWgt;
+					priority [nextNode] = newPriority;
 					previous [nextNode] = minNode;
-				} else {
-					float oldWgt = pathWeight [nextNode];
-
-					if (newWgt < oldWgt) {
-						status [nextNode] = 'f';
+					fringeList.AddLast (nextNode);
+				} else if (status [nextNode] != 't') {
+					if (newWgt < pathWeight [nextNode]) {
 						numSteps [nextNode] = numSteps [minNode] + 1;
 						pathWeight [nextNode] = newWgt;
+						priority [nextNode] = newPriority;
 						previous [nextNode] = minNode;
 					}
 				}
@@ -126,17 +137,26 @@ public class AStar<NodeType> {
 	}
 
 
-	private static bool FindMin (Dictionary<NodeType, float> weight, Dictionary<NodeType, char> status, out NodeType min) {
+	private static bool PopMin (Dictionary<NodeType, float> weight, Dictionary<NodeType, char> status, Func<NodeType, float> heuristic, LinkedList<NodeType> fringe, out NodeType min) {
 		bool found = false;
 		float minWgt = float.PositiveInfinity;
+		float minHrst = float.PositiveInfinity;
 		min = default (NodeType);
 
-		foreach (var kv in status) {
-			if (kv.Value == 'f' && weight [kv.Key] < minWgt) {
-				min = kv.Key;
-				minWgt = weight [kv.Key];
+		foreach (var fringeNode in fringe) {
+			float wgt = weight [fringeNode];
+			float hrst = heuristic (fringeNode);
+			if (wgt < minWgt || (wgt == minWgt && hrst < minHrst)) {
+				min = fringeNode;
+				minWgt = weight [fringeNode];
+				minHrst = hrst;
 				found = true;
 			}
+		}
+
+		if (found) {
+			status [min] = 't';
+			fringe.Remove (min);
 		}
 
 		return found;
