@@ -7,6 +7,7 @@ public class CustomerSpawnScheduler : MonoBehaviour {
 	public CustomerSpawner customerSpawner;
 	public ShopMover customerPrefab;
 
+
 	void Start () {
 		StartCoroutine (SpawningRoutine ());
 	}
@@ -16,7 +17,7 @@ public class CustomerSpawnScheduler : MonoBehaviour {
 		while (true) {
 			ShopMover customer = GameObject.Instantiate (customerPrefab) as ShopMover;
 			customerSpawner.SpawnCustomer (customer);
-			yield return new WaitForSeconds (3 + Random.value * 2);
+			yield return new WaitForSeconds (10 + Random.value * 10);
 		}
 	}
 }
