@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 
 [RequireComponent (typeof (RectangularGridObject))]
@@ -12,6 +13,10 @@ public class Furniture : MonoBehaviour {
 	[HideInInspector]
 	private uint furnitureTypeUniqueId;
 	public uint FurnitureTypeID { get { return furnitureTypeUniqueId; } }
+
+
+	[SerializeField] private List<uint> attractedCustomers;
+	[SerializeField] private List<float> attractedCustomersWeights;
 
 
 
@@ -69,6 +74,10 @@ public class Furniture : MonoBehaviour {
 		gridXVec = MetaInformation.Instance ().tileXVector / gridPerTile;
 		gridYVec = MetaInformation.Instance ().tileYVector / gridPerTile;
 
+		if (attractedCustomers == null)
+			attractedCustomers = new List<uint> ();
+		if (attractedCustomersWeights == null)
+			attractedCustomersWeights = new List<float> ();
 
 		spriteRenderer = GetComponent<SpriteRenderer> ();
 	}
@@ -154,6 +163,35 @@ public class Furniture : MonoBehaviour {
 
 	public Furniture_hovering GetHoveringPrefab () {
 		return hoveringPrefab;
+	}
+
+
+
+	public IEnumerable<KeyValuePair<uint, float>> GetAttractedCustomers () {
+		for (int i = 0; i < attractedCustomers.Count; i++)
+			yield return new KeyValuePair<uint, float> (attractedCustomers [i], attractedCustomersWeights [i]);
+	}
+
+	public void RemoveAttractedCustomer (uint customerID) {
+		int idx = attractedCustomers.IndexOf (customerID);
+
+		if (idx >= 0) {
+			attractedCustomers.RemoveAt (idx);
+			attractedCustomersWeights.RemoveAt (idx);
+		}
+	}
+
+	public void AddAttractedCustomer (uint customerID, float weight) {
+		RemoveAttractedCustomer (customerID);
+
+		attractedCustomers.Add (customerID);
+		attractedCustomersWeights.Add (weight);
+	}
+
+	public void SetAttractedCustomerWeight (uint customerID, float weight) {
+		int idx = attractedCustomers.IndexOf (customerID);
+
+		attractedCustomersWeights [idx] = weight;
 	}
 
 

@@ -1,9 +1,72 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.Linq;
 
 [CustomEditor(typeof(Furniture))]
 public class FurnitureEditor : Editor {
+	
+	public override void OnInspectorGUI () {
+		base.OnInspectorGUI ();
+
+
+		Furniture furniture = target as Furniture;
+
+		EditorGUILayout.LabelField ("Attracted Customers");
+
+
+		var attractedCustomerList = furniture.GetAttractedCustomers ().ToList ();
+		foreach (var kv in attractedCustomerList) {
+			var customerPrefab = MetaInformation.Instance ().GetCustomerPrefabByID (kv.Key);
+			var name = customerPrefab.name;
+			var weight = kv.Value;
+
+
+			EditorGUILayout.BeginHorizontal ();
+
+			EditorGUI.BeginChangeCheck ();
+			var newID = CustomerDisplayEditorUtility.CustomerDropdown (kv.Key);
+			if (EditorGUI.EndChangeCheck ()) {
+				Undo.RecordObject (furniture, "Furniture Change Customer");
+
+				furniture.RemoveAttractedCustomer (kv.Key);
+				furniture.AddAttractedCustomer (newID, weight);
+			}
+
+			EditorGUI.BeginChangeCheck ();
+			var newWeight = EditorGUILayout.FloatField (weight);
+			if (EditorGUI.EndChangeCheck ()) {
+				Undo.RecordObject (furniture, "Furniture Change Customer Weight");
+				EditorUtility.SetDirty (furniture);
+
+				furniture.SetAttractedCustomerWeight (newID, newWeight);
+			}
+
+			if (GUILayout.Button ("-", GUILayout.ExpandWidth (false))) {
+				Undo.RecordObject (furniture, "Furniture Remove Customer");
+				EditorUtility.SetDirty (furniture);
+
+				furniture.RemoveAttractedCustomer (newID);
+			}
+
+			EditorGUILayout.EndHorizontal ();
+		}
+
+
+		if (GUILayout.Button ("+", GUILayout.ExpandWidth (false))) {
+			Undo.RecordObject (furniture, "Furniture Add Customer");
+			EditorUtility.SetDirty (furniture);
+
+
+			uint anyID = MetaInformation.Instance ().GetCustomerIDMappings ().FirstOrDefault ().Key;
+
+			if (anyID == default(uint))
+				EditorWindow.focusedWindow.ShowNotification (new GUIContent ("No registered customers!"));
+			else
+				furniture.AddAttractedCustomer (anyID, 1);
+		}
+	}
+
 
 	public void OnSceneGUI () {
 		Furniture f = (target as Furniture);
