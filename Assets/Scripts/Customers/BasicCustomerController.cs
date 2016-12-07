@@ -48,13 +48,15 @@ public class BasicCustomerController : MonoBehaviour {
 		}
 
 		// Pop up a dialog.
-		DialogSystem dialogSys = DialogSystem.Instance ();
-		if (dialogSys == null) {
-			Debug.Log ("DialogSystem not found. Customer won't say anything.");
-		} else {
-			yield return dialogSys.DisplayMessage ("This is a default message!");
-		}
+//		DialogSystem dialogSys = DialogSystem.Instance ();
+//		if (dialogSys == null) {
+//			Debug.Log ("DialogSystem not found. Customer won't say anything.");
+//		} else {
+//			yield return dialogSys.DisplayMessage ("This is a default message!");
+//		}
 
+		// Pop up a notification.
+		NotificationSystem.ShowNotificationIfPossible ("Hey, it's me!");
 
 		// Return to start position.
 		bool succeededReturningToStart = false;

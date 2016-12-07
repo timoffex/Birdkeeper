@@ -13,11 +13,10 @@ public class CustomerSpawnScheduler : MonoBehaviour {
 
 
 	private IEnumerator SpawningRoutine () {
-//		while (true) {
+		while (true) {
 			ShopMover customer = GameObject.Instantiate (customerPrefab) as ShopMover;
 			customerSpawner.SpawnCustomer (customer);
-		yield break;
-//			yield return new WaitForSeconds (3 + Random.value * 2);
-//		}
+			yield return new WaitForSeconds (3 + Random.value * 2);
+		}
 	}
 }

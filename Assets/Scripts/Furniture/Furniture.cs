@@ -53,9 +53,10 @@ public class Furniture : MonoBehaviour {
 
 
 
+	private IntPair farCorner;
 	private IntPair ShopPosition {
 		get {
-			return MyGrid.GetPosition ();
+			return farCorner;
 		}
 	}
 
@@ -125,11 +126,9 @@ public class Furniture : MonoBehaviour {
 
 
 	public bool TrySetPosition (IntPair pos) {
-		if (MyGrid.TrySetPosition (pos)) {
-			UpdateTransformPosition ();
-			return true;
-		} else
-			return false;
+		farCorner = pos;
+		UpdateTransformPosition ();
+		return true;
 	}
 
 	private void UpdateTransformPosition () {

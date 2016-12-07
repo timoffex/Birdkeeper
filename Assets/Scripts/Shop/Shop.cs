@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(RoomRenderer))]
-public class Shop : MonoBehaviour, IGrid2DShape {
+public class Shop : MonoBehaviour {
 
 
 
@@ -37,7 +37,6 @@ public class Shop : MonoBehaviour, IGrid2DShape {
 	// Use this for initialization
 	void Start () {
 		Game.current.shop = this;
-		Game.current.grid.AddShape (this, new IntPair (0, 0));
 	}
 
 	/// <summary>
@@ -46,7 +45,7 @@ public class Shop : MonoBehaviour, IGrid2DShape {
 	public bool GetGrid (int x, int y) {
 		Game g = Game.current;
 
-		return g != null && g.grid.IsSquareOccupied (new IntPair (x, y));
+		return g != null && g.shopGrid != null && g.shopGrid.GetGrid (x, y);
 	}
 
 
@@ -59,8 +58,14 @@ public class Shop : MonoBehaviour, IGrid2DShape {
 	public void PlaceFurniture (int xpos, int ypos, Furniture furniture) {
 		Game g = Game.current;
 
-		if (g != null)
+
+
+		if (g != null) {
 			g.AddFurnitureToShop (furniture);
+
+			if (g.shopGrid != null)
+				g.shopGrid.AddFurnitureRectangle (furniture.GetComponent<RectangularGridObject> (), new IntPair (xpos, ypos));
+		}
 	}
 
 
@@ -140,42 +145,5 @@ public class Shop : MonoBehaviour, IGrid2DShape {
 
 	public IntPair[] FindPath (IntPair start, IntPair end) {
 		return Pathfinding.FindPath ((x,y) => GetGrid (x,y), numGridX, numGridY, start, end);
-	}
-
-
-
-	public bool DoesOccupySquare (IntPair offset) {
-		return false; // shop doesn't occupy squares
-	}
-
-	public bool DoesOccupyXEdge (IntPair offset) {
-		if (IsXEdgeEntryWay (offset))
-			return false;
-		else
-			return (offset.x == numGridX - 1 && offset.y >= 0 && offset.y < numGridY)
-				|| (offset.x == -1 && offset.y >= 0 && offset.y < numGridY);
-	}
-
-	public bool DoesOccupyYEdge (IntPair offset) {
-		return (offset.x >= 0 && offset.x < numGridX && (offset.y == numGridY - 1 || offset.y == -1));
-	}
-
-
-	public IEnumerable<IntPair> GetOccupiedSquares () {
-		yield break;
-	}
-
-	public IEnumerable<IntPair> GetOccupiedXEdges () {
-		for (int y = 4; y < numGridY; y++) {
-			yield return new IntPair (-1, y);
-			yield return new IntPair (numGridX - 1, y);
-		}
-	}
-
-	public IEnumerable<IntPair> GetOccupiedYEdges () {
-		for (int x = 0; x < numGridX; x++) {
-			yield return new IntPair (x, -1);
-			yield return new IntPair (x, numGridY - 1);
-		}
 	}
 }

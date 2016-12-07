@@ -66,6 +66,8 @@ public class Game {
 
 	public int shopSizeX = 6; // default value is 6
 	public int shopSizeY = 6; // default value is 6
+	public int shopGridSizeX { get { return shopSizeX * MetaInformation.Instance ().numGridSquaresPerTile; } }
+	public int shopGridSizeY { get { return shopSizeY * MetaInformation.Instance ().numGridSquaresPerTile; } }
 
 	public List<FurnitureInfo> furnitureInShop = new List<FurnitureInfo> (); // empty by default
 
@@ -75,7 +77,7 @@ public class Game {
 	public List<GameObject> generalObjectPrefabs = new List<GameObject> ();
 
 
-	public Grid2D grid = new Grid2D (0, 0, 40, 40); // TODO smarter min/max values
+	public ShopGrid shopGrid;
 
 
 
@@ -117,6 +119,9 @@ public class Game {
 		GameObject roomObj = GameObject.Instantiate (MetaInformation.Instance ().roomPrefab) as GameObject;
 		Shop newShop = roomObj.GetComponent<Shop> ();
 		shop = newShop;
+
+
+		shopGrid = new ShopGrid (shopGridSizeX, shopGridSizeY, 0, 4);
 
 
 		FurnitureInfo[] oldFurniture = new FurnitureInfo[furnitureInShop.Count];
