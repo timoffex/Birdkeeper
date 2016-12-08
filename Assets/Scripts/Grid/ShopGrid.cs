@@ -35,16 +35,11 @@ public class ShopGrid {
 
 
 	public void AddFurnitureRectangle (RectangularGridObject rect, IntPair pos) {
-		AddFurnitureRectangle (new Rect (pos.x, pos.y, rect.gridSizeX, rect.gridSizeY));
+		AddFurnitureRectangle (pos.x, pos.y, pos.x + rect.gridSizeX - 1, pos.y + rect.gridSizeY - 1);
 	}
 
-	public void AddFurnitureRectangle (Rect rectangle) {
-		int minX = Mathf.Max (0, (int)rectangle.min.x);
-		int minY = Mathf.Max (0, (int)rectangle.min.y);
-		int maxX = Mathf.Min (shopSizeX - 1, (int)rectangle.max.x);
-		int maxY = Mathf.Min (shopSizeY - 1, (int)rectangle.max.y);
-
-
+	public void AddFurnitureRectangle (int minX, int minY, int maxX, int maxY) {
+		
 		lock (occupied)
 			for (int x = minX; x <= maxX; x++)
 				for (int y = minY; y <= maxY; y++)
@@ -70,7 +65,8 @@ public class ShopGrid {
 						xClearance [x, y] = 0;
 						yClearance [x, y] = 0;
 					} else {
-						xClearance [x, y] = x < shopSizeX - 1 ? (xClearance [x + 1, y] + 1) : 1;
+						xClearance [x, y] = x < shopSizeX - 1 ? (xClearance [x + 1, y] + 1) : 
+							(y >= entranceYMin && y <= entranceYMax ? 99999 : 1);
 						yClearance [x, y] = y < shopSizeY - 1 ? (yClearance [x, y + 1] + 1) : 1;
 					}
 
@@ -236,7 +232,18 @@ public class ShopGrid {
 
 
 		
-		Func<IntPair, bool> isClear = (p) => xClearance [p.x, p.y] >= rect.gridSizeX && yClearance [p.x, p.y] >= rect.gridSizeY;
+		Func<IntPair, bool> isClear = (p) => {
+			int diagSize = Mathf.Min (rect.gridSizeX, rect.gridSizeY);
+
+			if (!IsInsideShop (p))
+				return false;
+
+			for (int i = 0; i < diagSize; i++)
+				if (IsInsideShop (p + new IntPair (i, i)) && !(xClearance [p.x + i, p.y + i] >= rect.gridSizeX && yClearance [p.x + i, p.y + i] >= rect.gridSizeY))
+					return false;
+
+			return true;
+		};
 
 		IntPair[] path = null;
 		lock (occupied) {
@@ -248,10 +255,10 @@ public class ShopGrid {
 
 				List<AStar<IntPair>.EdgeType> edges = new List<AStar<IntPair>.EdgeType> ();
 
-				if (IsInsideShop (p1) && isClear (p1)) edges.Add (new AStar<IntPair>.EdgeType (p, p1, 1));
-				if (IsInsideShop (p2) && isClear (p2)) edges.Add (new AStar<IntPair>.EdgeType (p, p2, 1));
-				if (IsInsideShop (p3) && isClear (p3)) edges.Add (new AStar<IntPair>.EdgeType (p, p3, 1));
-				if (IsInsideShop (p4) && isClear (p4)) edges.Add (new AStar<IntPair>.EdgeType (p, p4, 1));
+				if (isClear (p1)) edges.Add (new AStar<IntPair>.EdgeType (p, p1, 1));
+				if (isClear (p2)) edges.Add (new AStar<IntPair>.EdgeType (p, p2, 1));
+				if (isClear (p3)) edges.Add (new AStar<IntPair>.EdgeType (p, p3, 1));
+				if (isClear (p4)) edges.Add (new AStar<IntPair>.EdgeType (p, p4, 1));
 
 				return edges;
 			}, (p) => Mathf.Abs (p.x - end.x) + Mathf.Abs (p.y - end.y), start, end);

@@ -1,13 +1,10 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
+
 public class CustomerSpawner : ScriptableObject {
 
 	public IntPair spawnPosition;
-
-	void Awake () {
-		spawnPosition = new IntPair (0, 0);
-	}
 
 	/// <summary>
 	/// Places the given ShopMover in the spawn position.
