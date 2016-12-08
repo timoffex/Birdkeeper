@@ -189,15 +189,17 @@ public class Game {
 	/// Creates a game with default values.
 	/// </summary>
 	public void CreateEmpty () {
-		MetaInformation info = MetaInformation.Instance ();
+		// Add 1 cauldron, 1 tea n' honey, 1 log chair
+		furnitureInventory.Add (new FurnitureStack (41568608, 1));
+		furnitureInventory.Add (new FurnitureStack (1829519687, 1));
+		furnitureInventory.Add (new FurnitureStack (435603281, 1));
 
-		// Add 3 of each existing furniture to furniture inventory
-		foreach (var mapping in info.GetFurnitureMappings ())
-			furnitureInventory.Add (new FurnitureStack (mapping.Key, 3));
 
-		// Add 10 of each existing item to inventory
-		foreach (var mapping in info.GetItemTypeMappings ())
-			inventory.AddStack (new ItemStack (mapping.Key, 10));
+		// Add 1 feather, 1 bottle, 1 apple, 2 venom
+		inventory.AddStack (new ItemStack (858003622, 1));
+		inventory.AddStack (new ItemStack (1626868489, 1));
+		inventory.AddStack (new ItemStack (957089515, 1));
+		inventory.AddStack (new ItemStack (856784391, 2));
 
 
 		SwitchToPhase (GamePhase.EditPhase);

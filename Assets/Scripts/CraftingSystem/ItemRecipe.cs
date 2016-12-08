@@ -26,7 +26,35 @@ public class ItemRecipe {
 
 
 	public bool CanBeCraftedGiven (Inventory inv) {
+		if (requiredItems.Length == 0)
+			return false;
+		
 		return requiredItems.All ((stack) => inv.HasHowManyOf (stack.ItemType) >= stack.Count);
+	}
+
+	public bool CanBeCraftedGiven (List<ItemType> items) {
+		if (requiredItems.Length == 0)
+			return false;
+
+		int[] remaining = new int[items.Count];
+		for (int i = 0; i < remaining.Length; i++)
+			remaining [i] = 1;
+
+		foreach (var stack in requiredItems) {
+			int ct = stack.Count;
+
+			for (int i = 0; i < items.Count && ct > 0; i++) {
+				if (remaining [i] > 0 && stack.ItemTypeID == items [i].ItemTypeID) {
+					ct--;
+					remaining [i]--;
+				}
+			}
+
+			if (ct > 0)
+				return false;
+		}
+
+		return true;
 	}
 
 	/// <summary>
