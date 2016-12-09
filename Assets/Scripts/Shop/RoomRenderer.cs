@@ -112,7 +112,7 @@ public class RoomRenderer : MonoBehaviour {
 		var rotation = Quaternion.identity;
 
 
-		var wallRenderer = leftWallTile.GetComponent<IWallRenderer> ();
+		var wallRenderer = rightWallTile.GetComponent<IWallRenderer> ();
 
 		if (wallRenderer == null) {
 			var tile = GameObject.Instantiate (rightWallTile, position, rotation, transform) as GameObject;
