@@ -10,7 +10,7 @@ public static class TradingDialogUtility {
 	/// <returns>The trade.</returns>
 	/// <param name="trade">Trade.</param>
 	/// <param name="success">Success.</param>
-	public static IEnumerator OfferTrade (TradingOffer trade, System.Action<bool> success) {
+	public static IEnumerator OfferTrade (TradingOffer trade, System.Action<TradingResult> success) {
 
 		var offerCount = trade.Offer.Count;
 		var offerName = trade.Offer.ItemType.Name;
@@ -24,11 +24,14 @@ public static class TradingDialogUtility {
 
 
 		var acceptOption = new DialogBox.Choice ("Accept", () => {
-			success (PerformTrade (trade));
+			if (PerformTrade (trade))
+				success (TradingResult.SUCCEED);
+			else
+				success (TradingResult.FAILACCEPT);
 		});
 
 		var denyOption = new DialogBox.Choice ("Deny", () => {
-			success (false);
+			success (TradingResult.FAILDENY);
 		});
 
 		yield return DialogSystem.Instance ().DisplayMessageAndChoices (tradeText, acceptOption, denyOption);

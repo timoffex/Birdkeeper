@@ -13,6 +13,8 @@ using UnityEngine.UI;
 /// If no choices are provided, then the dialog will call the finishDelegate when
 /// all text has been displayed and the user chooses to continue.
 /// </summary>
+
+[RequireComponent (typeof (RectTransform))]
 public class DialogBox : MonoBehaviour {
 
 	public delegate void DialogFinish ();
@@ -33,31 +35,29 @@ public class DialogBox : MonoBehaviour {
 	/// <summary>
 	/// Text to display.
 	/// </summary>
-	public string text;
-
-
-	public float secondsPerLetter = 0.1f;
+	[SerializeField] private string text;
+	[SerializeField] private float secondsPerLetter = 0.1f;
 
 
 	/// <summary>
 	/// Optional choices to display to the user.
 	/// </summary>
-	public Choice[] choices;
+	private Choice[] choices;
 
 	/// <summary>
 	/// Function to call when all text has been displayed and user clicks continuing button.
 	/// </summary>
-	public DialogFinish finishDelegate;
+	private DialogFinish finishDelegate;
 
 
 	/// <summary>
 	/// The prefab used to display choices.
 	/// </summary>
-	public GameObject choicePrefab;
+	[SerializeField] private GameObject choicePrefab;
 
 
-	private GameObject continueButton;
-	private Text textObject;
+	[SerializeField] private GameObject continueButton;
+	[SerializeField] private Text textObject;
 
 
 	private float lastLetterTime;
@@ -66,13 +66,42 @@ public class DialogBox : MonoBehaviour {
 	private bool finished = false;
 
 
+
+	#region Functions for initializing Dialog Boxes.
+	public void DisplayMessageAndContinueButton (string mssg, DialogFinish finishDelegate = null) {
+		text = mssg;
+		this.finishDelegate = finishDelegate;
+	}
+
+	public void DisplayMessageAndChoices (string mssg, Choice[] choices, DialogFinish finishDelegate = null) {
+		text = mssg;
+		this.choices = choices;
+		this.finishDelegate = finishDelegate;
+	}
+	#endregion
+
+
+
+
+	public void FinishDialog () {
+		if (finishDelegate != null)
+			finishDelegate ();
+	}
+
+
+
+
 	// Use this for initialization
 	void Start () {
-		textObject = gameObject.GetComponentInChildren<Text> ();
-		continueButton = gameObject.GetComponentInChildren<DoSomethingOnClick> ().gameObject;
-
 		textObject.text = "";
-		continueButton.SetActive (false);
+		continueButton.gameObject.SetActive (false);
+
+		// position self
+		var rect = GetComponent<RectTransform> ();
+		rect.anchorMin = Vector2.one;
+		rect.anchorMax = Vector2.one;
+		rect.pivot = Vector2.one;
+		rect.anchoredPosition = new Vector2 (-24, -24);
 	}
 
 	void Update () {
@@ -95,16 +124,11 @@ public class DialogBox : MonoBehaviour {
 			}
 
 			textObject.text = text.Substring (indexStart, indexEnd - indexStart);
-		} else {
 		}
 	}
 
 	private void DisplayContinueButton () {
-		continueButton.SetActive (true);
-		var clickScript = continueButton.GetComponent<DoSomethingOnClick> ();
-		clickScript.clickDelegate = delegate () {
-			finishDelegate ();
-		};
+		continueButton.gameObject.SetActive (true);
 	}
 
 	private void DisplayChoices () {

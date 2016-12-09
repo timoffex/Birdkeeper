@@ -3,28 +3,25 @@ using System.Collections;
 
 public class DialogSystem : MonoBehaviour {
 
-	private static DialogSystem instance;
+	/// <summary>
+	/// Call this to get the DialogSystem object in the game. If it doesn't
+	/// exist, this method will return null meaning that you can't make a dialog.
+	/// </summary>
 	public static DialogSystem Instance () {
-		return instance;
-	}
-
-	private static Transform GetDialogPanel () {
-		var dp = GameObject.FindGameObjectWithTag ("DialogPanel");
-
-		if (dp == null)
-			return null;
-		else
-			return dp.transform;
+		return FindObjectOfType<DialogSystem> ();
 	}
 
 
+	/// <summary>
+	/// This will be cloned for every new dialog box.
+	/// </summary>
+	[SerializeField] private DialogBox dialogBoxPrefab;
 
-	public GameObject dialogBoxPrefab;
+	/// <summary>
+	/// Where to put dialog boxes.
+	/// </summary>
+	[SerializeField] private RectTransform targetContainer;
 
-
-	void Start () {
-		instance = this;
-	}
 
 
 	/// <summary>
@@ -33,19 +30,16 @@ public class DialogSystem : MonoBehaviour {
 	/// </summary>
 	/// <param name="text">The message to display.</param>
 	public IEnumerator DisplayMessage (string text) {
-		var clone = CloneAndPositionDialogBox ();
-
-		var dbox = clone.GetComponent<DialogBox> ();
-		dbox.text = text;
+		var dbox = MakeNewDialogBox ();
 
 		bool dialogFinished = false;
-		dbox.finishDelegate = delegate () {
+		dbox.DisplayMessageAndContinueButton (text, () => {
 			dialogFinished = true;
-		};
+		});
 
 		yield return new WaitUntil (() => dialogFinished);
 
-		Destroy (clone);
+		Destroy (dbox.gameObject);
 	}
 
 
@@ -57,23 +51,21 @@ public class DialogSystem : MonoBehaviour {
 	/// <param name="choices">The choices to give to the user. If empty, the call
 	/// is equivalent to DisplayMessage (text).</param>
 	public IEnumerator DisplayMessageAndChoices (string text, params DialogBox.Choice[] choices) {
-		if (choices.Length == 0)
+		if (choices.Length == 0) // If no choices provided, just use the default display with the continue button.
 			yield return DisplayMessage (text);
 		else {
-			var clone = CloneAndPositionDialogBox ();
+			var dbox = MakeNewDialogBox ();
 
-			var dbox = clone.GetComponent<DialogBox> ();
-			dbox.text = text;
 
+			// This will be false until a choice is selected.
 			bool choiceSelected = false;
 
 
+			// Makes the provided choices set the "choiceSelected" variable to true.
 			var wrappedChoices = new DialogBox.Choice[choices.Length];
 			for (int i = 0; i < choices.Length; i++) {
 				var num = i;
 				var choice = choices [num];
-
-
 
 				string t = choice.text;
 				DialogBox.ChoiceSelect del = CombineDelegates (() => {
@@ -83,51 +75,21 @@ public class DialogSystem : MonoBehaviour {
 				wrappedChoices [i] = new DialogBox.Choice (t, del);
 			}
 
-			dbox.choices = wrappedChoices;
+
+			dbox.DisplayMessageAndChoices (text, wrappedChoices);
+
 
 			yield return new WaitUntil (() => choiceSelected);
 
-			Destroy (clone);
+			Destroy (dbox.gameObject);
 		}
 	}
 
 
-	private GameObject CloneAndPositionDialogBox () {
-		var dialogPanel = GetDialogPanel ();
+	private DialogBox MakeNewDialogBox () {
+		var clone = GameObject.Instantiate (dialogBoxPrefab, targetContainer) as DialogBox;
 
-		if (dialogPanel != null) {
-			var clone = GameObject.Instantiate (dialogBoxPrefab, dialogPanel) as GameObject;
-
-
-			var rect = clone.GetComponent<RectTransform> ();
-			rect.anchorMax = Vector2.one;
-			rect.anchorMin = Vector2.one;
-			rect.anchoredPosition = new Vector2 (-24, -24);
-			rect.SetAsLastSibling ();
-
-			return clone;
-		} else {
-			Debug.Log ("No dialog panel in scene.");
-
-			var canvas = FindObjectOfType<Canvas> ();
-
-			if (canvas == null) {
-				Debug.Log ("No canvas in scene.");
-
-				return GameObject.Instantiate (dialogBoxPrefab) as GameObject;
-			} else {
-				var clone = GameObject.Instantiate (dialogBoxPrefab, canvas.transform) as GameObject;
-
-
-				var rect = clone.GetComponent<RectTransform> ();
-				rect.anchorMax = Vector2.one;
-				rect.anchorMin = Vector2.one;
-				rect.anchoredPosition = new Vector2 (-24, -24);
-				rect.SetAsLastSibling ();
-
-				return clone;
-			}
-		}
+		return clone;
 	}
 
 	private DialogBox.ChoiceSelect CombineDelegates (DialogBox.ChoiceSelect c0, DialogBox.ChoiceSelect c1) {

@@ -196,10 +196,11 @@ public class Game {
 
 
 		// Add 1 feather, 1 bottle, 1 apple, 2 venom
-		inventory.AddStack (new ItemStack (858003622, 1));
-		inventory.AddStack (new ItemStack (1626868489, 1));
-		inventory.AddStack (new ItemStack (957089515, 1));
+		inventory.AddStack (new ItemStack (858003622, 2));
+		inventory.AddStack (new ItemStack (1626868489, 2));
+		inventory.AddStack (new ItemStack (957089515, 2));
 		inventory.AddStack (new ItemStack (856784391, 2));
+
 
 
 		SwitchToPhase (GamePhase.EditPhase);

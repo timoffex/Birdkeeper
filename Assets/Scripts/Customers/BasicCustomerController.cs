@@ -12,6 +12,10 @@ public class BasicCustomerController : MonoBehaviour {
 	private IntPair startPosition;
 	private ShopMover myShopMover;
 
+
+	public CharacterDescription character;
+
+
 	void Start () {
 		myShopMover = GetComponent<ShopMover> ();
 
@@ -47,16 +51,23 @@ public class BasicCustomerController : MonoBehaviour {
 				yield return new WaitForSeconds (0.1f); // to prevent rapid looping
 		}
 
-		// Pop up a dialog.
-//		DialogSystem dialogSys = DialogSystem.Instance ();
-//		if (dialogSys == null) {
-//			Debug.Log ("DialogSystem not found. Customer won't say anything.");
-//		} else {
-//			yield return dialogSys.DisplayMessage ("This is a default message!");
-//		}
+		// Pop up a trading dialog.
 
-		// Pop up a notification.
-		NotificationSystem.ShowNotificationIfPossible ("Hey, it's me!");
+		TradingOffer trade = character.possibleTradingOffers [Random.Range (0, character.possibleTradingOffers.Length)];
+		yield return TradingDialogUtility.OfferTrade (trade, (result) => {
+			switch (result) {
+			case TradingResult.SUCCEED:
+				NotificationSystem.ShowNotificationIfPossible (string.Format ("Trade succeeded! You got {0} {1}.", trade.Offer.Count, trade.Offer.ItemType.Name));
+				break;
+			case TradingResult.FAILACCEPT:
+				NotificationSystem.ShowNotificationIfPossible (string.Format ("Couldn't do the trade. You didn't have enough {0}", trade.Request.ItemType.Name));
+				break;
+			case TradingResult.FAILDENY:
+				NotificationSystem.ShowNotificationIfPossible ("Declined trade.");
+				break;
+			}
+		});
+
 
 		// Return to start position.
 		bool succeededReturningToStart = false;

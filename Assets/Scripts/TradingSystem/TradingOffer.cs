@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[System.Serializable]
 public class TradingOffer {
-	private ItemStack offer;
-	private ItemStack request;
+	[SerializeField] private ItemStack offer;
+	[SerializeField] private ItemStack request;
 
 	public ItemStack Offer { get { return offer; } }
 	public ItemStack Request { get { return request; } }

@@ -40,8 +40,8 @@ public class AIMoveRandomlyAndOfferTrades : MonoBehaviour {
 							                     new ItemStack (reqType, numRequestItem));
 
 						bool didSucceed = false;
-						yield return TradingDialogUtility.OfferTrade (offer, (success) => {
-							didSucceed = success;
+						yield return TradingDialogUtility.OfferTrade (offer, (result) => {
+							didSucceed = result == TradingResult.SUCCEED;
 						});
 
 
