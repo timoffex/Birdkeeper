@@ -31,11 +31,11 @@ public class ItemStack {
 	}
 
 
-	public void IncrementCount () {
-		count++;
+	public ItemStack IncrementCount () {
+		return new ItemStack (ItemTypeID, Count + 1);
 	}
 
-	public void IncrementCount (int inc) {
-		count += inc;
+	public ItemStack IncrementCount (int inc) {
+		return new ItemStack (ItemTypeID, Count + inc);
 	}
 }

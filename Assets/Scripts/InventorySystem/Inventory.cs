@@ -14,10 +14,10 @@ public class Inventory {
 
 
 	public void AddItem (ItemType itemType) {
-		ItemStack stack = itemStacks.Find ((st) => st.ItemType.Equals (itemType));
+		int idx = itemStacks.FindIndex ((st) => st.ItemType.Equals (itemType));
 
-		if (stack != null)
-			stack.IncrementCount ();
+		if (idx >= 0)
+			itemStacks [idx] = itemStacks [idx].IncrementCount ();
 		else
 			itemStacks.Add (new ItemStack (itemType, 1));
 	}
@@ -26,19 +26,18 @@ public class Inventory {
 
 	public void SubtractStack (ItemStack stack) {
 		int idx = itemStacks.FindIndex ((st) => st.ItemType.Equals (stack.ItemType));
-		ItemStack myStack = itemStacks [idx];
 
-		myStack.IncrementCount (-stack.Count);
+		itemStacks [idx] = itemStacks [idx].IncrementCount (-stack.Count);
 
-		if (myStack.Count <= 0)
+		if (itemStacks [idx].Count <= 0)
 			itemStacks.RemoveAt (idx);
 	}
 
 	public void AddStack (ItemStack stack) {
-		ItemStack existingStack = itemStacks.Find ((st) => st.SameTypeAs (stack));
+		int idx = itemStacks.FindIndex ((st) => st.SameTypeAs (stack));
 
-		if (existingStack != null)
-			existingStack.IncrementCount (stack.Count);
+		if (idx >= 0)
+			itemStacks [idx] = itemStacks [idx].IncrementCount (stack.Count);
 		else
 			itemStacks.Add (stack);
 	}
