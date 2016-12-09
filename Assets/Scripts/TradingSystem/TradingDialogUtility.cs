@@ -17,11 +17,23 @@ public static class TradingDialogUtility {
 		var requestCount = trade.Request.Count;
 		var requestName = trade.Request.ItemType.Name;
 
-
 		string tradeText = string.Format ("You are being offered {0} {1}{2} for {3} {4}{5}.",
 			offerCount, offerName, offerCount > 1 ? "s" : "",
 			requestCount, requestName, requestCount > 1 ? "s" : "");
 
+		return OfferTrade (trade, tradeText, success);
+	}
+
+	/// <summary>
+	/// Offers the trade, presenting the given text. Success delegate is called before the enumerator
+	/// finishes but after the trade is performed.
+	/// </summary>
+	/// <returns>The trade.</returns>
+	/// <param name="trade">Trade.</param>
+	/// <param name="tradeText">Trade text.</param>
+	/// <param name="success">Success.</param>
+	public static IEnumerator OfferTrade (TradingOffer trade, string tradeText, System.Action<TradingResult> success) {
+		
 
 		var acceptOption = new DialogBox.Choice ("Accept", () => {
 			if (PerformTrade (trade))

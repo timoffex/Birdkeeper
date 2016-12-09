@@ -28,7 +28,7 @@ public class CustomerSpawnScheduler : MonoBehaviour {
 			} else
 				Debug.Log ("No customers to spawn!");
 			
-			yield return new WaitForSeconds (10 + Random.value * 10);
+			yield return new WaitForSeconds (7 + Random.value * 10);
 		}
 	}
 

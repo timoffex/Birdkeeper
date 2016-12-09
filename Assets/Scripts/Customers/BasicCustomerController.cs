@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 
 
@@ -53,8 +54,21 @@ public class BasicCustomerController : MonoBehaviour {
 
 		// Pop up a trading dialog.
 
-		TradingOffer trade = character.possibleTradingOffers [Random.Range (0, character.possibleTradingOffers.Length)];
-		yield return TradingDialogUtility.OfferTrade (trade, (result) => {
+
+		var possibleOffers = character.possibleTradingOffers.Where ((off) => Game.current.inventory.HasItem (off.Request.ItemType)).ToList ();
+
+		TradingOffer trade = possibleOffers [Random.Range (0, possibleOffers.Count)];
+
+		string myTradingText;
+		if (character.formattedTradingStrings.Length > 0) {
+			var strs = character.formattedTradingStrings;
+			var idx = Random.Range (0, strs.Length);
+			myTradingText = string.Format (strs [idx], trade.Offer.ItemType.Name, trade.Request.ItemType.Name,
+				trade.Offer.Count, trade.Request.Count);
+		} else
+			myTradingText = "UNIMPLEMENTED TRADING TEXT!!";
+
+		yield return TradingDialogUtility.OfferTrade (trade, myTradingText, (result) => {
 			switch (result) {
 			case TradingResult.SUCCEED:
 				NotificationSystem.ShowNotificationIfPossible (string.Format ("Trade succeeded! You got {0} {1}.", trade.Offer.Count, trade.Offer.ItemType.Name));
