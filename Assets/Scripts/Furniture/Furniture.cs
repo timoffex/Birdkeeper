@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-[RequireComponent (typeof (RectangularGridObject))]
+[RequireComponent (typeof (RectangularGridObject)),
+	RequireComponent (typeof (Collider2D))]
 public class Furniture : MonoBehaviour {
 
 
@@ -68,6 +69,7 @@ public class Furniture : MonoBehaviour {
 
 
 	private SpriteRenderer spriteRenderer;
+	private Collider2D myCollider;
 
 	void Awake () {
 		float gridPerTile = MetaInformation.Instance ().numGridSquaresPerTile;
@@ -80,12 +82,26 @@ public class Furniture : MonoBehaviour {
 			attractedCustomersWeights = new List<float> ();
 
 		spriteRenderer = GetComponent<SpriteRenderer> ();
+		myCollider = GetComponent<Collider2D> ();
 	}
 
 	void Start () {
 		if (FurnitureTypeID == 0)
-			Debug.LogError ("FurnitureTypeID is 0, so furniture will not be saved. Did you instantiate properly? Use Furniture.InstantiateFurnitureByID ().");
+			Debug.Log ("FurnitureTypeID is 0, so furniture will not be saved. Did you instantiate properly? Use Furniture.InstantiateFurnitureByID ().");
+
+
+
+		if (Game.current.Phase == GamePhase.EditPhase) {
+			ShopEventSystem evt = ShopEventSystem.Instance ();
+
+			if (evt != null) {
+				evt.RegisterClickListener (myCollider, () => {
+					ReturnToInventory ();
+				});
+			}
+		}
 	}
+
 
 
 	/// <summary>
@@ -102,6 +118,13 @@ public class Furniture : MonoBehaviour {
 
 	void Update () {
 		spriteRenderer.sortingOrder = 2 * (ShopPosition.x + ShopPosition.y + gridX + gridY - 2);
+
+		if (Game.current.Phase == GamePhase.EditPhase) {
+			if (myCollider.OverlapPoint (Camera.main.ScreenToWorldPoint (Input.mousePosition)))
+				spriteRenderer.color = Color.red;
+			else
+				spriteRenderer.color = Color.white;
+		}
 	}
 
 
@@ -135,6 +158,9 @@ public class Furniture : MonoBehaviour {
 
 
 	public bool TrySetPosition (IntPair pos) {
+		if (Game.current.shopGrid.IsRectangleOccupied (MyGrid, pos))
+			return false;
+		
 		farCorner = pos;
 		UpdateTransformPosition ();
 		return true;
@@ -149,16 +175,33 @@ public class Furniture : MonoBehaviour {
 		return ShopPosition;
 	}
 
-	public bool PlaceAtLocation (Shop shp, IntPair pos) {
 
+
+
+	public bool PlaceAtLocation (Shop shp, IntPair pos) {
 		shop = shp;
 		if (TrySetPosition (pos)) {
-			shop.PlaceFurniture (pos.x, pos.y, this);
+			Game.current.AddFurnitureToShop (this);
+			Game.current.shopGrid.AddFurnitureRectangle (MyGrid, pos);
 
 			return true;
 		} else
 			return false;
 	}
+
+
+	/// <summary>
+	/// Removes the furniture from the shop, adds it to the player's furniture inventory,
+	/// and destroys this game object.
+	/// </summary>
+	public void ReturnToInventory () {
+		Game.current.RemoveFurnitureFromShop (this);
+		Game.current.shopGrid.RemoveFurnitureRectangle (MyGrid, farCorner);
+		Game.current.AddFurnitureToInventory (this);
+		Destroy (gameObject);
+	}
+
+
 
 
 	public Furniture_hovering GetHoveringPrefab () {
@@ -167,6 +210,7 @@ public class Furniture : MonoBehaviour {
 
 
 
+	#region Editor methods
 	public IEnumerable<KeyValuePair<uint, float>> GetAttractedCustomers () {
 		for (int i = 0; i < attractedCustomers.Count; i++)
 			yield return new KeyValuePair<uint, float> (attractedCustomers [i], attractedCustomersWeights [i]);
@@ -193,6 +237,9 @@ public class Furniture : MonoBehaviour {
 
 		attractedCustomersWeights [idx] = weight;
 	}
+	#endregion
+
+
 
 
 

@@ -49,6 +49,39 @@ public class ShopGrid {
 	}
 
 
+
+	public void RemoveFurnitureRectangle (RectangularGridObject rect, IntPair pos) {
+		RemoveFurnitureRectangle (pos.x, pos.y, pos.x + rect.gridSizeX - 1, pos.y + rect.gridSizeY - 1);
+	}
+
+	public void RemoveFurnitureRectangle (int minX, int minY, int maxX, int maxY) {
+		lock (occupied)
+			for (int x = minX; x <= maxX; x++)
+				for (int y = minY; y <= maxY; y++)
+					occupied [x, y] = false;
+
+		clearanceValid = false;
+	}
+
+
+
+	public bool IsRectangleOccupied (RectangularGridObject rect, IntPair pos) {
+		return IsRectangleOccupied (pos.x, pos.y, pos.x + rect.gridSizeX - 1, pos.y + rect.gridSizeY - 1);
+	}
+
+	public bool IsRectangleOccupied (int minX, int minY, int maxX, int maxY) {
+		if (minX < 0 || minY < 0 || minX >= shopSizeX || minY >= shopSizeY)
+			return true;
+
+		// we're not out of bounds!
+		for (int x = minX; x <= maxX; x++)
+			for (int y = minY; y <= maxY; y++)
+				if (GetGrid (x, y))
+					return true;
+
+		return false;
+	}
+
 	public bool GetGrid (int x, int y) {
 		return occupied [x, y];
 	}

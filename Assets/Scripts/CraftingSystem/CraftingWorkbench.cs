@@ -12,31 +12,35 @@ public class CraftingWorkbench : MonoBehaviour {
 		var myCollider = GetComponent<Collider2D> ();
 		var info = MetaInformation.Instance ();
 
-		var evtSys = ShopEventSystem.Instance ();
-
-		if (evtSys == null)
-			Debug.Log ("ShopEventSystem not found.");
-		else {
-			ShopEventSystem.Instance ().RegisterClickListener (myCollider, delegate {
-				var craftingPanel = CraftingPanelScript.TryFindInstance ();
 
 
-				if (craftingPanel != null) {
-					craftingPanel.craftableItems = new List<ItemType> ();
-					foreach (uint craftableID in craftableItemIDs) {
-						ItemType myItem = info.GetItemTypeByID (craftableID);
+		if (Game.current.Phase == GamePhase.DayPhase) {
+			var evtSys = ShopEventSystem.Instance ();
 
-						if (myItem != null)
-							craftingPanel.craftableItems.Add (myItem);
-						else
-							Debug.LogErrorFormat ("Bad Item ID: {0}", craftableID);
-					}
+			if (evtSys == null)
+				Debug.Log ("ShopEventSystem not found.");
+			else {
+				ShopEventSystem.Instance ().RegisterClickListener (myCollider, delegate {
+					var craftingPanel = CraftingPanelScript.TryFindInstance ();
 
-					craftingPanel.transform.SetAsLastSibling ();
-					craftingPanel.gameObject.SetActive (true);
-				} else
-					Debug.LogError ("Could not find the CraftingPanelScript in scene; not displaying crafting screen.");
-			});
+
+					if (craftingPanel != null) {
+						craftingPanel.craftableItems = new List<ItemType> ();
+						foreach (uint craftableID in craftableItemIDs) {
+							ItemType myItem = info.GetItemTypeByID (craftableID);
+
+							if (myItem != null)
+								craftingPanel.craftableItems.Add (myItem);
+							else
+								Debug.LogErrorFormat ("Bad Item ID: {0}", craftableID);
+						}
+
+						craftingPanel.transform.SetAsLastSibling ();
+						craftingPanel.gameObject.SetActive (true);
+					} else
+						Debug.LogError ("Could not find the CraftingPanelScript in scene; not displaying crafting screen.");
+				});
+			}
 		}
 	}
 }

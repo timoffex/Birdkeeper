@@ -58,12 +58,20 @@ public class ShopEventSystem : EventTrigger {
 	public bool MouseClickAt (Vector2 screenPosition) {
 		bool used = false;
 
+		List<Listener> toRemove = new List<Listener> ();
 		foreach (Listener ls in clickListeners) {
-			if (ls.collider.OverlapPoint (Camera.main.ScreenToWorldPoint (screenPosition))) {
-				ls.callback ();
-				used = true;
-			}
+			if (ls.collider != null && ls.collider.gameObject != null) {
+				if (ls.collider.OverlapPoint (Camera.main.ScreenToWorldPoint (screenPosition))) {
+					ls.callback ();
+					used = true;
+					break;
+				}
+			} else
+				toRemove.Add (ls);
 		}
+
+		foreach (Listener ls in toRemove)
+			clickListeners.Remove (ls);
 
 		return used;
 	}

@@ -77,19 +77,49 @@ public class Game {
 	public List<GameObject> generalObjectPrefabs = new List<GameObject> ();
 
 
+
+	/* Useful objects. */
 	public ShopGrid shopGrid;
 
 
+	private GamePhase phase;
+	public GamePhase Phase { get { return phase; } }
 
 
+
+	/// <summary>
+	/// Adds the furniture to the furnitureInShop list. This is used for game saving.
+	/// </summary>
+	/// <param name="f">The furniture.</param>
 	public void AddFurnitureToShop (Furniture f) {
 		furnitureInShop.Add (new FurnitureInfo (f));
+	}
+
+	/// <summary>
+	/// Removes the furniture from the furnitureInShop list.
+	/// </summary>
+	/// <param name="f">The furniture.</param>
+	public void RemoveFurnitureFromShop (Furniture f) {
+		furnitureInShop.RemoveAll ((info) => info.furnitureRef == f);
+	}
+
+
+	/// <summary>
+	/// Add the furniture object to the furniture inventory.
+	/// </summary>
+	/// <param name="f">The furniture.</param>
+	public void AddFurnitureToInventory (Furniture f) {
+		furnitureInventory.Add (new FurnitureStack (f.FurnitureTypeID, 1));
 	}
 
 
 
 
+
+
 	public void SwitchToPhase (GamePhase phase) {
+
+		this.phase = phase;
 
 		/* Auto save! */
 		Save (File.OpenWrite (Path.Combine (Application.persistentDataPath, "AutoSave.sg1")));
@@ -162,6 +192,7 @@ public class Game {
 		Shop newShop = roomObj.GetComponent<Shop> ();
 		shop = newShop;
 
+		shopGrid = new ShopGrid (shopGridSizeX, shopGridSizeY, 0, 4);
 
 		FurnitureInfo[] oldFurniture = new FurnitureInfo[furnitureInShop.Count];
 		furnitureInShop.CopyTo (oldFurniture);

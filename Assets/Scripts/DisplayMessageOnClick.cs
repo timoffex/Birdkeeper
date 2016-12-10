@@ -12,7 +12,7 @@ public class DisplayMessageOnClick : MonoBehaviour {
 			col = gameObject.AddComponent<BoxCollider2D> ();
 
 		ShopEventSystem shop = ShopEventSystem.Instance ();
-		if (shop != null)
+		if (shop != null && Game.current.Phase == GamePhase.DayPhase)
 			shop.RegisterClickListener (col, () => BeginDisplayingMessage ());
 	}
 

@@ -49,26 +49,6 @@ public class Shop : MonoBehaviour {
 	}
 
 
-	/// <summary>
-	/// precondition: CanPlaceFurniture (xpos, ypos, furniture) == true
-	/// </summary>
-	/// <param name="xpos">Xpos.</param>
-	/// <param name="ypos">Ypos.</param>
-	/// <param name="furniture">Furniture.</param>
-	public void PlaceFurniture (int xpos, int ypos, Furniture furniture) {
-		Game g = Game.current;
-
-
-
-		if (g != null) {
-			g.AddFurnitureToShop (furniture);
-
-			if (g.shopGrid != null)
-				g.shopGrid.AddFurnitureRectangle (furniture.GetComponent<RectangularGridObject> (), new IntPair (xpos, ypos));
-		}
-	}
-
-
 	public int GetFurnitureAmount () {
 		Game g = Game.current;
 
