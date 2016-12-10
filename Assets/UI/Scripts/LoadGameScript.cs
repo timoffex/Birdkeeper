@@ -4,10 +4,10 @@ using System.IO;
 
 public class LoadGameScript : MonoBehaviour {
 
-	public string pathToGame;
+	public string name;
 
 	public void LoadGame () {
-		Game.current.Load (File.OpenRead (pathToGame));
+		Game.current.Load (File.OpenRead (Path.Combine (Application.persistentDataPath, name)));
 	}
 
 }
