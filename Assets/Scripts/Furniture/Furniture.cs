@@ -16,8 +16,8 @@ public class Furniture : MonoBehaviour {
 	public uint FurnitureTypeID { get { return furnitureTypeUniqueId; } }
 
 
-	[SerializeField] private List<uint> attractedCustomers;
-	[SerializeField] private List<float> attractedCustomersWeights;
+	[SerializeField, HideInInspector] private List<uint> attractedCustomers;
+	[SerializeField, HideInInspector] private List<float> attractedCustomersWeights;
 
 
 

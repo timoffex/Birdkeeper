@@ -11,6 +11,8 @@ public class FurnitureItemDisplayer : MonoBehaviour, IPointerDownHandler {
 	public Text furnitureName;
 	public Text furnitureCount;
 
+	public AudioClip placedSuccessfullySound;
+
 	private Furniture_hovering hoverPrefab;
 	private FurnitureStack representedStack;
 	private bool okayToDrag = false;
@@ -62,6 +64,7 @@ public class FurnitureItemDisplayer : MonoBehaviour, IPointerDownHandler {
 					if (PlaceHoveringFurniture (stack.FurnitureID, draggedObject)) {
 						// Placed successfully. Subtract item from Game.current.furnitureInventory
 						Game.current.furnitureInventory.SubtractOne (stack.FurnitureID);
+						PlaySound (placedSuccessfullySound);
 					} else {
 						// Didn't place successfully. Restore the count.
 						furnitureCount.text = stack.Count.ToString ();
@@ -99,5 +102,11 @@ public class FurnitureItemDisplayer : MonoBehaviour, IPointerDownHandler {
 			Debug.LogError ("No shop object found!");
 			return false;
 		}
+	}
+
+	private void PlaySound (AudioClip ac) {
+		AudioSource src = FindObjectOfType<AudioSource> ();
+		if (src != null)
+			src.PlayOneShot (ac);
 	}
 }

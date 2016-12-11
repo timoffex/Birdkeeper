@@ -31,7 +31,7 @@ public class FilePickerScript : MonoBehaviour {
 
 
 		string[] directoryPaths = Directory.GetDirectories (path);
-		string[] saveFilePaths = Directory.GetFiles (path, "*.sg1");
+//		string[] saveFilePaths = Directory.GetFiles (path, "*.sg1");
 
 		foreach (string dirPath in directoryPaths) {
 			Button directoryBtn = GameObject.Instantiate (directoryButtonPrefab, transform) as Button;

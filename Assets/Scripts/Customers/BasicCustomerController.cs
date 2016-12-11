@@ -53,8 +53,6 @@ public class BasicCustomerController : MonoBehaviour {
 		}
 
 		// Pop up a trading dialog.
-
-
 		var possibleOffers = character.possibleTradingOffers.Where ((off) => Game.current.inventory.HasItem (off.Request.ItemType)).ToList ();
 
 		TradingOffer trade = possibleOffers [Random.Range (0, possibleOffers.Count)];
@@ -84,15 +82,7 @@ public class BasicCustomerController : MonoBehaviour {
 
 
 		// Return to start position.
-		bool succeededReturningToStart = false;
-
-		while (!succeededReturningToStart) {
-			yield return myShopMover.MoveToPosition (startPosition, (suc) => succeededReturningToStart = suc);
-
-			if (!succeededReturningToStart)
-				yield return new WaitForSeconds (0.1f); // to prevent rapid looping
-		}
-
+		yield return myShopMover.MoveToPosition (startPosition, (suc) => {});
 
 		// Despawn self!
 		Destroy (gameObject);

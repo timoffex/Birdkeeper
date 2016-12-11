@@ -1,7 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public static class TradingDialogUtility {
+[CreateAssetMenu (menuName="Create Trading System Data Container", fileName="Trading System Data.asset")]
+public class TradingDialogUtility : ScriptableObject {
+
+
+	public AudioClip acceptSound;
+	public AudioClip declineSound;
+
 
 	/// <summary>
 	/// Offers the trade. Success delegate is called before the enumerator finishes but after
@@ -36,14 +42,17 @@ public static class TradingDialogUtility {
 		
 
 		var acceptOption = new DialogBox.Choice ("Accept", () => {
-			if (PerformTrade (trade))
+			if (PerformTrade (trade)) {
 				success (TradingResult.SUCCEED);
-			else
+				PlayClip (instance.acceptSound);
+			} else {
 				success (TradingResult.FAILACCEPT);
+			}
 		});
 
 		var denyOption = new DialogBox.Choice ("Deny", () => {
 			success (TradingResult.FAILDENY);
+			PlayClip (instance.declineSound);
 		});
 
 		yield return DialogSystem.Instance ().DisplayMessageAndChoices (tradeText, acceptOption, denyOption);
@@ -57,5 +66,19 @@ public static class TradingDialogUtility {
 			return true;
 		} else
 			return false;
+	}
+
+
+	private static void PlayClip (AudioClip clip) {
+		AudioSource src = FindObjectOfType<AudioSource> ();
+		if (src != null)
+			src.PlayOneShot (clip);
+	}
+
+
+	private static TradingDialogUtility instance {
+		get {
+			return Resources.Load<TradingDialogUtility> ("Trading System Data");
+		}
 	}
 }

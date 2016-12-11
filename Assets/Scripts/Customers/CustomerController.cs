@@ -3,20 +3,17 @@ using System.Collections;
 
 
 [RequireComponent (typeof (ShopMover)),
-	RequireComponent (typeof (ICharacter)),
-	RequireComponent (typeof (Collider2D))]
+	RequireComponent (typeof (ICharacter))]
 public class CustomerController : MonoBehaviour {
 
 	private ShopMover myShopMover;
 	private ICharacter myCharacter;
-	private Collider2D myCollider;
 
 
 	// Use this for initialization
 	void Start () {
 		myShopMover = GetComponent<ShopMover> ();
 		myCharacter = GetComponent<ICharacter> ();
-		myCollider = GetComponent<Collider2D> ();
 	}
 
 

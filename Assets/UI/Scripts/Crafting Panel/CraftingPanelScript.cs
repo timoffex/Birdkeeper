@@ -15,6 +15,11 @@ public class CraftingPanelScript : MonoBehaviour {
 	public RectTransform inventoryZone;
 
 
+
+	public AudioClip craftingSuccessfulSound;
+	public AudioClip craftingFailedSound;
+
+
 	void OnEnable () {
 		DisplayCraftingScreen ();
 	}
@@ -73,21 +78,31 @@ public class CraftingPanelScript : MonoBehaviour {
 				}
 			}
 
-			if (bestCandidate == null)
+			if (bestCandidate == null) {
 				NotificationSystem.ShowNotificationIfPossible ("Didn't match any recipes.");
-			else {
+
+				PlaySound (craftingFailedSound);
+			} else {
 
 				bestCandidate.Recipe.UseIngredientsFrom (Game.current.inventory);
 				Game.current.inventory.AddItem (bestCandidate);
 
 				NotificationSystem.ShowNotificationIfPossible (string.Format ("You made {0}", bestCandidate.Name));
 
+				PlaySound (craftingSuccessfulSound);
 			}
 			
 			RemakeInventory ();
 		}
 	}
 
+
+	private void PlaySound (AudioClip sound) {
+		AudioSource src = FindObjectOfType<AudioSource> ();
+
+		if (src != null)
+			src.PlayOneShot (sound);
+	}
 
 
 

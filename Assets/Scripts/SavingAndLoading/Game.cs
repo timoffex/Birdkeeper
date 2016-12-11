@@ -169,7 +169,6 @@ public class Game {
 		}
 
 		GameObject.Instantiate (MetaInformation.Instance ().shopPhaseDayCanvasPrefab);
-		GameObject.Instantiate (MetaInformation.Instance ().eventSystemPrefab);
 		GameObject.Instantiate (MetaInformation.Instance ().playerPrefab);
 
 		foreach (GameObject prefab in generalObjectPrefabs)
@@ -209,7 +208,6 @@ public class Game {
 		}
 
 		GameObject.Instantiate (MetaInformation.Instance ().shopPhaseEditCanvasPrefab);
-		GameObject.Instantiate (MetaInformation.Instance ().eventSystemPrefab);
 
 	}
 
@@ -272,7 +270,7 @@ public class Game {
 		StreamReader saveFile = new StreamReader (file);
 
 
-		string gameName = saveFile.ReadLine ();
+		saveFile.ReadLine (); // Game name
 
 		string line1 = saveFile.ReadLine ();
 		string[] shopSizes = line1.Substring (6).Split ('x');
