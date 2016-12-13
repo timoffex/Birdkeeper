@@ -4,7 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class CraftingPanelScript : MonoBehaviour {
+using ObserverPattern;
+
+public class CraftingPanelScript : MonoBehaviour, IObserver<Inventory> {
 
 	public List<ItemType> craftableItems;
 
@@ -20,12 +22,21 @@ public class CraftingPanelScript : MonoBehaviour {
 	public AudioClip craftingFailedSound;
 
 
+
+	private System.IDisposable inventoryObserver;
+
+
 	void OnEnable () {
 		DisplayCraftingScreen ();
+
+		if (inventoryObserver != null)
+			inventoryObserver.Dispose ();
+
+		inventoryObserver = Game.current.inventory.Subscribe (this);
 	}
 		
 	public void DisplayCraftingScreen () {
-		RemakeInventory ();
+		RemakeInventory (Game.current.inventory);
 	}
 
 
@@ -92,7 +103,7 @@ public class CraftingPanelScript : MonoBehaviour {
 				PlaySound (craftingSuccessfulSound);
 			}
 			
-			RemakeInventory ();
+			RemakeInventory (Game.current.inventory);
 		}
 	}
 
@@ -106,17 +117,12 @@ public class CraftingPanelScript : MonoBehaviour {
 
 
 
-	private void RemakeInventory () {
+	private void RemakeInventory (Inventory inv) {
 		foreach (Transform child in inventoryZone)
 			Destroy (child.gameObject);
-
-		Game g = Game.current;
-
-		if (g != null) {
-			foreach (ItemStack stack in g.inventory.GetItemStacks ())
-				AddInventoryStack (stack);
-		} else
-			Debug.Log ("Game.current is null! Not displaying inventory in crafting panel.");
+		
+		foreach (ItemStack stack in inv.GetItemStacks ())
+			AddInventoryStack (stack);
 	}
 
 	private void AddInventoryStack (ItemStack stack) {
@@ -169,5 +175,14 @@ public class CraftingPanelScript : MonoBehaviour {
 		}
 
 		return null;
+	}
+
+
+
+	public void OnCompleted () {}
+	public void OnError (System.Exception err) {}
+	public void OnNext (Inventory inv) {
+		if (isActiveAndEnabled)
+			RemakeInventory (inv);
 	}
 }

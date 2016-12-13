@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+using ObserverPattern;
+
 public class FurnitureItemDisplayScript : MonoBehaviour {
 
 	public FurnitureItemDisplayer furnitureDisplayPrefab;

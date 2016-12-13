@@ -1,14 +1,22 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
 
+using ObserverPattern;
+
 [System.Serializable]
-public class Inventory {
+public class Inventory : IObservable<Inventory> {
 
 	private class ItemStackList : List<ItemStack> { }
 
 	[SerializeField] private ItemStackList itemStacks;
 
+
+	[NonSerialized] private List<IObserver<Inventory>> observers;
+
+
 	public Inventory () {
+		observers = new List<IObserver<Inventory>> ();
 		itemStacks = new ItemStackList ();
 	}
 
@@ -20,6 +28,9 @@ public class Inventory {
 			itemStacks [idx] = itemStacks [idx].IncrementCount ();
 		else
 			itemStacks.Add (new ItemStack (itemType, 1));
+
+		foreach (var obs in observers)
+			obs.OnNext (this);
 	}
 
 
@@ -31,6 +42,9 @@ public class Inventory {
 
 		if (itemStacks [idx].Count <= 0)
 			itemStacks.RemoveAt (idx);
+
+		foreach (var obs in observers)
+			obs.OnNext (this);
 	}
 
 	public void AddStack (ItemStack stack) {
@@ -40,6 +54,9 @@ public class Inventory {
 			itemStacks [idx] = itemStacks [idx].IncrementCount (stack.Count);
 		else
 			itemStacks.Add (stack);
+
+		foreach (var obs in observers)
+			obs.OnNext (this);
 	}
 
 
@@ -70,5 +87,28 @@ public class Inventory {
 	public IEnumerable<ItemStack> GetItemStacks () {
 		for (int i = 0; i < itemStacks.Count; i++)
 			yield return itemStacks[i];
+	}
+
+
+
+	public IDisposable Subscribe (IObserver<Inventory> observer) {
+		observers.Add (observer);
+
+		return new Unsubscriber<Inventory> (observers, observer);
+	}
+
+
+	private class Unsubscriber<T> : IDisposable {
+		private List<IObserver<T>> observers;
+		private IObserver<T> observer;
+
+		public Unsubscriber (List<IObserver<T>> observers, IObserver<T> observer) {
+			this.observers = observers;
+			this.observer = observer;
+		}
+
+		public void Dispose () {
+			observers.Remove (observer);
+		}
 	}
 }
