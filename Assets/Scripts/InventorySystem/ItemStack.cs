@@ -1,8 +1,11 @@
 ﻿using UnityEngine;
+using Vexe.Runtime.Types;
+using System.Linq;
 
 [System.Serializable]
 public class ItemStack {
-	[SerializeField] private uint itemTypeID;
+	[SerializeField, Popup("GetIDs")]
+	private uint itemTypeID;
 	[SerializeField] private int count;
 
 
@@ -37,5 +40,11 @@ public class ItemStack {
 
 	public ItemStack IncrementCount (int inc) {
 		return new ItemStack (ItemTypeID, Count + inc);
+	}
+
+
+
+	private uint[] GetIDs () {
+		return MetaInformation.Instance ().GetItemTypeMappings ().Select ((kv) => kv.Key).ToArray ();
 	}
 }

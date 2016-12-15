@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
+using Vexe.Runtime.Types;
 
 
 [CreateAssetMenu (fileName = "New Character Description", menuName = "Create Character Description")]
-public class CharacterDescription : ScriptableObject {
-
+public class CharacterDescription : BaseScriptableObject {
+	
 	public string catchPhrase;
 
 
