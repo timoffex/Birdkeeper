@@ -1,26 +1,17 @@
 ﻿using UnityEngine;
 
 [System.Serializable]
-public class ItemType {
-	[SerializeField] private string name;
+[CreateAssetMenu (menuName = "Create New Item", fileName = "New Item")]
+public class ItemType : ScriptableObject {
+	[SerializeField] private string itemName;
 	[SerializeField] private uint itemTypeID;
 	[SerializeField] private Sprite icon;
 	[SerializeField] private ItemRecipe recipe;
 
-	public string Name { get { return name; } }
+	public string Name { get { return itemName; } }
 	public uint ItemTypeID { get { return itemTypeID; } }
 	public Sprite Icon { get { return icon; } }
 	public ItemRecipe Recipe { get { return recipe; } }
-
-
-
-	public ItemType (string name, uint id, Sprite icon) {
-		this.name = name;
-		this.itemTypeID = id;
-		this.icon = icon;
-		this.recipe = ItemRecipe.NoRecipe ();
-	}
-
 
 	public override bool Equals (object obj) {
 		return obj is ItemType && ((ItemType)obj).ItemTypeID == ItemTypeID;
@@ -37,10 +28,14 @@ public class ItemType {
 	}
 
 	public void SetName (string nam) {
-		name = nam;
+		itemName = nam;
 	}
 
 	public void SetRecipe (ItemRecipe recip) {
 		recipe = recip;
+	}
+
+	public void SetID (uint id) {
+		itemTypeID = id;
 	}
 }
