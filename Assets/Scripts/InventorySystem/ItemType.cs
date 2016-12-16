@@ -2,7 +2,6 @@
 using UnityEditor;
 
 [System.Serializable]
-//[CreateAssetMenu (menuName = "Create New Item", fileName = "New Item")]
 public class ItemType : ScriptableObject {
 	[SerializeField] private uint itemTypeID;
 	[SerializeField] private string itemName;

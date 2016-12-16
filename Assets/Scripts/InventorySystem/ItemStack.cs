@@ -2,22 +2,22 @@
 
 [System.Serializable]
 public class ItemStack {
-	[SerializeField] private uint itemTypeID;
+	[SerializeField] private ItemType itemType;
 	[SerializeField] private int count;
 
 
-	public ItemType ItemType { get { return MetaInformation.Instance ().GetItemTypeByID (itemTypeID); } }
-	public uint ItemTypeID { get { return itemTypeID; } }
+	public ItemType ItemType { get { return itemType; } }
+	public uint ItemTypeID { get { return itemType.ItemTypeID; } }
 	public int Count { get { return count; } }
 
 
 	public ItemStack (ItemType type, int ct) {
-		itemTypeID = type.ItemTypeID;
+		itemType = type;
 		count = ct;
 	}
 
 	public ItemStack (uint typeID, int ct) {
-		itemTypeID = typeID;
+		itemType = MetaInformation.Instance ().GetItemTypeByID (typeID);
 		count = ct;
 	}
 
