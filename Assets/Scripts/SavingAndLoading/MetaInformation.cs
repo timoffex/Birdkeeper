@@ -408,13 +408,9 @@ public class MetaInformation : MonoBehaviour {
 			uint itemTypeID = kv.Key;
 			ItemType type = kv.Value;
 
-			string itemName = type.Name;
-			string spritePath = "null";
-			if (type.Icon != null) spritePath = AssetDatabase.GetAssetPath (type.Icon);
+			string itemPath = AssetDatabase.GetAssetPath (type);
 
-			writer.WriteLine (string.Format ("\t{0} '{1}' '{3}' {2}", itemTypeID, itemName, spritePath, type.Icon.name));
-			foreach (var stack in type.Recipe.GetRequiredItems ())
-				writer.WriteLine (string.Format ("\t\t{0} {1}", stack.ItemTypeID, stack.Count));
+			writer.WriteLine (string.Format ("\t{0} {1}", itemTypeID, itemPath));
 		}
 
 		writer.WriteLine ("General Mappings");
@@ -473,6 +469,7 @@ public class MetaInformation : MonoBehaviour {
 		idToFurniturePrefab.Clear ();
 		idToItemType.Clear ();
 		idToGeneral.Clear ();
+		idToCustomerPrefab.Clear ();
 	}
 
 
@@ -528,49 +525,18 @@ public class MetaInformation : MonoBehaviour {
 		while (nextLine != null && nextLine.StartsWith ("\t")) {
 			int firstIdx = 1;
 			int space1 = nextLine.IndexOf (' ');
-			int quote1 = nextLine.IndexOf ('\'');
-			int quote2 = nextLine.IndexOf ('\'', quote1 + 1);
-			int quote3 = nextLine.IndexOf ('\'', quote2 + 1);
-			int quote4 = nextLine.IndexOf ('\'', quote3 + 1);
-			int spaceBeforePath = nextLine.IndexOf (' ', quote4 + 1);
 
 			uint itemID = uint.Parse (nextLine.Substring (firstIdx, space1 - firstIdx));
-			string itemName = nextLine.Substring (quote1 + 1, quote2 - quote1 - 1);
+			string itemPath = nextLine.Substring (space1 + 1);
 
-			string spriteName = nextLine.Substring (quote3 + 1, quote4 - quote3 - 1);
-			string spritePath = nextLine.Substring (spaceBeforePath + 1);
+			ItemType type = AssetDatabase.LoadAssetAtPath<ItemType> (itemPath);
 
-			Sprite sprite;
-			if (spritePath.Equals ("null"))
-				sprite = null;
-			else {
-				var sprites = AssetDatabase.LoadAllAssetsAtPath (spritePath).OfType<Sprite> ();
-				sprite = sprites.Where ((spr) => spr.name.Equals (spriteName)).FirstOrDefault ();
-
-				if (sprite == null)
-					Debug.LogFormat ("Could not load sprite {0} from path {1}", spriteName, spritePath);
-			}
-
-			ItemType type = new ItemType (itemName, itemID, sprite);
+			if (itemID != type.ItemTypeID)
+				Debug.LogErrorFormat ("Stored ID for {0} ({1}) doesn't match ID in it's asset file ({2}). Using {2}.", type.Name, itemID, type.ItemTypeID);
+			
+			idToItemType [type.ItemTypeID] = type;
 
 			nextLine = reader.ReadLine ();
-
-			List<ItemStack> recipeStacks = new List<ItemStack> ();
-			while (nextLine != null && nextLine.StartsWith ("\t\t")) {
-				// Read in recipe for item
-				firstIdx = 2;
-				space1 = nextLine.IndexOf (' ');
-
-				uint stackItemID = uint.Parse (nextLine.Substring (firstIdx, space1 - firstIdx));
-				int stackCount = int.Parse (nextLine.Substring (space1 + 1));
-
-				recipeStacks.Add (new ItemStack (stackItemID, stackCount));
-				nextLine = reader.ReadLine ();
-			}
-
-			type.SetRecipe (new ItemRecipe (recipeStacks.ToArray ()));
-
-			idToItemType [itemID] = type;
 		}
 
 		return nextLine;

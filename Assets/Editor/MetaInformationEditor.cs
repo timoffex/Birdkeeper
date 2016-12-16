@@ -151,12 +151,26 @@ public class MetaInformationEditor : Editor {
 			GUILayout.Space (5);
 		}
 
-		if (GUILayout.Button ("Create Item Type", GUILayout.ExpandWidth (false))) {
-			uint id = info.GetUnusedItemTypeID ();
-			var item = new ItemType ("New Item", id, null);
-			info.AddMappingForItemType (id, item);
-		}
+		if (GUILayout.Button ("Load Items from Assets/Items/")) {
+			string itemsPath = System.IO.Path.Combine (Application.dataPath, "Items/");
 
+			string[] allFiles = System.IO.Directory.GetFiles (itemsPath);
+
+			foreach (string fileName in allFiles) {
+				string relativeFileName = fileName.Substring (fileName.IndexOf ("Assets/Items/"));
+
+				var itemType = AssetDatabase.LoadAssetAtPath<ItemType> (relativeFileName);
+
+				if (itemType != null) {
+					uint itemID = itemType.ItemTypeID;
+
+					if (info.GetItemTypeByID (itemID) != null)
+						Debug.LogFormat ("{0} and {1} have the same ID: {2}", info.GetItemTypeByID (itemID).Name, itemType.Name, itemID);
+					else
+						info.AddMappingForItemType (itemID, itemType);
+				}
+			}
+		}
 
 
 		GUILayout.Space (5);
@@ -174,22 +188,8 @@ public class MetaInformationEditor : Editor {
 		bool showRecipe;
 		if (!showRecipeDict.TryGetValue (id, out showRecipe))
 			showRecipe = false;
-
-		ItemType newItem;
-		bool newShowRecipe;
-		if (ItemDisplayEditorUtility.DisplayEditableItemType (target, type, showRecipe, out newItem, out newShowRecipe)) {
-			if (newItem == null) {
-				Undo.RecordObject (target, "MetaInformation Deleted Item");
-				EditorUtility.SetDirty (target);
-				target.AddMappingForItemType (id, null);
-			} else {
-				Undo.RecordObject (target, "MetaInformation Changed Item Type");
-				EditorUtility.SetDirty (target);
-				target.AddMappingForItemType (id, newItem);
-			}
-		}
-
-		showRecipeDict [id] = newShowRecipe;
+		
+		EditorGUILayout.LabelField (type.Name);
 	}
 
 	private void GameObjectFieldFor (GameObject go, string label, Action<GameObject> setter) {

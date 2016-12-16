@@ -1,25 +1,18 @@
 ﻿using UnityEngine;
+using UnityEditor;
 
 [System.Serializable]
-public class ItemType {
-	[SerializeField] private string name;
+public class ItemType : ScriptableObject {
 	[SerializeField] private uint itemTypeID;
+	[SerializeField] private string itemName;
 	[SerializeField] private Sprite icon;
 	[SerializeField] private ItemRecipe recipe;
 
-	public string Name { get { return name; } }
+	public string Name { get { return itemName; } }
 	public uint ItemTypeID { get { return itemTypeID; } }
 	public Sprite Icon { get { return icon; } }
 	public ItemRecipe Recipe { get { return recipe; } }
 
-
-
-	public ItemType (string name, uint id, Sprite icon) {
-		this.name = name;
-		this.itemTypeID = id;
-		this.icon = icon;
-		this.recipe = ItemRecipe.NoRecipe ();
-	}
 
 
 	public override bool Equals (object obj) {
@@ -30,17 +23,23 @@ public class ItemType {
 		return (int)ItemTypeID;
 	}
 
+#if UNITY_EDITOR
+	[MenuItem ("Assets/Create/Create New Item", priority = 0)]
+	public static void CreateItem () {
+		ItemType newItem = ScriptableObject.CreateInstance<ItemType> ();
+
+		MetaInformation info = MetaInformation.Instance ();
 
 
-	public void SetIcon (Sprite spr) {
-		icon = spr;
+		newItem.itemName = "New Item";
+		newItem.itemTypeID = info.GetUnusedItemTypeID ();
+		info.AddMappingForItemType (newItem.ItemTypeID, newItem);
+
+
+		AssetDatabase.CreateAsset (newItem, "Assets/Items/New Item.asset");
+
+
+		EditorGUIUtility.PingObject (newItem);
 	}
-
-	public void SetName (string nam) {
-		name = nam;
-	}
-
-	public void SetRecipe (ItemRecipe recip) {
-		recipe = recip;
-	}
+#endif
 }

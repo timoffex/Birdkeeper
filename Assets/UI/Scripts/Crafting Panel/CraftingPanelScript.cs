@@ -138,13 +138,13 @@ public class CraftingPanelScript : MonoBehaviour, IObserver<Inventory> {
 			() => {
 				if (count > 0) {
 					count--;
-					stackDisplayer.DisplayStack (new ItemStack (stack.ItemTypeID, count));
+					stackDisplayer.DisplayStack (new ItemStack (stack.ItemType, count));
 					return true;
 				} else
 					return false;
 			}, () => {
 				count++;
-				stackDisplayer.DisplayStack (new ItemStack (stack.ItemTypeID, count));
+				stackDisplayer.DisplayStack (new ItemStack (stack.ItemType, count));
 			});
 	}
 
