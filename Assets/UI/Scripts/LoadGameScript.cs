@@ -7,7 +7,9 @@ public class LoadGameScript : MonoBehaviour {
 	public string saveFileName;
 
 	public void LoadGame () {
-		Game.current.Load (File.OpenRead (Path.Combine (Application.persistentDataPath, saveFileName)));
+		string gamePath = Path.Combine (Application.persistentDataPath, saveFileName);
+		Debug.Log (gamePath);
+		Game.current.Load (gamePath);
 	}
 
 }

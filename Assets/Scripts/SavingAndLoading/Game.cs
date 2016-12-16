@@ -122,7 +122,7 @@ public class Game {
 		this.phase = phase;
 
 		/* Auto save! */
-		Save (File.OpenWrite (Path.Combine (Application.persistentDataPath, "AutoSave.sg1")));
+		Save (Path.Combine (Application.persistentDataPath, "AutoSave.sg1"));
 
 		switch (phase) {
 		case GamePhase.DayPhase:
@@ -236,8 +236,8 @@ public class Game {
 	}
 
 
-	public void Save (Stream file) {
-		StreamWriter saveFile = new StreamWriter (file);
+	public void Save (string filePath) {
+		StreamWriter saveFile = new StreamWriter (File.Open (filePath, FileMode.Truncate, FileAccess.Write));
 
 		saveFile.WriteLine (SceneManager.GetActiveScene ().name);
 
@@ -265,9 +265,10 @@ public class Game {
 	}
 
 
-	public void Load (Stream file) {
+	public void Load (string filePath) {
 
-		StreamReader saveFile = new StreamReader (file);
+
+		StreamReader saveFile = new StreamReader (File.Open (filePath, FileMode.Open, FileAccess.Read));
 
 
 		saveFile.ReadLine (); // Game name
