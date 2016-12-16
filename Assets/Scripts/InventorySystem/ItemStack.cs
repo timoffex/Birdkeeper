@@ -7,7 +7,7 @@ public class ItemStack {
 
 
 	public ItemType ItemType { get { return itemType; } }
-	public uint ItemTypeID { get { return itemType.ItemTypeID; } }
+	public uint ItemTypeID { get { return itemType == null ? 0 : itemType.ItemTypeID; } }
 	public int Count { get { return count; } }
 
 
@@ -18,6 +18,10 @@ public class ItemStack {
 
 	public ItemStack (uint typeID, int ct) {
 		itemType = MetaInformation.Instance ().GetItemTypeByID (typeID);
+
+		if (itemType == null)
+			Debug.LogFormat ("Could not find item with id {0}", typeID);
+		
 		count = ct;
 	}
 
