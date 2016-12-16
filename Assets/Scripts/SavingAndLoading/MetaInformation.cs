@@ -531,7 +531,10 @@ public class MetaInformation : MonoBehaviour {
 
 			ItemType type = AssetDatabase.LoadAssetAtPath<ItemType> (itemPath);
 
-			idToItemType [itemID] = type;
+			if (itemID != type.ItemTypeID)
+				Debug.LogErrorFormat ("Stored ID for {0} ({1}) doesn't match ID in it's asset file ({2}). Using {2}.", type.Name, itemID, type.ItemTypeID);
+			
+			idToItemType [type.ItemTypeID] = type;
 
 			nextLine = reader.ReadLine ();
 		}

@@ -14,7 +14,7 @@ public class CustomerSpawner : ScriptableObject {
 		customer.SetPosition (spawnPosition);
 	}
 
-	[MenuItem ("Assets/Create/Create Customer Spawner")]
+	[MenuItem ("Assets/Create/Create Customer Spawner", priority = 0)]
 	public static void CreateCustomerSpawner () {
 		CustomerSpawner spawner = CreateInstance<CustomerSpawner> ();
 
