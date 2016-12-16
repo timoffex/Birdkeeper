@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-
+using System.Linq;
 
 public class ReshmaWalls : MonoBehaviour, IWallRenderer {
 
@@ -21,7 +21,15 @@ public class ReshmaWalls : MonoBehaviour, IWallRenderer {
 		if (nextWallPosition == p) {
 			var wallPrefab = leftWalls [idx % leftWalls.Length];
 
-			PlaceWall (p, 0, tileCorner, wallPrefab.gameObject, parent);
+			int total = Game.current.shopSizeY;
+			int endPosition = nextWallPosition + (wallPrefab.doubleWall ? 2 : 1);
+
+			if (endPosition <= total) {
+				PlaceWall (p, 0, tileCorner, wallPrefab.gameObject, parent);
+			} else {
+				wallPrefab = leftWalls.Where ((wall) => !wall.doubleWall).First ();
+				PlaceWall (p, 0, tileCorner, wallPrefab.gameObject, parent);
+			}
 		}
 	}
 
