@@ -16,35 +16,23 @@ Furniture Mappings
 	1055436988 Assets/Prefabs/IndoorTree.prefab
 	435603281 Assets/Prefabs/TnHoney.prefab
 Item Type Mappings
-	858003622 'Feather' 'Feather_white' Assets/Images/Feather_white.png
-	1878090194 'Feather in a Bottle' 'InventoryIcons3_0' Assets/Images/InventoryIcons3.png
-		858003622 1
-		1626868489 1
-	1626868489 'Bottle' 'InventoryIcons_0' Assets/Images/InventoryIcons.png
-	806917880 'Fairy Ring' 'InventoryIcons_1' Assets/Images/InventoryIcons.png
-	446002884 'Jar of Dirt' 'InventoryIcons_2' Assets/Images/InventoryIcons.png
-		1626868489 1
-		806917880 1
-	1147482104 'Stardust' 'InventoryIcons_3' Assets/Images/InventoryIcons.png
-	1365517813 'Sage' 'InventoryIcons_4' Assets/Images/InventoryIcons.png
-	489053865 'Absinthe' 'InventoryIcons2_0' Assets/Images/InventoryIcons2.png
-	1217941994 'Wax' 'InventoryIcons2_1' Assets/Images/InventoryIcons2.png
-	856579382 'String' 'InventoryIcons2_2' Assets/Images/InventoryIcons2.png
-	476958790 'Candle' 'InventoryIcons2_3' Assets/Images/InventoryIcons2.png
-		1217941994 1
-		856579382 1
-	856784391 'Snake Venom' 'InventoryIcons2_4' Assets/Images/InventoryIcons2.png
-	957089515 'Apple' 'InventoryIcons3_1' Assets/Images/InventoryIcons3.png
-	2024411916 'Apple Juice' 'InventoryIcons3_3' Assets/Images/InventoryIcons3.png
-		1626868489 1
-		957089515 1
-	179780504 'Poison Apple' 'InventoryIcons3_2' Assets/Images/InventoryIcons3.png
-		957089515 1
-		856784391 2
-	854492556 'Squid Ink' 'InventoryIcons3_4' Assets/Images/InventoryIcons3.png
-	1804398187 'Pen' 'InventoryIcons3_5' Assets/Images/InventoryIcons3.png
-		858003622 1
-		854492556 1
+	489053865 Assets/Items/Absinthe.asset
+	2024411916 Assets/Items/Apple Juice.asset
+	957089515 Assets/Items/Apple.asset
+	1626868489 Assets/Items/Bottle.asset
+	476958790 Assets/Items/Candle.asset
+	806917880 Assets/Items/Fairy Ring.asset
+	1878090194 Assets/Items/Feather in a Bottle.asset
+	858003622 Assets/Items/Feather.asset
+	446002884 Assets/Items/Jar of Dirt.asset
+	1804398187 Assets/Items/Pen.asset
+	179780504 Assets/Items/Poison Apple.asset
+	1365517813 Assets/Items/Sage.asset
+	856784391 Assets/Items/Snake Venom.asset
+	854492556 Assets/Items/Squid Ink.asset
+	1147482104 Assets/Items/Stardust.asset
+	856579382 Assets/Items/String.asset
+	1217941994 Assets/Items/Wax.asset
 General Mappings
 Customer Mappings
 	1120348283 Assets/Prefabs/Customer.prefab
